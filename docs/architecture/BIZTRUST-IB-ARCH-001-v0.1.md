@@ -14,7 +14,7 @@
 | Brand assets supplied by the owner | D:\Works\BizTrust\Brandkits\Logo |
 | Brand guide supplied by the owner | D:\Works\BizTrust\Brandkits\BizTrust_Brand_Identity_Guide_v1.0.md |
 
-The repository currently has only a short README. Treat the application framework, database, deployment target, payment provider, insurer interfaces, and available test scripts as unknown until the repository and its connected reference projects have been inspected. Do not present assumptions as existing implementation facts.
+At the time of authoring, the GitHub default branch contained only a short README; the supplied Windows worktree was not accessible in this environment. When working on the owner's workstation, inspect the supplied local project first and treat its working tree as implementation evidence, reconciling any difference with the remote repository. Treat the application framework, database, deployment target, payment provider, insurer interfaces, and available test scripts as unknown until they have been inspected. Do not present assumptions as existing implementation facts.
 
 ## 0. Master instruction to implementation agents
 
