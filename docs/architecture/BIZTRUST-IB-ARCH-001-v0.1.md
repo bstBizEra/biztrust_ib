@@ -13,6 +13,7 @@
 | Local project path supplied by the owner | C:\laragon\www\biztrust_ib |
 | Brand assets supplied by the owner | D:\Works\BizTrust\Brandkits\Logo |
 | Brand guide supplied by the owner | D:\Works\BizTrust\Brandkits\BizTrust_Brand_Identity_Guide_v1.0.md |
+| Companion design | [BIZTRUST-IB-SYS-001-v0.1](BIZTRUST-IB-SYS-001-v0.1.md) — operations console, API integrations, and encryption |
 
 At the time of authoring, the GitHub default branch contained only a short README; the supplied Windows worktree was not accessible in this environment. When working on the owner's workstation, inspect the supplied local project first and treat its working tree as implementation evidence, reconciling any difference with the remote repository. Treat the application framework, database, deployment target, payment provider, insurer interfaces, and available test scripts as unknown until they have been inspected. Do not present assumptions as existing implementation facts.
 
