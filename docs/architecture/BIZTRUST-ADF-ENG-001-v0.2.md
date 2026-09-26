@@ -11,7 +11,8 @@
 | Framework reference | bstBizEra/badf |
 | Baseline reviewed | BizTrust main at 8c70ecbfe2d6c6e8bae968ed90928db7336b9a58; BADF main at c519ac43e061a5d76cd3850b36730935e3614b43 |
 | Scope | Project engineering-agent team, execution harness, evidence, memory, learning, governed Supabase access and Codex tooling profile |
-| Revision note | v0.2 adds Supabase credential boundaries and a source-pinned Codex tool/skill profile; it authorizes no runtime or external-system access |\n| Authority | This design grants no agent, model, skill or automation authority |
+| Revision note | v0.2 adds Supabase credential boundaries and a source-pinned Codex tool/skill profile; it authorizes no runtime or external-system access |
+| Authority | This design grants no agent, model, skill or automation authority |
 
 ## Executive proposal
 
@@ -19,7 +20,9 @@ Implement the BizTrust engineering-agent team as a **project instance governed b
 
 BADF remains the canonical control plane for demand, work-package authority, change classification, lifecycle gates, evidence validation, human-reserved decisions, and skill admission. The BizTrust ADF team is the bounded execution and learning plane: it plans admitted work, routes a small number of specialist seats, changes code only inside an authorized work package, runs the repository's existing verification command, records evidence, and proposes reusable learning.
 
-The target is a complete, repeatable path from authorized demand to observed production outcome and assurance closure. Routine, reversible work may become highly automated after independent controls are proven. A green test run or an agent consensus never authorizes a production release, accepts legal or privacy risk, changes insurance terms, or grants access to real customer or financial data. Where policy reserves a decision for a human, the harness stops with a concise decision packet.\n\nThe Codex workstation profile in §13.2 records the owner-reported ECC 2.2.2 installation and the six selected third-party Git skills. These tools are execution aids, not BADF authority. Supabase is a candidate external service only; the profile does not connect to a project, select Supabase as BizTrust's runtime database, or authorize schema changes.
+The target is a complete, repeatable path from authorized demand to observed production outcome and assurance closure. Routine, reversible work may become highly automated after independent controls are proven. A green test run or an agent consensus never authorizes a production release, accepts legal or privacy risk, changes insurance terms, or grants access to real customer or financial data. Where policy reserves a decision for a human, the harness stops with a concise decision packet.
+
+The Codex workstation profile in §13.2 records the owner-reported ECC 2.2.2 installation and the six selected third-party Git skills. These tools are execution aids, not BADF authority. Supabase is a candidate external service only; the profile does not connect to a project, select Supabase as BizTrust's runtime database, or authorize schema changes.
 
 This document is a project-specific proposal. It does not initialize a BADF instance, create a work package, activate an agent runtime, change the existing application, or authorize production access. Those actions require their own admitted work and current authority.
 
@@ -432,7 +435,8 @@ Do not create these files until G00 authority, the project instance and the appl
 | badf/evidence/ | Receipts, gate dossiers, run indexes and evidence references required by the instance; no raw customer data. |
 | badf/team-profile.yaml | Project-specific seat routing and restrictions, only if the pinned BADF schema and AET rung support it. |
 | badf/work/ | Work-package-linked task/checkpoint/evidence records where the canonical BADF model requires them. |
-| skills/biztrust-*/ | BizTrust skills proposed under BADF's skill lifecycle; no skill is active by file presence alone. |\n| .agents/skills/<upstream-name>/ | Repository-scoped Codex skill copies only after source pinning, full review, SHA-256 inventory and BADF admission; mere presence does not authorize side effects. |
+| skills/biztrust-*/ | BizTrust skills proposed under BADF's skill lifecycle; no skill is active by file presence alone. |
+| `.agents/skills/<upstream-name>/` | Repository-scoped Codex skill copies only after source pinning, full review, SHA-256 inventory and BADF admission; mere presence does not authorize side effects. |
 | .github/workflows/ | Keep deterministic verify/release Actions separate; any approved agentic workflow adds its Markdown source and generated lock, and calls no competing lifecycle engine. |
 | docs/architecture/ | ADRs and project-specific operating/service contracts, including this design. |
 
