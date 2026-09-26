@@ -9,7 +9,7 @@
 | Status | Proposed design for governed implementation planning |
 | Project repository | bstBizEra/biztrust_ib |
 | Framework reference | bstBizEra/badf |
-| Baseline reviewed | BizTrust main at d166d881bef3d954c612f703dfb71e1de5c0667d; BADF main at c519ac43e061a5d76cd3850b36730935e3614b43 |
+| Baseline reviewed | BizTrust main at 8c70ecbfe2d6c6e8bae968ed90928db7336b9a58; BADF main at c519ac43e061a5d76cd3850b36730935e3614b43 |
 | Scope | Project engineering-agent team, execution harness, evidence, memory, learning and controlled delivery |
 | Authority | This design grants no agent, model, skill or automation authority |
 
@@ -53,7 +53,7 @@ The design is anchored to the BizTrust main branch snapshot reviewed for this pr
 | The app is a local demonstration using React/Vite, Express/TypeScript and PostgreSQL. | Reuse the existing application and workflow; do not scaffold a replacement platform for agents. |
 | The catalogue, premiums, QR instructions and insurer outcomes are synthetic. The README states that no real payment is taken and no coverage is provided. | Use synthetic fixtures and provider simulators in agent runs. Never describe a test result as payment, coverage or insurer approval. |
 | The app exposes a verification command, npm run verify, covering lint, typecheck, tests, build, startup/browser checks and production-dependency audit. | Treat the command as the default full repository gate, with narrower tests allowed only as an early diagnostic. |
-| GitHub Actions runs the verification workflow with Node 24 and PostgreSQL 17. | Bind evidence to the workflow run, commit/tree, package lock and test database identity. |
+| GitHub Actions runs the verification workflow with Node 24 and PostgreSQL 17; a separate tag-triggered release workflow publishes a versioned demonstration image and GitHub release. | Keep verification deterministic; bind evidence to the workflow run, commit/tree, package lock and test database identity. Keep a release tag separate from release authority. |
 | Identity uses a Logto-compatible OIDC integration through the application stack; the verification note says live Logto has not been validated. | Do not give an agent live identity credentials. Test OIDC behavior with controlled configuration or a simulator until an approved sandbox is available. |
 | The operations API is a read-only backend slice; the console UI and privileged actions are not implemented. | Agent administration must not invent staff controls, self-provisioning, refunds, publication actions or force-status behavior. |
 | Live payment/insurer providers, production hosting, recovery and production approval remain launch dependencies. | No production deployment capability exists by implication. Production admission requires separate evidence and authority. |
@@ -291,7 +291,33 @@ Recommended execution order:
 9. Observe health and business-control signals, verify rollback threshold and recovery, and retain time-bounded evidence.
 10. Complete operational acceptance and G14 learning/assurance closure.
 
-Current GitHub CI is evidence of repository checks only; the existing verification note says live Logto, real payment/insurer providers, staging and production recovery were not validated and that the CI workflow had not yet been run on GitHub. Recheck live status before relying on it. No gate may be described as production ready solely because npm run verify passed.
+The repository verification record reports that live Logto, real payment/insurer providers, staging and production recovery have not been validated. A passing CI run proves only the checks in that run; it does not validate those external systems. Recheck current status before relying on provider or release readiness.
+
+### 13.1 Optional GitHub Agentic Workflows adapter
+
+The review of [github/awesome-copilot workflows at commit 6c4d33b9cfca967a28bb2962ef4d55e4a384c88c](https://github.com/github/awesome-copilot/tree/6c4d33b9cfca967a28bb2962ef4d55e4a384c88c/workflows) found useful workflow-design examples. That repository describes itself as a community-created collection; treat its files as examples to inspect, not as BizTrust authority, vetted production policy or drop-in code.
+
+These examples are GitHub Agentic Workflows, a distinct format from the deterministic YAML actions in this repository. As reviewed on 26 September 2026, GitHub documents Agentic Workflows as public preview. Their source is Markdown under .github/workflows with YAML frontmatter and natural-language instructions; the source is compiled into a generated .lock.yml Actions workflow, and both files are committed and reviewed. Confirm support, CLI version and security behavior again before adoption because preview features can change.
+
+| Upstream example | Reusable pattern | BizTrust disposition |
+|---|---|---|
+| daily-issues-report.md | Read-oriented issue reporting with a bounded create-issue safe output. | Adapt only after the sanitized daily event log exists; an issue digest is not STM, LTM or evidence promotion. |
+| weekly-comment-sync.md | Verify each candidate, make minimal text-only edits, open at most one draft PR, and return no-op when nothing needs changing. | Suitable candidate for later low-risk documentation hygiene, subject to review and a dedicated work package. |
+| relevance-check.md | Restrict invocation to repository roles and limit output to one comment. | Useful pattern for an intake adviser whose result is explicitly proposed and cannot admit or authorize work. |
+| relevance-summary.md | Includes a close-older-issues output. | Do not adopt that output: automatic closure can mutate existing work and hide unresolved authority or evidence. |
+
+The collection does not replace verify.yml, release.yml, BADF validation or the work-package lifecycle. Keep all deterministic tests, build, migration, release and deployment decisions in their existing controlled paths. Never place an agent in the verify job or let an agentic workflow publish a release tag.
+
+If the AET-E admission and owner decisions later permit this adapter, use this sequence:
+
+1. Select one narrow, low-impact use case and record the workflow owner, trigger, intended users, allowed inputs, data classes, safe outputs, stop conditions, time/cost budget and rollback/removal procedure in an authorized work package.
+2. Start with read-only repository permissions, an allowlisted GitHub toolset, explicit network access and role-limited triggers. Do not expose a repository write token or provider secret to the model runtime.
+3. Use only the smallest declared safe output. Initial candidates are a work-package intake assessment that is clearly marked PROPOSED; a daily digest that creates at most one date-keyed report issue from sanitized records; or a weekly text-only documentation sync that opens at most one draft PR and produces no PR on no-op.
+4. Treat every issue, comment, workflow log and retrieved document as untrusted input. Agentic workflow outputs do not create BADF work-package authority, change gate state, promote memory, close issues, change product terms or authorize a release.
+5. Pin the GitHub Agentic Workflows CLI/extension version, compile the Markdown source to its generated lock file, review both source and generated workflow, and validate compilation/drift in CI before enabling a trigger. Re-review the generated lock when source, extension, tools, permissions or engine changes.
+6. Shadow the workflow with no write output, measure false positives, omissions, latency and cost, then request independent review and the authorization required by BADF. Revoke the workflow if its source/lock, permissions, engine or risk assumptions drift.
+
+Do not install the extension, create workflow files, configure model credentials or enable scheduled writes as part of this design-only change. The current runtime/provider choice, authentication, billing, workflow ownership and admission authority remain explicit decisions.
 
 ## 14. Observability and performance indicators
 
@@ -370,7 +396,7 @@ Do not create these files until G00 authority, the project instance and the appl
 | badf/team-profile.yaml | Project-specific seat routing and restrictions, only if the pinned BADF schema and AET rung support it. |
 | badf/work/ | Work-package-linked task/checkpoint/evidence records where the canonical BADF model requires them. |
 | skills/biztrust-*/ | BizTrust skills proposed under BADF's skill lifecycle; no skill is active by file presence alone. |
-| .github/workflows/ | Thin invocation of canonical validators and repository checks; no competing lifecycle engine or policy copy. |
+| .github/workflows/ | Keep deterministic verify/release Actions separate; any approved agentic workflow adds its Markdown source and generated lock, and calls no competing lifecycle engine. |
 | docs/architecture/ | ADRs and project-specific operating/service contracts, including this design. |
 
 The exact schemas and paths are controlled by the pinned BADF framework. If the current framework does not support a proposed profile or adapter, raise a framework demand; do not bypass validation with a local script.
@@ -398,6 +424,12 @@ Canonical BADF sources reviewed at c519ac43e061a5d76cd3850b36730935e3614b43; rev
 - [BADF Agentic Engineer Team contract](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/14-agentic-engineer-team.md)
 - [BADF authority matrix](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/badf/authority-matrix.json)
 - [BADF framework vs project instance](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/governance/PROJECT_INSTANCE.md)
+
+GitHub workflow references:
+
+- [GitHub Docs: About Agentic Workflows](https://docs.github.com/en/copilot/concepts/agents/about-github-agentic-workflows)
+- [GitHub Docs: Creating and updating Agentic Workflows](https://docs.github.com/en/copilot/how-tos/github-agentic-workflows/creating-github-agentic-workflows)
+- [Awesome Copilot workflow examples at the reviewed commit](https://github.com/github/awesome-copilot/tree/6c4d33b9cfca967a28bb2962ef4d55e4a384c88c/workflows)
 
 ## 19. Completion protocol for every agent run
 
