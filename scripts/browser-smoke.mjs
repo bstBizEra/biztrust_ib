@@ -467,6 +467,83 @@ try {
   report.journeys.push(
     "390px / 320px layouts, responsive navigation, mobile filters, comparison scrolling and Lao navigation",
   );
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto(`${origin}/ops`);
+  await page
+    .getByRole("button", { name: "Open isolated staff demo" })
+    .waitFor();
+  await accessibility("operations-sign-in");
+  await page.getByRole("button", { name: "Open isolated staff demo" }).click();
+  await page.getByRole("heading", { name: "Recent cases" }).waitFor();
+  await page.locator(".ops-table tbody tr").first().waitFor();
+  assert.equal(await page.locator(".ops-table tbody tr").count(), 5);
+  await accessibility("operations-overview");
+  await page.screenshot({
+    path: "output/playwright/operations-overview.png",
+    fullPage: true,
+  });
+  const opsReference = await page.locator(".ops-case-link").first().innerText();
+  await page.locator(".ops-case-link").first().click();
+  await page
+    .getByRole("dialog")
+    .getByRole("heading", { name: opsReference })
+    .waitFor();
+  await accessibility("operations-case-evidence");
+  await page.getByRole("button", { name: "Close case evidence" }).click();
+  await page.getByRole("button", { name: "Cases", exact: true }).click();
+  await page.getByLabel("Exact case reference").fill(opsReference);
+  await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.url().includes("/ops/v1/cases?") && response.status() === 200,
+    ),
+    page.getByRole("button", { name: "Apply filters" }).click(),
+  ]);
+  await page.getByText("1 shown · up to 50", { exact: true }).waitFor();
+  assert.equal(await page.locator(".ops-table tbody tr").count(), 1);
+  await page.getByRole("button", { name: "Payments", exact: true }).click();
+  await page
+    .getByLabel("Payment status")
+    .selectOption("reconciliation_required");
+  await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.url().includes("payment=reconciliation_required") &&
+        response.status() === 200,
+    ),
+    page.getByRole("button", { name: "Apply filters" }).click(),
+  ]);
+  await page.getByText("1 shown · up to 50", { exact: true }).waitFor();
+  assert.equal(await page.locator(".ops-table tbody tr").count(), 1);
+  await accessibility("operations-payment-review");
+  await page.getByRole("button", { name: "Integrations", exact: true }).click();
+  await page.getByRole("heading", { name: "Delivery exceptions" }).waitFor();
+  await accessibility("operations-integrations");
+  await page
+    .getByRole("button", { name: "System health", exact: true })
+    .click();
+  await page
+    .getByRole("heading", { name: "Access & service responses" })
+    .waitFor();
+  await accessibility("operations-system-health");
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.getByRole("button", { name: "Cases", exact: true }).click();
+    await page.locator(".ops-table tbody tr").first().waitFor();
+    await noOverflow();
+    await accessibility(`operations-cases-${width}`);
+    await page.screenshot({
+      path: `output/playwright/operations-mobile-${width}.png`,
+      fullPage: true,
+    });
+  }
+  await page.getByRole("button", { name: "Sign out of staff console" }).click();
+  await page
+    .getByRole("button", { name: "Open isolated staff demo" })
+    .waitFor();
+  report.journeys.push(
+    "Separate staff console sign-in, isolated demo, filtered cases/payments, evidence, integration and inbox health, mobile layouts and logout",
+  );
   assert.equal(
     report.pages.flatMap((p) => p.violations).length,
     0,

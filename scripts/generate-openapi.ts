@@ -26,6 +26,7 @@ const standard = {
   "409": error,
   "429": { description: "Rate limit exceeded" },
   "500": error,
+  "503": error,
 };
 const csrf = {
   name: "X-CSRF-Token",
@@ -34,6 +35,11 @@ const csrf = {
   schema: { type: "string" },
   description:
     "From GET /api/session; mutations also require an exact same-origin Origin header.",
+};
+const staffCsrfHeader = {
+  ...csrf,
+  description:
+    "From GET /ops/v1/session; staff mutations require the exact same-origin Origin header.",
 };
 const reference = {
   name: "reference",
@@ -272,7 +278,7 @@ const spec = {
         summary: "Verified simulator payment-provider callback",
         security: [{ providerSignature: [] }],
         description:
-          "HMAC-SHA256 hex(timestamp + dot + exact raw request body). Timestamp is Unix milliseconds, max absolute skew 300000 ms. Signed context sets tenant/owner. Event IDs are idempotent; changed payload conflicts. Late/mismatched payments enter reconciliation.",
+          "HMAC-SHA256 hex(timestamp + dot + exact raw request body). Timestamp is Unix milliseconds, max absolute skew 300000 ms. Signed context sets tenant/owner. A minimal verified event is durably committed before domain processing. Event IDs are idempotent; changed payload conflicts. Late/mismatched payments enter reconciliation. A processing failure returns 503 PAYMENT_PROCESSING_PENDING; redeliver the same event after signing with a fresh timestamp.",
         parameters: [
           {
             name: "X-Provider-Timestamp",
@@ -349,14 +355,25 @@ const spec = {
       post: {
         summary: "Revoke staff session",
         security: [{ staffSession: [] }],
-        parameters: [csrf],
+        parameters: [staffCsrfHeader],
         responses: { "200": response("Signed out"), ...standard },
+      },
+    },
+    "/ops/auth/demo": {
+      post: {
+        summary: "Create an isolated local staff demonstration workspace",
+        description:
+          "Loopback demonstration only. Server generates the tenant and synthetic records; no client-selected tenant or role. Separate staff cookie and CSRF required.",
+        security: [{ staffSession: [] }],
+        parameters: [staffCsrfHeader],
+        requestBody: { required: true, content: json(ref("Empty")) },
+        responses: { "200": response("Staff demo session"), ...standard },
       },
     },
     "/ops/v1/session": {
       get: {
         summary: "Staff tenant and CSRF context",
-        security: [{ staffSession: [] }],
+        security: [],
         responses: { "200": response("Staff context"), ...standard },
       },
     },

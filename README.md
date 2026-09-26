@@ -20,6 +20,8 @@ Open **http://127.0.0.1:3000**. Setup creates its own PostgreSQL cluster at `.da
 
 ## Try the journey
 
+The separate operations console is at **http://127.0.0.1:3000/ops**. Choose **Open isolated staff demo** for an isolated tenant containing synthetic case/payment queues, evidence timelines and integration health. Real staff access uses a separate OIDC client; see [operations setup](docs/operations.md). The console currently provides scoped read access.
+
 1. Choose **Find your cover** for personal/business discovery, category selection and must-have coverage matching, or browse the full catalogue.
 2. Select up to three plans and compare limits, exclusions, deductibles and premium periods.
 3. Choose **View plan → Start a demo quote** to create a private browser session.

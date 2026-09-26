@@ -5,6 +5,7 @@ import { rateLimit } from "express-rate-limit";
 import { randomUUID } from "node:crypto";
 import { ZodError } from "zod";
 import QRCode from "qrcode";
+import { acceptVerifiedPayment } from "./payment-inbox.ts";
 import { config } from "./config.ts";
 import { categories, insurers, products } from "./catalog.ts";
 import { pool } from "./db.ts";
@@ -23,6 +24,9 @@ import {
   beginStaffOidc,
   finishStaffOidc,
   endStaffSession,
+  staffCsrf,
+  staffSessionResponse,
+  startStaffDemo,
 } from "./staff-auth.ts";
 import {
   overview,
@@ -35,7 +39,6 @@ import {
   createApplication,
   listApplications,
   applicationDetail,
-  processPayment,
   simulatorInsurer,
 } from "./services.ts";
 
@@ -71,7 +74,11 @@ export function createApp() {
   );
   app.use((req, res, next) => {
     res.setHeader("X-Request-Id", randomUUID());
-    if (req.path.startsWith("/api/") || req.path.startsWith("/ops/"))
+    if (
+      req.path.startsWith("/api/") ||
+      req.path === "/ops" ||
+      req.path.startsWith("/ops/")
+    )
       res.setHeader("Cache-Control", "no-store");
     next();
   });
@@ -86,35 +93,31 @@ export function createApp() {
   );
   app.use(
     "/ops",
+    rateLimit({
+      windowMs: 60000,
+      limit: 180,
+      standardHeaders: "draft-8",
+      legacyHeaders: false,
+    }),
     express.json({ limit: "32kb" }),
     cookieParser(),
     staffSessionMiddleware,
   );
   app.get("/ops/auth/login", beginStaffOidc);
   app.get("/ops/auth/callback", finishStaffOidc);
-  app.post("/ops/auth/logout", (req, res, next) => {
-    if (
-      req.get("origin") !== config.origin ||
-      req.get("x-csrf-token") !== req.staffSession?.csrf
-    )
-      return next(
-        new DomainError(
-          403,
-          "INVALID_REQUEST_ORIGIN",
-          "Your session changed. Refresh and try again.",
-        ),
-      );
-    return endStaffSession(req, res).catch(next);
-  });
-  app.get("/ops/v1/session", (req, res) => {
-    const actor = staffActor(req);
-    res.json({
-      tenant: actor.tenant,
-      role: actor.role,
-      csrf: req.staffSession?.csrf,
-      synthetic: config.demo,
-    });
-  });
+  app.post("/ops/auth/logout", staffCsrf, endStaffSession);
+  app.post(
+    "/ops/auth/demo",
+    rateLimit({
+      windowMs: 3600000,
+      limit: 10,
+      standardHeaders: "draft-8",
+      legacyHeaders: false,
+    }),
+    staffCsrf,
+    startStaffDemo,
+  );
+  app.get("/ops/v1/session", staffSessionResponse);
   app.get("/ops/v1/overview", async (req, res) =>
     res.json(await overview(staffActor(req))),
   );
@@ -156,7 +159,7 @@ export function createApp() {
           "The provider event is not valid JSON.",
         );
       }
-      res.json(await processPayment(event));
+      res.json(await acceptVerifiedPayment(event));
     },
   );
   app.use(
@@ -295,7 +298,7 @@ export function createApp() {
       signEvent(raw, timestamp, config.webhookSecret),
       config.webhookSecret,
     );
-    res.json(await processPayment(event));
+    res.json(await acceptVerifiedPayment(event));
   });
   app.post("/api/demo/applications/:reference/insurer", async (req, res) => {
     if (!config.demo) throw new DomainError(404, "NOT_FOUND", "Not found.");
@@ -310,7 +313,7 @@ export function createApp() {
   app.use("/api", (_req, _res, next) =>
     next(new DomainError(404, "NOT_FOUND", "This endpoint does not exist.")),
   );
-  app.use("/ops", (_req, _res, next) =>
+  app.use(["/ops/v1", "/ops/auth"], (_req, _res, next) =>
     next(new DomainError(404, "NOT_FOUND", "This endpoint does not exist.")),
   );
   app.use(

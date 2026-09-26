@@ -1,13 +1,19 @@
 import { randomBytes } from "node:crypto";
 import type { Request, Response, NextFunction } from "express";
 import * as oidc from "openid-client";
+import { z } from "zod";
 import { pool, type Actor } from "./db.ts";
-import { config } from "./config.ts";
+import {
+  config,
+  localDemoAvailable,
+  validateIdentityConfiguration,
+} from "./config.ts";
 import { DomainError, hash } from "./domain.ts";
 
 interface StaffSession {
   audience: "operations";
   actor?: Actor;
+  mode?: "oidc" | "demo";
   csrf: string;
   flow?: { verifier: string; state: string; nonce: string; created: number };
 }
@@ -22,6 +28,7 @@ const callback = `${config.origin}/ops/auth/callback`;
 let configuration: Promise<oidc.Configuration> | undefined;
 
 function getStaffOidc() {
+  validateIdentityConfiguration();
   if (!config.staffIssuer || !config.staffClientId || !config.staffClientSecret)
     throw new DomainError(
       503,
@@ -84,16 +91,29 @@ export async function staffSessionMiddleware(
   try {
     const token = req.cookies?.[cookieName];
     if (typeof token === "string" && /^[a-f0-9]{64}$/.test(token)) {
-      req.staffSessionHash = hash(token);
+      const tokenHash = hash(token);
       const found = await pool.query(
         "SELECT data FROM auth_sessions WHERE token_hash=$1 AND expires_at>now()",
-        [req.staffSessionHash],
+        [tokenHash],
       );
       const data = found.rows[0]?.data as StaffSession | undefined;
-      if (data?.audience === "operations") req.staffSession = data;
+      if (data?.audience === "operations") {
+        req.staffSession = data;
+        req.staffSessionHash = tokenHash;
+      }
     }
     if (req.staffSession?.actor) {
       const actor = req.staffSession.actor;
+      if (req.staffSession.mode === "demo") {
+        if (
+          !localDemoAvailable() ||
+          !/^ops-demo-[a-f0-9-]{36}$/.test(actor.tenant) ||
+          actor.role !== "operations"
+        )
+          req.staffSession = undefined;
+        next();
+        return;
+      }
       const membership = await pool.query(
         "SELECT tenant_id,owner_id,role FROM memberships WHERE owner_id=$1 AND tenant_id=$2 AND enabled=true AND role='operations'",
         [actor.user, actor.tenant],
@@ -120,6 +140,51 @@ export function staffActor(req: Request): Actor {
       "Staff sign-in is required.",
     );
   return req.staffSession.actor;
+}
+
+export function staffCsrf(req: Request, _res: Response, next: NextFunction) {
+  if (
+    !req.staffSession?.csrf ||
+    req.get("origin") !== config.origin ||
+    req.get("x-csrf-token") !== req.staffSession.csrf
+  )
+    return next(
+      new DomainError(
+        403,
+        "INVALID_REQUEST_ORIGIN",
+        "Your session changed. Refresh and try again.",
+      ),
+    );
+  next();
+}
+
+export async function staffSessionResponse(req: Request, res: Response) {
+  if (!req.staffSession) await rotate(req, res, { audience: "operations" });
+  res.json({
+    authenticated: Boolean(req.staffSession?.actor),
+    tenant: req.staffSession?.actor?.tenant,
+    role: req.staffSession?.actor?.role,
+    csrf: req.staffSession?.csrf,
+    synthetic: config.demo,
+    identityConfigured: Boolean(
+      config.staffIssuer && config.staffClientId && config.staffClientSecret,
+    ),
+    demoAvailable: localDemoAvailable(),
+  });
+}
+
+export async function startStaffDemo(req: Request, res: Response) {
+  if (!localDemoAvailable())
+    throw new DomainError(404, "NOT_FOUND", "Not found.");
+  z.object({}).strict().parse(req.body);
+  if (req.staffSession?.mode === "demo" && req.staffSession.actor) {
+    await staffSessionResponse(req, res);
+    return;
+  }
+  const { seedOperationsDemo } = await import("./operations-demo.ts");
+  const actor = await seedOperationsDemo();
+  await rotate(req, res, { audience: "operations", mode: "demo", actor });
+  await staffSessionResponse(req, res);
 }
 
 export async function beginStaffOidc(req: Request, res: Response) {
@@ -181,13 +246,14 @@ export async function finishStaffOidc(req: Request, res: Response) {
     );
   await rotate(req, res, {
     audience: "operations",
+    mode: "oidc",
     actor: {
       tenant: membership.rows[0].tenant_id,
       user: membership.rows[0].owner_id,
       role: "operations",
     },
   });
-  res.redirect("/ops/v1/session");
+  res.redirect("/ops");
 }
 
 export async function endStaffSession(req: Request, res: Response) {

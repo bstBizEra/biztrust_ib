@@ -12,6 +12,9 @@ React 19 + Vite 8 client, Express 5 + TypeScript API/BFF and PostgreSQL 17. The 
 flowchart LR
   B[Customer browser] --> W[React experience]
   W --> A[Express API]
+  C[Staff console /ops] --> OAPI[Staff API /ops/v1]
+  OAPI --> SI[Separate staff identity and membership]
+  SI --> U
   A --> I[Logto-compatible OIDC]
   A --> S[Session and membership]
   S --> U[Authorized use cases]
@@ -21,6 +24,8 @@ flowchart LR
   U --> O[Transactional outbox]
   O --> R[Explicit insurer simulator]
   U --> E[Append-only audit]
+  P --> IN[Durable verified payment inbox]
+  IN --> U
 ```
 
 | Module               | Responsibility                                                       |
@@ -35,7 +40,7 @@ flowchart LR
 
 ## ADR 002 — identity and isolation
 
-The first staff backend slice now uses a separate confidential OIDC client, `/ops` cookie, pre-provisioned operations membership, and `/ops/v1` read-only APIs. Customer sessions cannot use staff routes; staff sessions cannot be replayed at customer routes. See `docs/operations.md` for routes and setup. The staff console UI, MFA/step-up and privileged actions remain pending owner policy and provider decisions.
+The `/ops` console uses a separate confidential OIDC client, `/ops` cookie, pre-provisioned operations membership, and `/ops/v1` read-only APIs. Startup rejects the same issuer/client pair for staff and customers. Customer sessions cannot use staff routes; staff sessions cannot be replayed at customer routes. Its local demo creates a new tenant populated through the existing domain services. See `docs/operations.md` for routes and setup. Specialized staff roles, MFA/step-up and privileged actions remain pending owner policy and implementation.
 
 No Logto implementation was found in the named reference source. `openid-client` provides a confidential OIDC web integration compatible with Logto. Configure an HTTPS issuer, client ID/secret and exact `/api/auth/callback` redirect. Code flow uses PKCE S256, state, nonce, issuer/audience/expiry checks and explicit JWS verification. Authorization attempts expire in ten minutes; login rotates the session.
 
@@ -53,7 +58,7 @@ Tenant and role come from server membership; public OIDC enrolment only creates 
 
 Agent, broker, insurer-operator, tenant-admin and platform-admin workflows need further permissions and business implementation. No broad default administrator is provided.
 
-Six business tables force RLS. Context is transaction-local with guaranteed rollback/release; pooled-context leakage is tested. Runtime refuses superuser/BYPASSRLS credentials. Audit rows grant only INSERT/SELECT to runtime. Database administrators remain outside that guarantee; external audit anchoring is future production work.
+Seven business tables, including the verified payment inbox, force RLS. Context is transaction-local with guaranteed rollback/release; pooled-context leakage is tested. Runtime refuses superuser/BYPASSRLS credentials. Audit rows grant only INSERT/SELECT to runtime. Database administrators remain outside that guarantee; external audit anchoring is future production work.
 
 ## ADR 003 — synthetic integrations with explicit trust boundaries
 
