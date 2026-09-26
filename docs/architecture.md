@@ -4,6 +4,10 @@
 
 Version 0.1 is a local multi-insurer demonstrator: browse 12 categories / 24 variants, compare up to three, calculate a deterministic quote, submit a consented application, retrieve a non-payable QR, follow a verified simulator payment and a separate insurer outcome, and retrieve a synthetic document. PostgreSQL persists business records across reloads and restarts. Categories are extensible; the sample catalogue does not claim to contain every real insurer product.
 
+## Engineering delivery harness
+
+The project-specific engineering-agent team, BADF integration, evidence lifecycle, memory/learning pipeline, and controlled delivery plan are specified in [BIZTRUST-ADF-ENG-001-v0.2](architecture/BIZTRUST-ADF-ENG-001-v0.2.md). The specification consumes BADF by pinned reference and does not copy its canonical policies or validators into the product repository.
+
 ## ADR 001 — modular monolith
 
 React 19 + Vite 8 client, Express 5 + TypeScript API/BFF and PostgreSQL 17. The repository had no application stack. One origin serves both client and API; secrets stay on the server.
