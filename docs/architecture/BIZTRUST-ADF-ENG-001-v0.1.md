@@ -9,7 +9,7 @@
 | Status | Proposed design for governed implementation planning |
 | Project repository | bstBizEra/biztrust_ib |
 | Framework reference | bstBizEra/badf |
-| Baseline reviewed | BizTrust main at d166d881bef3d954c612f703dfb71e1de5c0667d; BADF main at the revision current when this proposal is reviewed |
+| Baseline reviewed | BizTrust main at d166d881bef3d954c612f703dfb71e1de5c0667d; BADF main at c519ac43e061a5d76cd3850b36730935e3614b43 |
 | Scope | Project engineering-agent team, execution harness, evidence, memory, learning and controlled delivery |
 | Authority | This design grants no agent, model, skill or automation authority |
 
@@ -385,19 +385,19 @@ Project baseline:
 - [BizTrust verification record](../verification.md)
 - [BizTrust GitHub verification workflow](../../.github/workflows/verify.yml)
 
-Canonical BADF sources; at adoption, pin and review a specific commit instead of relying on the moving main branch:
+Canonical BADF sources reviewed at c519ac43e061a5d76cd3850b36730935e3614b43; revalidate and pin the exact framework commit consumed at adoption:
 
-- [BADF operating model](https://github.com/bstBizEra/badf/blob/main/docs/00-operating-model.md)
-- [BADF lifecycle gates](https://github.com/bstBizEra/badf/blob/main/docs/01-lifecycle-gates.md)
-- [BADF advanced engineering loop](https://github.com/bstBizEra/badf/blob/main/docs/02-engineering-loop.md)
-- [BADF authority and agent councils](https://github.com/bstBizEra/badf/blob/main/docs/03-authority-and-agent-councils.md)
-- [BADF memory and context](https://github.com/bstBizEra/badf/blob/main/docs/04-memory-and-context.md)
-- [BADF sessions, handoffs and recovery](https://github.com/bstBizEra/badf/blob/main/docs/06-sessions-handoffs-recovery.md)
-- [BADF skills governance](https://github.com/bstBizEra/badf/blob/main/docs/07-skills-governance.md)
-- [BADF operations, resilience and learning](https://github.com/bstBizEra/badf/blob/main/docs/12-operations-learning.md)
-- [BADF Agentic Engineer Team contract](https://github.com/bstBizEra/badf/blob/main/docs/14-agentic-engineer-team.md)
-- [BADF authority matrix](https://github.com/bstBizEra/badf/blob/main/badf/authority-matrix.json)
-- [BADF framework vs project instance](https://github.com/bstBizEra/badf/blob/main/docs/governance/PROJECT_INSTANCE.md)
+- [BADF operating model](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/00-operating-model.md)
+- [BADF lifecycle gates](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/01-lifecycle-gates.md)
+- [BADF advanced engineering loop](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/02-engineering-loop.md)
+- [BADF authority and agent councils](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/03-authority-and-agent-councils.md)
+- [BADF memory and context](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/04-memory-and-context.md)
+- [BADF sessions, handoffs and recovery](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/06-sessions-handoffs-recovery.md)
+- [BADF skills governance](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/07-skills-governance.md)
+- [BADF operations, resilience and learning](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/12-operations-learning.md)
+- [BADF Agentic Engineer Team contract](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/14-agentic-engineer-team.md)
+- [BADF authority matrix](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/badf/authority-matrix.json)
+- [BADF framework vs project instance](https://github.com/bstBizEra/badf/blob/c519ac43e061a5d76cd3850b36730935e3614b43/docs/governance/PROJECT_INSTANCE.md)
 
 ## 19. Completion protocol for every agent run
 
