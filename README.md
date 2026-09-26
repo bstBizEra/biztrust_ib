@@ -57,6 +57,10 @@ Provision isolated PostgreSQL 17+ with a migration owner and separate `biztrust_
 
 Read [discovery](docs/discovery.md), [architecture and limitations](docs/architecture.md), [operations](docs/operations.md), [asset sources](docs/assets.md), and [UniTrust selection study and white-screen repair](docs/unitrust-selection-study.md).
 
+## Versioned releases
+
+See [release workflow](docs/releases.md) for minor and major versioning, CI gates, GitHub Releases, and the versioned GitHub Container Registry image. Version 0.x is a pre-production demonstration. A container package is a build artifact, not approval for live insurance transactions.
+
 ## Production dependencies
 
 Logto acceptance, actual insurer products/distribution authority, payment and insurer adapters, legal/Lao wording, staff/finance workflows, hosting/APISIX, monitoring, retention and backup restoration remain required. The server refuses production mode until these are implemented and evidenced. No production deployment or tunnel/DNS change is included.

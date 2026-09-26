@@ -1,0 +1,13 @@
+.git
+.github
+.data
+.env*
+!.env.example
+node_modules
+dist
+output
+coverage
+.playwright-cli
+docs
+tests
+*.log

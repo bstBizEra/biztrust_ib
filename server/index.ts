@@ -12,7 +12,7 @@ const server = createServer(app);
 if (process.argv.includes("--production-assets")) {
   app.use(express.static(path.resolve("dist")));
   app.get("/{*path}", (_req, res) =>
-    res.sendFile(path.resolve("dist/index.html")),
+    res.sendFile(path.resolve("dist/index.html"), { dotfiles: "allow" }),
   );
 } else {
   const { createServer: createViteServer } = await import("vite");
