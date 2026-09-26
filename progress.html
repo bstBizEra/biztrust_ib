@@ -1498,12 +1498,14 @@
       }
     </style>
   </head>
-  <body><aside style="padding:12px;text-align:center;background:#fff3cd;color:#332701">Public progress snapshot. Internal document links are omitted. Demo evidence does not authorize production or insurance coverage.</aside>
+  <body>
+<p style="padding:12px 24px;background:#fff3cd;color:#493600;margin:0">Public progress snapshot. Internal document links are omitted. Demo evidence does not authorize production or insurance coverage.</p>
     <a class="skip-link" href="#overview">Skip to implementation plan</a>
     <div class="shell">
       <aside class="rail" aria-label="Project navigation">
         <div class="rail-inner">
-          <span title="Source document is not included in this public board snapshot"><img src="assets/logo.svg" alt="" />BizTrust</a
+          <a class="brand" aria-disabled="true" title="Internal document omitted from public snapshot"
+            ><img src="assets/logo.svg" alt="" />BizTrust</a
           >
           <div>
             <p class="rail-label">Implementation plan</p>
@@ -1517,16 +1519,16 @@
               ><a href="#backend">Backend transactions</a
               ><a href="#domains">Architecture coverage</a
               ><a href="#production">Production gates</a
-              ><a href="#milestones">Milestones &amp; owners</span>
+              ><a href="#milestones">Milestones &amp; owners</a>
             </nav>
           </div>
           <div>
             <p class="rail-label">Project documents</p>
             <nav aria-label="Project documents">
-              <span title="Source document is not included in this public board snapshot">Plan source ↗</a
-              ><a href="progress-updates.md">Update history ↗</a
-              ><a href="architecture.md">Architecture ↗</a
-              ><a href="releases.md">Release gate ↗</span>
+              <a aria-disabled="true" title="Internal document omitted from public snapshot">Plan source ↗</a
+              ><a aria-disabled="true" title="Internal document omitted from public snapshot">Update history ↗</a
+              ><a aria-disabled="true" title="Internal document omitted from public snapshot">Architecture ↗</a
+              ><a aria-disabled="true" title="Internal document omitted from public snapshot">Release gate ↗</a>
             </nav>
           </div>
           <p class="rail-bottom">
@@ -1550,7 +1552,7 @@
                 the module flows, and track the evidence needed to launch.
               </p>
             </div>
-            <span title="Source document is not included in this public board snapshot">Plan source ↗</span>
+            <a class="text-link" aria-disabled="true" title="Internal document omitted from public snapshot">Plan source ↗</a>
           </div>
           <section class="gate" aria-label="Production release gate">
             <span class="gate-icon" aria-hidden="true">!</span>
@@ -1560,25 +1562,25 @@
                 The application rejects <code>DEMO_MODE=false</code>. Local
                 verification and release artifacts do not authorize real
                 payment, insurer issuance or coverage.
-                <span title="Source document is not included in this public board snapshot">Review the boundary</span>.
+                <a aria-disabled="true" title="Internal document omitted from public snapshot">Review the boundary</a>.
               </p>
             </div>
             <span class="gate-tag">Gate closed</span>
           </section>
           <section class="overview" aria-label="Milestone counts">
             <div class="metric">
-              <span>Tracked outcomes</span><strong>17</strong
+              <span>Tracked outcomes</span><strong>18</strong
               ><small>Across demo and production work</small>
             </div>
             <div class="metric">
-              <span>Verified locally</span><strong>3 / 17</strong
+              <span>Verified locally</span><strong>3 / 18</strong
               ><small>Demonstration scope only</small
               ><progress
-                max="17"
+                max="18"
                 value="3"
-                aria-label="3 of 17 milestones verified locally"
+                aria-label="3 of 18 milestones verified locally"
               >
-                3 of 17
+                3 of 18
               </progress>
             </div>
             <div class="metric">
@@ -1586,7 +1588,7 @@
               ><small>Decision or external evidence needed</small>
             </div>
             <div class="metric">
-              <span>Planned / in progress</span><strong>9</strong
+              <span>Planned / in progress</span><strong>10</strong
               ><small>Implementation or acceptance pending</small>
             </div>
           </section>
@@ -1645,6 +1647,17 @@
                 <small
                   >Next: Hosted CI evidence, staging and production
                   acceptance</small
+                >
+              </div>
+              <div class="scope">
+                <h3>Public progress board</h3>
+                <p>
+                  Static GitHub Pages snapshot published on a dedicated docs
+                  branch; live checks pending
+                </p>
+                <small
+                  >Next: Exact URL, assets and production-gate wording
+                  verified</small
                 >
               </div>
             </div>
@@ -4391,8 +4404,8 @@
             </p>
             <p class="repo-source">
               Plan and acquisition decisions:
-              <a href="repository-reuse.md">repository reuse guide</a> ·
-              <span title="Source document is not included in this public board snapshot">structured source</span>. The
+              <a aria-disabled="true" title="Internal document omitted from public snapshot">repository reuse guide</a> ·
+              <a aria-disabled="true" title="Internal document omitted from public snapshot">structured source</a>. The
               inventory records adoption intent; installation, cloning or a
               passing check does not satisfy the linked production acceptance
               boundary.
@@ -7069,8 +7082,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Customer UI</span>,
-                    <span title="Source document is not included in this public board snapshot">cover finder</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Customer UI</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">cover finder</a>
                   </p>
                 </details>
               </article>
@@ -7098,8 +7111,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Staff UI</span>,
-                    <span title="Source document is not included in this public board snapshot">operations</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Staff UI</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">operations</a>
                   </p>
                 </details>
               </article>
@@ -7135,8 +7148,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">System boundary</span>,
-                    <span title="Source document is not included in this public board snapshot">release gate</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">System boundary</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">release gate</a>
                   </p>
                 </details>
               </article>
@@ -7175,8 +7188,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">HTTP routes</span>,
-                    <span title="Source document is not included in this public board snapshot">API contract</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">HTTP routes</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">API contract</a>
                   </p>
                 </details>
               </article>
@@ -7221,8 +7234,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Staff use cases</span>,
-                    <span title="Source document is not included in this public board snapshot">HTTP routes</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Staff use cases</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">HTTP routes</a>
                   </p>
                 </details>
               </article>
@@ -7255,8 +7268,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Customer identity</span>,
-                    <span title="Source document is not included in this public board snapshot">staff identity</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Customer identity</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">staff identity</a>
                   </p>
                 </details>
               </article>
@@ -7286,8 +7299,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Catalogue</span>,
-                    <span title="Source document is not included in this public board snapshot">discovery</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Catalogue</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">discovery</a>
                   </p>
                 </details>
               </article>
@@ -7318,8 +7331,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Pricing</span>,
-                    <span title="Source document is not included in this public board snapshot">domain</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Pricing</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">domain</a>
                   </p>
                 </details>
               </article>
@@ -7353,8 +7366,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Domain services</span>,
-                    <span title="Source document is not included in this public board snapshot">flex pricing</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Domain services</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">flex pricing</a>
                   </p>
                 </details>
               </article>
@@ -7392,8 +7405,9 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Case readouts</span>,
-                    <span title="Source document is not included in this public board snapshot">coverage assessment</a
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Case readouts</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                      >coverage assessment</a
                     >
                   </p>
                 </details>
@@ -7416,7 +7430,7 @@
                   <summary>Connections &amp; source</summary>
                   <p>
                     <span class="meta-label">Receives from</span
-                    ><a href="#module-staff-api">Staff application API</span> ·
+                    ><a href="#module-staff-api">Staff application API</a> ·
                     <a href="#module-cases">Casework and policy lifecycle</a> ·
                     <a href="#module-events">Durable event processing</a>
                   </p>
@@ -7430,8 +7444,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Payment services</span>,
-                    <span title="Source document is not included in this public board snapshot">system boundary</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Payment services</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">system boundary</a>
                   </p>
                 </details>
               </article>
@@ -7463,8 +7477,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Insurer simulation</span>,
-                    <span title="Source document is not included in this public board snapshot">system boundary</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Insurer simulation</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">system boundary</a>
                   </p>
                 </details>
               </article>
@@ -7505,8 +7519,9 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Payment inbox</span>,
-                    <span title="Source document is not included in this public board snapshot">inbox migration</a
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Payment inbox</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                      >inbox migration</a
                     >
                   </p>
                 </details>
@@ -7529,7 +7544,7 @@
                   <summary>Connections &amp; source</summary>
                   <p>
                     <span class="meta-label">Receives from</span
-                    ><a href="#module-customer-api">Customer application API</span>
+                    ><a href="#module-customer-api">Customer application API</a>
                     · <a href="#module-insurer">Insurer adapters and intake</a>
                   </p>
                   <p>
@@ -7542,8 +7557,9 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Document route</span>,
-                    <span title="Source document is not included in this public board snapshot">coverage assessment</a
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Document route</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                      >coverage assessment</a
                     >
                   </p>
                 </details>
@@ -7565,12 +7581,13 @@
                   <summary>Connections &amp; source</summary>
                   <p>
                     <span class="meta-label">Receives from</span
-                    ><a href="#module-events">Durable event processing</span>
+                    ><a href="#module-events">Durable event processing</a>
                   </p>
 
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Coverage assessment</a
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot"
+                      >Coverage assessment</a
                     >
                   </p>
                 </details>
@@ -7593,7 +7610,7 @@
                   <summary>Connections &amp; source</summary>
                   <p>
                     <span class="meta-label">Receives from</span
-                    ><a href="#module-cases">Casework and policy lifecycle</span> ·
+                    ><a href="#module-cases">Casework and policy lifecycle</a> ·
                     <a href="#module-data"
                       >Tenant data and classified storage</a
                     >
@@ -7605,8 +7622,9 @@
 
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Database contract</span>,
-                    <span title="Source document is not included in this public board snapshot">foundation migration</a
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Database contract</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                      >foundation migration</a
                     >
                   </p>
                 </details>
@@ -7628,7 +7646,7 @@
                   <summary>Connections &amp; source</summary>
                   <p>
                     <span class="meta-label">Receives from</span
-                    ><a href="#module-quotes">Quotes and applications</span> ·
+                    ><a href="#module-quotes">Quotes and applications</a> ·
                     <a href="#module-payments">Payments and reconciliation</a> ·
                     <a href="#module-cases">Casework and policy lifecycle</a> ·
                     <a href="#module-documents">Documents and evidence</a> ·
@@ -7643,8 +7661,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Database</span>,
-                    <span title="Source document is not included in this public board snapshot">data inventory</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Database</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">data inventory</a>
                   </p>
                 </details>
               </article>
@@ -7674,8 +7692,8 @@
 
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Configuration</span>,
-                    <span title="Source document is not included in this public board snapshot">data protection</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Configuration</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">data protection</a>
                   </p>
                 </details>
               </article>
@@ -7703,8 +7721,8 @@
 
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Operations</span>,
-                    <span title="Source document is not included in this public board snapshot">HTTP health</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Operations</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">HTTP health</a>
                   </p>
                 </details>
               </article>
@@ -7735,8 +7753,8 @@
                   </p>
                   <p>
                     <span class="meta-label">Source / design</span
-                    ><span title="Source document is not included in this public board snapshot">Release workflow</span>,
-                    <span title="Source document is not included in this public board snapshot">production gate</span>
+                    ><a aria-disabled="true" title="Internal document omitted from public snapshot">Release workflow</a>,
+                    <a aria-disabled="true" title="Internal document omitted from public snapshot">production gate</a>
                   </p>
                 </details>
               </article>
@@ -8475,8 +8493,8 @@
                 <p>
                   Collect business/provider decisions first; prepare contracts
                   and infrastructure in parallel. Record dated evidence in
-                  <span title="Source document is not included in this public board snapshot">progress updates</span>. The
-                  <span title="Source document is not included in this public board snapshot">backend and domain plan</span>
+                  <a aria-disabled="true" title="Internal document omitted from public snapshot">progress updates</a>. The
+                  <a aria-disabled="true" title="Internal document omitted from public snapshot">backend and domain plan</a>
                   is the source for these sections.
                 </p>
               </div>
@@ -8485,12 +8503,12 @@
           <section id="milestones" aria-labelledby="milestones-title">
             <div class="section-heading">
               <h2 id="milestones-title">Milestones &amp; accountable owners</h2>
-              <p id="visible-count" aria-live="polite">Showing 17 of 17</p>
+              <p id="visible-count" aria-live="polite">Showing 18 of 18</p>
             </div>
             <div class="toolbar">
               <div class="filters" role="group" aria-label="Filter by status">
                 <button type="button" data-filter="all" aria-pressed="true">
-                  All (17)</button
+                  All (18)</button
                 ><button
                   type="button"
                   data-filter="verified"
@@ -8502,7 +8520,7 @@
                   data-filter="in-progress"
                   aria-pressed="false"
                 >
-                  In progress (3)</button
+                  In progress (4)</button
                 ><button
                   type="button"
                   data-filter="blocked"
@@ -8549,8 +8567,8 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      ><span title="Source document is not included in this public board snapshot">Verification</span>,
-                      <span title="Source document is not included in this public board snapshot">flex pricing</span></span
+                      ><a aria-disabled="true" title="Internal document omitted from public snapshot">Verification</a>,
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">flex pricing</a></span
                     >
                   </p>
                 </div>
@@ -8578,8 +8596,8 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      ><span title="Source document is not included in this public board snapshot">Operations</span>,
-                      <span title="Source document is not included in this public board snapshot">verification</span></span
+                      ><a aria-disabled="true" title="Internal document omitted from public snapshot">Operations</a>,
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">verification</a></span
                     >
                   </p>
                 </div>
@@ -8607,8 +8625,8 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      ><span title="Source document is not included in this public board snapshot">System boundary</span>,
-                      <span title="Source document is not included in this public board snapshot">verification</span></span
+                      ><a aria-disabled="true" title="Internal document omitted from public snapshot">System boundary</a>,
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">verification</a></span
                     >
                   </p>
                 </div>
@@ -8637,7 +8655,7 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >Business evidence listed in
-                      <span title="Source document is not included in this public board snapshot">discovery</span>; current catalogue is
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">discovery</a>; current catalogue is
                       synthetic</span
                     >
                   </p>
@@ -8667,7 +8685,7 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >Issuer/client registration and staff policy;
-                      <span title="Source document is not included in this public board snapshot">operations</span> documents local
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">operations</a> documents local
                       contract</span
                     >
                   </p>
@@ -8697,7 +8715,8 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >Role and delegation matrix from BT-04 and BT-05;
-                      <span title="Source document is not included in this public board snapshot">coverage assessment</a
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >coverage assessment</a
                       ></span
                     >
                   </p>
@@ -8728,7 +8747,7 @@
                     ><span
                       >Provider contract, settlement/refund authority and
                       reconciliation rules;
-                      <a href="system-boundary.md">system boundary</span></span
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">system boundary</a></span
                     >
                   </p>
                 </div>
@@ -8757,7 +8776,7 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >Partner contract, state mapping and binding authority;
-                      <span title="Source document is not included in this public board snapshot">system boundary</span></span
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">system boundary</a></span
                     >
                   </p>
                 </div>
@@ -8786,7 +8805,7 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >Targets and acceptance evidence;
-                      <span title="Source document is not included in this public board snapshot">operations</span></span
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">operations</a></span
                     >
                   </p>
                 </div>
@@ -8815,7 +8834,7 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >Approved wording and translations;
-                      <span title="Source document is not included in this public board snapshot">discovery</span></span
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">discovery</a></span
                     >
                   </p>
                 </div>
@@ -8844,7 +8863,7 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >BT-04 through BT-10 and
-                      <span title="Source document is not included in this public board snapshot">release gate</span></span
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">release gate</a></span
                     >
                   </p>
                 </div>
@@ -8873,11 +8892,11 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >BT-04 and BT-10;
-                      <span title="Source document is not included in this public board snapshot">BT-12-S1</span>
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">BT-12-S1</a>
                       uncommitted read-only inspector and preview code present;
                       Git reports credential-free lint, typecheck, 13/13 pure
                       tests and sanitized build passed on 27 September;
-                      <span title="Source document is not included in this public board snapshot">dated evidence</span> records
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">dated evidence</a> records
                       diff review with no actionable finding and expiry test
                       authored but unrun; DB/auth/browser/full verification
                       blocked by credential restriction; governance/publication
@@ -8910,7 +8929,8 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >BT-06, BT-08 and binding authority from BT-04;
-                      <span title="Source document is not included in this public board snapshot">implementation plan</a
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >implementation plan</a
                       ></span
                     >
                   </p>
@@ -8940,7 +8960,7 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >BT-04 and BT-05; existing customer/operations roles;
-                      <a href="first-implementation-package.md">BT-12-S1</span>
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">BT-12-S1</a>
                       uses existing operations/tenant boundary in uncommitted
                       inspector code; credential-free checks and source review
                       reported, elapsed staff-session test authored but unrun;
@@ -8975,7 +8995,8 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >BT-09, BT-10 and BT-13; insurer retains claim decisions;
-                      <span title="Source document is not included in this public board snapshot">implementation plan</a
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >implementation plan</a
                       ></span
                     >
                   </p>
@@ -9006,7 +9027,7 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >BT-11 and evidence for each enabled product and provider;
-                      <a href="implementation-plan.md"
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
                         >implementation plan</a
                       ></span
                     >
@@ -9037,14 +9058,47 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      ><a href="../CONTRIBUTING.md">Contribution workflow</span>,
-                      <span title="Source document is not included in this public board snapshot">skill routing</span>,
-                      <span title="Source document is not included in this public board snapshot">dated evidence</span>;
-                      <span title="Source document is not included in this public board snapshot">prompting rules</span> and revised
+                      ><a aria-disabled="true" title="Internal document omitted from public snapshot">Contribution workflow</a>,
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">skill routing</a>,
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">dated evidence</a>;
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">prompting rules</a> and revised
                       chat ownership documented;
-                      <span title="Source document is not included in this public board snapshot">Git review</span>
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">Git review</a>
                       reports no effective main protection; enforcement
                       pending</span
+                    >
+                  </p>
+                </div>
+              </article>
+              <article
+                id="BT-18"
+                class="milestone"
+                data-status="in-progress"
+                data-search="bt-18 public progress board publish a static docs-only snapshot and verify the exact pages url, assets and gate wording; no application deployment engineering / project manager in progress"
+              >
+                <div class="milestone-top">
+                  <span class="milestone-id">BT-18</span
+                  ><span class="badge in-progress">In progress</span>
+                </div>
+                <h3>Public progress board</h3>
+                <p class="milestone-detail">
+                  publish a static docs-only snapshot and verify the exact Pages
+                  URL, assets and gate wording; no application deployment
+                </p>
+                <div class="milestone-bottom">
+                  <p>
+                    <span class="meta-label">Owner</span
+                    ><strong>Engineering / project manager</strong>
+                  </p>
+                  <p>
+                    <span class="meta-label">Evidence / dependency</span
+                    ><span
+                      >Dedicated <code>codex/docs/progress-pages</code> branch
+                      at
+                      <code>6fd8af0e2924fa986888d7314e503324a8579dab</code> and
+                      Pages branch-root configuration reported;
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">dated evidence</a>; live
+                      HTTP, asset and control checks pending</span
                     >
                   </p>
                 </div>
@@ -9056,10 +9110,10 @@
           </section>
           <p class="footer">
             This board is a generated view. Change
-            <span title="Source document is not included in this public board snapshot">progress.md</span>, the supplemental
-            <span title="Source document is not included in this public board snapshot">backend plan</span> or
-            <span title="Source document is not included in this public board snapshot">repository register</span>, add evidence
-            to <span title="Source document is not included in this public board snapshot">progress-updates.md</span>, then run
+            <a aria-disabled="true" title="Internal document omitted from public snapshot">progress.md</a>, the supplemental
+            <a aria-disabled="true" title="Internal document omitted from public snapshot">backend plan</a> or
+            <a aria-disabled="true" title="Internal document omitted from public snapshot">repository register</a>, add evidence
+            to <a aria-disabled="true" title="Internal document omitted from public snapshot">progress-updates.md</a>, then run
             <code>npm run progress:build</code>. Counts describe tracked
             outcomes, not production readiness.
           </p>
