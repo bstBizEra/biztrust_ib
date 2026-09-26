@@ -126,13 +126,23 @@ Follow the supplied BizTrust brand guide and logo assets on the owner’s workst
 
 ## 3. API architecture and contract rules
 
+### 3.0 Identity provider: official Logto
+
+Use the official upstream Logto project at https://github.com/logto-io/logto as BizTrust's identity provider. BizTrust applications are OIDC clients; they consume Logto's supported OIDC endpoints and SDK/integration guidance for the selected framework. Do not copy Logto's server source into the BizTrust application, query its internal database, or build a second password/token system.
+
+Choose Logto Cloud or a separately operated self-hosted Logto service in a documented ADR. For self-hosting, pin a supported version and define its own upgrade, backup, monitoring, availability, incident, and recovery responsibilities. Register separate customer and staff clients with exact callback URLs and environment-specific settings. Keep the staff console audience and access policy separate from customer journeys.
+
+Use Logto Organizations and organization roles/scopes when they fit the broker/insurer/agent organization model and are supported by the deployed release. Treat Logto as the identity and organization-membership source; BizTrust must resolve each user and organization to an active BizTrust tenant membership server-side and enforce all transaction/resource permissions in its own services and database isolation layer. A Logto organization claim or browser-supplied tenant ID is not sufficient by itself to establish database tenant context.
+
+The official repository is licensed under MPL-2.0. If BizTrust later modifies and distributes Logto source, preserve notices and obtain a license review. See the upstream [README](https://github.com/logto-io/logto) and [LICENSE](https://github.com/logto-io/logto/blob/master/LICENSE); use [Logto documentation](https://docs.logto.io) for version-specific deployment and integration instructions.
+
 ### 3.1 API planes
 
 Separate API audiences and trust models:
 
 | Plane | Consumer | Authentication and control |
 |---|---|---|
-| Customer/distribution API | Web, future mobile app, authorized agent UI | Logto OIDC client and scoped access token/session; server-derived tenant context |
+| Customer/distribution API | Web, future mobile app, authorized agent UI | Official Logto OIDC client; BizTrust resolves the active membership and enforces server-side scope |
 | Operations API | Staff console | Separate staff client/audience, MFA/step-up for high-impact actions, role + tenant + object checks |
 | Partner API | Insurer/payment adapters | Outbound credentials per partner and environment; prefer OAuth client credentials or mTLS where the partner supports it |
 | Webhook ingress | Payment/insurer callback | Provider-specific signature verification and timestamp/replay checks, or mTLS if supported; do not treat an unauthenticated public URL as trusted |
@@ -255,7 +265,7 @@ Keep the field-level inventory and decision owner in a data-classification regis
 
 **Identity, tokens, payments, and logs**
 
-- Let the approved Logto identity service own password verification and password hashing. Passwords must not be reversibly encrypted by BizTrust.
+- Use the official Logto identity service for sign-in, password verification, password hashing, and supported identity factors. Passwords must not be stored or reversibly encrypted by BizTrust.
 - Store session identifiers and sensitive tokens with server-side/secure-cookie handling where the selected architecture permits. Do not persist bearer tokens in browser local storage by default. Follow the current OAuth security best practice for authorization code flows, PKCE, redirect validation, and token handling.
 - Use provider-hosted payment pages or tokenization where available. Store provider references and status evidence instead of unnecessary raw payment credentials.
 - Redact personal data, QR payloads, OAuth codes, access tokens, secret headers, and document contents from logs, traces, analytics, alerts, crash reports, and agent prompts.
@@ -320,7 +330,7 @@ Routine work should remain streamlined: the console should make the next safe ac
 | Decision | Owner input or evidence required |
 |---|---|
 | Operations URL, hosting and network access | DNS, hosting, staff access, and environment model |
-| Staff identity client and MFA policy | Existing Logto clone configuration and staff assurance requirements |
+| Logto deployment and client configuration | Cloud/self-hosted mode, supported release, customer/staff clients, organization mapping, MFA and callback/origin configuration |
 | Payment providers and QR formats | Provider API documentation, sandbox credentials, callback authentication, settlement/refund terms |
 | Insurers and integration capabilities | Partner contracts, quote/submit/status/document/cancel support, sandbox or test process |
 | KMS/secret manager | Hosting provider, key tenancy model, recovery operator, access and rotation policy |
@@ -332,6 +342,8 @@ Routine work should remain streamlined: the console should make the next safe ac
 ## 8. Acceptance criteria
 
 This companion design is ready to guide implementation when:
+
+- Customer and staff sign-in use registered clients of the official Logto identity provider; BizTrust validates OIDC responses and independently enforces membership, resource authorization, and tenant isolation.
 
 - Customer, staff, partner, and webhook API planes have separate audiences and documented trust checks.
 - Payment API responses are server-calculated, QR instructions expire, and provider callbacks cannot directly bypass BizTrust state and reconciliation.
