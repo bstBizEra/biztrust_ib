@@ -1,0 +1,46 @@
+name: Verify BizTrust
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: isolated-ci-only
+          POSTGRES_DB: biztrust_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DEMO_MODE: 'true'
+      HOST: 127.0.0.1
+      APP_ORIGIN: http://127.0.0.1:3000
+      DATABASE_ADMIN_URL: postgresql://postgres:isolated-ci-only@127.0.0.1:5432/biztrust_test
+      DATABASE_URL: postgresql://biztrust_app:isolated-runtime-only@127.0.0.1:5432/biztrust_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Create restricted runtime role and ephemeral signing key
+        run: |
+          psql "$DATABASE_ADMIN_URL" -v ON_ERROR_STOP=1 -c "CREATE ROLE biztrust_app LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE PASSWORD 'isolated-runtime-only'"
+          node -e "const fs=require('fs'),crypto=require('crypto');fs.appendFileSync(process.env.GITHUB_ENV,'WEBHOOK_SECRET='+crypto.randomBytes(48).toString('hex')+'\n')"
+      - run: npm run db:migrate
+      - run: npx playwright install --with-deps chromium
+      - run: npm run verify
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: output/playwright/

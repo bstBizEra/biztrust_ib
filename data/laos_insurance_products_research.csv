@@ -1,0 +1,101 @@
+insurer,product_or_line,category,listing_level,public_price_lak,source_url,source_note,review_status
+Assurances General Laos,Smart Flex Motor Insurance,Motor,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Worry Free Driving Motor Insurance,Motor,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Third Party Liability Motor Insurance,Motor,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Personal Accident Insurance,Accident,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Health Insurance,Health,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Life Protection Insurance,Life,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Term Life Insurance,Life,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Home Insurance,Property,product,,https://www.agl.com.la/home-insurance/,Four options listed on product page,Research only
+Assurances General Laos,Property All Risks,Property,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Small Commercial Business Insurance,Business,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Workmen's Compensation,Business,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Public Liability Insurance,Liability,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Transport Insurance,Cargo,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Money Insurance,Business,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Engineering & Machinery Insurance,Engineering,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Assurances General Laos,Travel Insurance,Travel,product,,https://www.agl.com.la/,Current AGL homepage,Research only
+Phongsavanh Insurance (APA),Health Insurance,Health,product,,https://apa.com.la/health-insurance/,Individual and group mentioned,Research only
+Phongsavanh Insurance (APA),Cancer Insurance,Health,product,,https://apa.com.la/cancer-insurance/,Maximum coverage claim requires terms review,Research only
+Phongsavanh Insurance (APA),Personal Accident Insurance,Accident,product,124500,https://apa.com.la/personal-accident-insurance/,Option 1 annual price shown; six options exist,Research only
+Phongsavanh Insurance (APA),Property Insurance,Property,product,,https://apa.com.la/home-insurance/,Basic and Broad plans mentioned,Research only
+Phongsavanh Insurance (APA),Safe Assured Insurance,Property,product,,https://apa.com.la/home-insurance/,Named on property page,Research only
+Phongsavanh Insurance (APA),Travel Insurance,Travel,product,,https://apa.com.la/travel-insurance/,Product page,Research only
+Phongsavanh Insurance (APA),Loan Protection Insurance,Credit,product,,https://apa.com.la/loan-insurance/,Product page,Research only
+Phongsavanh Insurance (APA),Car Insurance,Motor,product,,https://apa.com.la/car-insurance/,Product page,Research only
+Phongsavanh Insurance (APA),Motorcycle Insurance,Motor,product,,https://apa.com.la/motorcycle-insurance/,Product page,Research only
+Phongsavanh Insurance (APA),Construction & Engineering Insurance,Engineering,product,,https://apa.com.la/construction-and-engineering-insurance/,Product page,Research only
+Phongsavanh Insurance (APA),Electronic Equipment Insurance,Equipment,product,,https://apa.com.la/electronic-insurance/,Product page,Research only
+Lao-Viet Insurance,Car insurance 2-4 seater under 2000cc,Motor,variant,288000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Car insurance 5-7 seater over 2000cc,Motor,variant,307000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Full coverage car insurance FLEX,Motor,product,1500000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Motorbike insurance Basic I1,Motor,variant,111000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Motorbike insurance Advance I3,Motor,variant,130000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Motorbike insurance VIP I5,Motor,variant,167000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Health care insurance Basic CARE1,Health,variant,290000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Health care insurance Advance CARE2,Health,variant,610000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Health care insurance VIP CARE3,Health,variant,1650000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Personal accident insurance Basic PA1,Accident,variant,70000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Personal accident insurance Advance PA2,Accident,variant,100000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+Lao-Viet Insurance,Personal accident insurance VIP PA3,Accident,variant,180000,https://www.lvi.la/en,Homepage price shown; check quote and effective date,Research only
+MSIG Sokxay Insurance,Motor Insurance,Motor,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Fire Insurance,Property,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,SME Insurance,Business,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Home Insurance,Property,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Property All Risks,Property,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Money Insurance,Business,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Travel Insurance,Travel,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Public Liability Insurance,Liability,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Marine Cargo,Cargo,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Equipment All Risks,Equipment,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Group Health Insurance,Health,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Group Personal Accident,Accident,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+MSIG Sokxay Insurance,Construction All Risks,Engineering,product,,https://msig-sokxay.com/en/insurance-products/,Insurer product collection,Research only
+Prudential Laos,PRULife Starter,Life,product,,https://www.prudential.la/corp/prudential-la/en/life-insurance/prulife-starter/,One-year term; example minimum 205 LAK/day for specified group,Research only
+Prudential Laos,PRULife Guard,Life,product,,https://www.prudential.la/corp/prudential-la/en/life-insurance/,Life product catalog,Research only
+Prudential Laos,PRULife Saver,Life,product,,https://www.prudential.la/corp/prudential-la/en/life-insurance/prulife-saver/,Protection and savings,Research only
+Prudential Laos,PRULife Saver Plus,Life,product,,https://www.prudential.la/corp/prudential-la/en/life-insurance/prulife-saver-plus/,Protection and savings,Research only
+Prudential Laos,PRUDream Protector,Life,product,,https://www.prudential.la/corp/prudential-la/en/life-insurance/prudream-protector/,Term life,Research only
+Prudential Laos,PRUBusiness,Group life,product,,https://www.prudential.la/corp/prudential-la/en/life-insurance/prubusiness/,Group term life with optional riders,Research only
+Prudential Laos,PRUCredit Protector,Credit life,product,,https://www.prudential.la/corp/prudential-la/en/life-insurance/prucredit-protector/,Loan protection,Research only
+Prudential Laos,PRUCredit Protector Plus,Credit life,product,,https://www.prudential.la/corp/prudential-la/en/life-insurance/prucredit-protector-plus/,Loan protection,Research only
+Prudential Laos,PRUCritical Care+,Critical illness,rider,,https://www.prudential.la/corp/prudential-la/en/life-insurance/prucritical-care-and-prupremium-waiver/,Additional rider attached to base plan,Research only
+Prudential Laos,PRUPremium Waiver,Life,rider,,https://www.prudential.la/corp/prudential-la/en/life-insurance/prucritical-care-and-prupremium-waiver/,Additional rider attached to base plan,Research only
+Bangkok Insurance (Lao),Motor Insurance,Motor,line,,https://www.bkilao.com/products.html,Category listing only; detail page returned 502,Research only
+Bangkok Insurance (Lao),Home Insurance,Property,line,,https://www.bkilao.com/products.html,Category listing only,Research only
+Bangkok Insurance (Lao),Accident Insurance,Accident,line,,https://www.bkilao.com/products.html,Category listing only,Research only
+Bangkok Insurance (Lao),Health Insurance,Health,line,,https://www.bkilao.com/products.html,Category listing only,Research only
+Bangkok Insurance (Lao),SME Insurance,Business,line,,https://www.bkilao.com/products.html,Category listing only,Research only
+Bangkok Insurance (Lao),Industrial All Risks Insurance,Property,line,,https://www.bkilao.com/products.html,Category listing only,Research only
+Bangkok Insurance (Lao),Inland Transit Insurance,Cargo,line,,https://www.bkilao.com/products.html,Category listing only,Research only
+Bangkok Insurance (Lao),Public Liability Insurance,Liability,line,,https://www.bkilao.com/products.html,Category listing only,Research only
+Bangkok Insurance (Lao),Erection All Risks Insurance,Engineering,line,,https://www.bkilao.com/products.html,Category listing only,Research only
+Bangkok Insurance (Lao),Plant & Equipment All Risks Insurance,Equipment,line,,https://www.bkilao.com/products.html,Category listing only,Research only
+TKI Insurance,Car Insurance,Motor,line,,https://tki-insurance.com/?lang=en,Category listing only; TKI legal entities require confirmation,Research only
+TKI Insurance,Fire Insurance,Property,line,,https://tki-insurance.com/?lang=en,Category listing only; TKI legal entities require confirmation,Research only
+TKI Insurance,Home Insurance,Property,line,,https://tki-insurance.com/?lang=en,Category listing only; TKI legal entities require confirmation,Research only
+TKI Insurance,Property Risk Insurance,Property,line,,https://tki-insurance.com/?lang=en,Category listing only; TKI legal entities require confirmation,Research only
+TKI Insurance,Personal Accident Insurance,Accident,line,,https://tki-insurance.com/?lang=en,Site calls it private accident,Research only
+TKI Insurance,Small Business Insurance,Business,line,,https://tki-insurance.com/?lang=en,Category listing only; TKI legal entities require confirmation,Research only
+TKI Insurance,Life Insurance,Life,line,,https://tki-insurance.com/?lang=en,Category listing only; TKI legal entities require confirmation,Research only
+Forte Laos,Motor Insurance,Motor,line,,https://www.forteinsurance.com/media/4425/forte-group-corporate-profile-2024-2.pdf,Laos-specific corporate profile category; named Cambodia plans excluded,Research only
+Forte Laos,Fire Insurance,Property,line,,https://www.forteinsurance.com/media/4425/forte-group-corporate-profile-2024-2.pdf,Laos-specific corporate profile category,Research only
+Forte Laos,Home Insurance,Property,line,,https://www.forteinsurance.com/media/4425/forte-group-corporate-profile-2024-2.pdf,Laos-specific corporate profile category,Research only
+Forte Laos,Health Insurance,Health,line,,https://www.forteinsurance.com/media/4425/forte-group-corporate-profile-2024-2.pdf,Laos-specific corporate profile category,Research only
+Forte Laos,Personal Accident Insurance,Accident,line,,https://www.forteinsurance.com/media/4425/forte-group-corporate-profile-2024-2.pdf,Laos-specific corporate profile category,Research only
+Forte Laos,Engineering Insurance,Engineering,line,,https://www.forteinsurance.com/media/4425/forte-group-corporate-profile-2024-2.pdf,Laos-specific corporate profile category,Research only
+Forte Laos,Professional Indemnity,Liability,line,,https://www.forteinsurance.com/media/4425/forte-group-corporate-profile-2024-2.pdf,Laos-specific corporate profile category,Research only
+Forte Laos,Marine Cargo,Cargo,line,,https://www.forteinsurance.com/media/4425/forte-group-corporate-profile-2024-2.pdf,Laos-specific corporate profile category,Research only
+Indochina Insurance,Motor Insurance,Motor,line,,https://icilaos.com/,Company homepage lists category only,Research only
+Indochina Insurance,Health Insurance,Health,line,,https://icilaos.com/,Company homepage lists category only,Research only
+Indochina Insurance,Travel Insurance,Travel,line,,https://icilaos.com/,Company homepage lists category only,Research only
+Indochina Insurance,Property Insurance,Property,line,,https://icilaos.com/,Company homepage lists category only,Research only
+Indochina Insurance,Marine Insurance,Cargo,line,,https://icilaos.com/,Company homepage lists category only,Research only
+Lanexang Assurance Public Company,Eco Insurance,Motor,product,,https://www.lap.com.la/,Named motor product on current homepage,Research only
+Lanexang Assurance Public Company,Loan Insurance,Motor,product,,https://www.lap.com.la/,Site describes vehicle and associated loan exposure,Research only
+Lanexang Assurance Public Company,Third Party Insurance,Motor,product,,https://www.lap.com.la/,Motor third-party liability product,Research only
+Laovivat Insurance,Car Insurance,Motor,line,,https://laovivat.com/,Company homepage lists category only,Research only
+Laovivat Insurance,Health Insurance,Health,line,,https://laovivat.com/,Company homepage lists category only,Research only
+Laovivat Insurance,Personal Accident Insurance,Accident,line,,https://laovivat.com/,Company homepage lists category only,Research only
+Laovivat Insurance,Travel Insurance,Travel,line,,https://laovivat.com/,Company homepage lists category only,Research only
+Laovivat Insurance,Home and Shop Insurance,Property,line,,https://laovivat.com/,Company homepage lists category only,Research only

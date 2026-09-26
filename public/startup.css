@@ -1,0 +1,5 @@
+.startup-shell { max-width: 480px; margin: 15vh auto; padding: 32px; font-family: system-ui, sans-serif; color: #2f302f; line-height: 1.6; }
+.startup-shell img { max-width: 100%; height: auto; }
+.startup-shell h1 { margin-top: 36px; font-size: 28px; line-height: 1.25; }
+.startup-reload { display: inline-block; margin-top: 12px; border-radius: 8px; background: #0b7a68; color: white; padding: 12px 20px; text-decoration: none; }
+.startup-reload:focus-visible { outline: 3px solid #2f302f; outline-offset: 4px; }
