@@ -169,6 +169,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -243,6 +253,16 @@
             "description": "Rate limit exceeded"
           },
           "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Typed error with safe message and request ID",
             "content": {
               "application/json": {
@@ -344,6 +364,16 @@
             "description": "Rate limit exceeded"
           },
           "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Typed error with safe message and request ID",
             "content": {
               "application/json": {
@@ -454,6 +484,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -539,6 +579,16 @@
             "description": "Rate limit exceeded"
           },
           "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Typed error with safe message and request ID",
             "content": {
               "application/json": {
@@ -648,6 +698,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -743,6 +803,16 @@
             "description": "Rate limit exceeded"
           },
           "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Typed error with safe message and request ID",
             "content": {
               "application/json": {
@@ -873,6 +943,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -987,6 +1067,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -1070,6 +1160,16 @@
             "description": "Rate limit exceeded"
           },
           "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Typed error with safe message and request ID",
             "content": {
               "application/json": {
@@ -1169,6 +1269,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -1181,7 +1291,7 @@
             "providerSignature": []
           }
         ],
-        "description": "HMAC-SHA256 hex(timestamp + dot + exact raw request body). Timestamp is Unix milliseconds, max absolute skew 300000 ms. Signed context sets tenant/owner. Event IDs are idempotent; changed payload conflicts. Late/mismatched payments enter reconciliation.",
+        "description": "HMAC-SHA256 hex(timestamp + dot + exact raw request body). Timestamp is Unix milliseconds, max absolute skew 300000 ms. Signed context sets tenant/owner. A minimal verified event is durably committed before domain processing. Event IDs are idempotent; changed payload conflicts. Late/mismatched payments enter reconciliation. A processing failure returns 503 PAYMENT_PROCESSING_PENDING; redeliver the same event after signing with a fresh timestamp.",
         "parameters": [
           {
             "name": "X-Provider-Timestamp",
@@ -1294,6 +1404,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -1398,6 +1518,16 @@
             "description": "Rate limit exceeded"
           },
           "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Typed error with safe message and request ID",
             "content": {
               "application/json": {
@@ -1519,6 +1649,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "description": "Requires a settled simulator payment. Final rejected/issued states cannot be overwritten. Issued evidence is explicitly synthetic and does not bind coverage."
@@ -1586,6 +1726,16 @@
             "description": "Rate limit exceeded"
           },
           "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Typed error with safe message and request ID",
             "content": {
               "application/json": {
@@ -1668,6 +1818,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -1688,7 +1848,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "From GET /api/session; mutations also require an exact same-origin Origin header."
+            "description": "From GET /ops/v1/session; staff mutations require the exact same-origin Origin header."
           }
         ],
         "responses": {
@@ -1765,6 +1925,134 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ops/auth/demo": {
+      "post": {
+        "summary": "Create an isolated local staff demonstration workspace",
+        "description": "Loopback demonstration only. Server generates the tenant and synthetic records; no client-selected tenant or role. Separate staff cookie and CSRF required.",
+        "security": [
+          {
+            "staffSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "From GET /ops/v1/session; staff mutations require the exact same-origin Origin header."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Staff demo session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -1772,11 +2060,7 @@
     "/ops/v1/session": {
       "get": {
         "summary": "Staff tenant and CSRF context",
-        "security": [
-          {
-            "staffSession": []
-          }
-        ],
+        "security": [],
         "responses": {
           "200": {
             "description": "Staff context",
@@ -1843,6 +2127,16 @@
             "description": "Rate limit exceeded"
           },
           "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Typed error with safe message and request ID",
             "content": {
               "application/json": {
@@ -1929,6 +2223,16 @@
             "description": "Rate limit exceeded"
           },
           "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Typed error with safe message and request ID",
             "content": {
               "application/json": {
@@ -2057,6 +2361,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -2154,6 +2468,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -2232,6 +2556,16 @@
             "description": "Rate limit exceeded"
           },
           "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
             "description": "Typed error with safe message and request ID",
             "content": {
               "application/json": {

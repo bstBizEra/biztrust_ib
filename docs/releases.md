@@ -14,6 +14,12 @@ The application is a local demonstration. Production startup is intentionally bl
 
 GitHub Actions must be enabled and account billing healthy. If Actions cannot start, do not claim automated verification or package publication. A manually published source prerelease must clearly say that its package is pending.
 
+## Release rehearsal
+
+The Release BizTrust workflow can be run manually against a reviewed branch using `gh workflow run release.yml --ref <branch>`. The rehearsal checks package and lockfile version agreement, fetches full Git history, checks that the latest existing version tag is reachable from `main`, authenticates to GHCR with a read-only token, and builds the container with `push: false`. It creates no tag, package or GitHub Release. The tag-triggered jobs are explicitly limited to version-tag pushes.
+
+Run the rehearsal on the exact branch containing proposed release-action updates, then review its job steps and the pull request verification before merging. The rehearsal does not prove that GHCR accepts a package push or that GitHub Release publication succeeds. Validate those effects only through a separately reviewed demonstration prerelease. Neither result authorizes production deployment.
+
 ## Version rules
 
 Use SemVer tags `vMAJOR.MINOR.PATCH`. Pre-production `0.x` releases are marked prerelease and are never marked `latest` by the workflow. `MAJOR` is for an incompatible public contract or migration; `MINOR` is for backward-compatible capability; `PATCH` is for compatible fixes. Review migration and API compatibility before any major release. Pre-release suffixes `-alpha.N`, `-beta.N`, and `-rc.N` are supported.

@@ -1,5 +1,16 @@
 # Verification — 26 September 2026
 
+## Operations console and system boundary update
+
+- Separate `/ops` console built and verified against its staff APIs: isolated synthetic tenant entry, case reference/state filters, payment exceptions, case timeline, integrations, inbox/outbox health and logout.
+- **35 domain, contract and PostgreSQL tests passed.** This includes staff/customer cookie separation without cross-session revocation, separate OIDC client enforcement, direct use-case authorization, tenant isolation, demo CSRF/input restrictions, and six durable payment inbox tests. The additional demo-disable assertion also passed in the targeted operations test run.
+- **27 browser accessibility checks and 7 journeys passed**, covering both customer and operations experiences, desktop and 390px/320px layouts, application recovery and no page errors. Fixed mobile table overflow and low-contrast table/cover-finder text discovered by the run.
+- Lint, TypeScript, built client and development startup passed. npm production dependency audit reports zero vulnerabilities. Migration `002` applied locally; rerunning the migration command does not reset earlier grants.
+- The reviewed preview is `http://127.0.0.1:3100/ops`; the default configured origin remains port 3000. Screenshots and reports are under `output/playwright/`, including `operations-overview.png`, `operations-mobile-390.png`, `operations-mobile-320.png` and `results.json`.
+- Real OIDC/Logto, insurer intake, specialized staff mutations, APISIX and KMS/encrypted storage have not been validated or delivered by this slice. See [the system boundary](system-boundary.md).
+
+## Earlier customer experience verification
+
 Local `npm run verify` completed successfully on branch `codex/biztrust-platform`.
 
 - ESLint and strict TypeScript: passed.

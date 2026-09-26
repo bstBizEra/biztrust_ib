@@ -63,13 +63,15 @@ export async function sessionMiddleware(
   try {
     const token = req.cookies[cookieName];
     if (typeof token === "string" && /^[a-f0-9]{64}$/.test(token)) {
-      req.sessionHash = hash(token);
+      const tokenHash = hash(token);
       const { rows } = await pool.query(
         "SELECT data FROM auth_sessions WHERE token_hash=$1 AND expires_at>now()",
-        [req.sessionHash],
+        [tokenHash],
       );
-      if (rows[0] && rows[0].data?.audience !== "operations")
+      if (rows[0] && rows[0].data?.audience !== "operations") {
+        req.sessionHash = tokenHash;
         req.session = rows[0].data;
+      }
     }
     if (!req.session) await newSession(req, res);
     if (req.session.mode === "oidc" && req.session.actor) {
