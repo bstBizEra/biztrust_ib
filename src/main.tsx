@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
@@ -6,8 +6,13 @@ import "@fontsource/inter/600.css";
 import "@fontsource/inter/700.css";
 import "@fontsource/noto-sans-lao/400.css";
 import "@fontsource/noto-sans-lao/600.css";
-import App from "./App";
-import "./styles.css";
+const CustomerApp = lazy(async () => {
+  await import("./styles.css");
+  return import("./App");
+});
+const OperationsApp = lazy(() => import("./OpsConsole"));
+const isOperations =
+  location.pathname === "/ops" || location.pathname.startsWith("/ops/");
 
 class ErrorBoundary extends React.Component<
   React.PropsWithChildren,
@@ -36,6 +41,14 @@ class ErrorBoundary extends React.Component<
 }
 createRoot(document.getElementById("root")!).render(
   <ErrorBoundary>
-    <App />
+    <Suspense
+      fallback={
+        <main className="startup-shell" role="status">
+          Opening BizTrust…
+        </main>
+      }
+    >
+      {isOperations ? <OperationsApp /> : <CustomerApp />}
+    </Suspense>
   </ErrorBoundary>,
 );

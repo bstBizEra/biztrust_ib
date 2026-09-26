@@ -17,6 +17,7 @@ export const config = {
 };
 
 export function validateConfig() {
+  validateIdentityConfiguration();
   if (!config.databaseUrl)
     throw new Error(
       "DATABASE_URL missing. Run npm run db:local and npm run db:migrate.",
@@ -33,4 +34,30 @@ export function validateConfig() {
     throw new Error(
       "Production activation is gated: approved catalogue, payment/insurer adapters, identity acceptance and operational evidence are not configured. See docs/architecture.md.",
     );
+}
+
+export function validateIdentityConfiguration() {
+  const canonicalIssuer = (issuer: string) =>
+    issuer ? new URL(issuer).href.replace(/\/$/, "") : "";
+  if (
+    config.staffClientId &&
+    config.clientId &&
+    config.staffClientId === config.clientId &&
+    canonicalIssuer(config.staffIssuer) === canonicalIssuer(config.issuer)
+  )
+    throw new Error(
+      "Staff and customer identity must use separate OIDC clients.",
+    );
+  for (const issuer of [config.issuer, config.staffIssuer]) {
+    if (issuer && new URL(issuer).protocol !== "https:")
+      throw new Error("OIDC issuers must use HTTPS.");
+  }
+}
+
+export function localDemoAvailable() {
+  return (
+    config.demo &&
+    ["127.0.0.1", "localhost"].includes(config.host) &&
+    ["127.0.0.1", "localhost"].includes(new URL(config.origin).hostname)
+  );
 }

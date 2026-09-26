@@ -41,38 +41,40 @@ function paymentState(row: { payment_status: string; expires_at: Date }) {
     : row.payment_status;
 }
 
+function requireOperations(actor: Actor) {
+  if (actor.role !== "operations")
+    throw new DomainError(
+      403,
+      "OPERATIONS_REQUIRED",
+      "This operation requires staff access.",
+    );
+}
+
 export async function overview(actor: Actor) {
+  requireOperations(actor);
   return transaction(actor, async (db) => {
-    const [cases, events, outbox] = await Promise.all([
-      db.query(`SELECT a.insurer_status,i.status AS payment_status,i.expires_at
-        FROM applications a JOIN invoices i ON i.application_id=a.id`),
-      db.query(`SELECT outcome,count(*)::int AS count FROM provider_events
-        WHERE outcome IN ('reconciliation_required','late_payment_review') GROUP BY outcome`),
-      db.query(
-        `SELECT status,count(*)::int AS count FROM outbox GROUP BY status`,
-      ),
-    ]);
+    const counts = (
+      await db.query(`SELECT
+      count(*) FILTER (WHERE a.insurer_status IN ('queued','referred','additional_information','timeout'))::int AS awaiting_action,
+      count(*) FILTER (WHERE i.status='pending' AND i.expires_at>=now())::int AS payment_pending,
+      count(*) FILTER (WHERE i.status='pending' AND i.expires_at<now())::int AS payment_expired,
+      count(*) FILTER (WHERE i.status IN ('failed','reconciliation_required'))::int AS payment_exceptions,
+      count(*) FILTER (WHERE a.insurer_status='timeout')::int AS insurer_timeouts
+      FROM applications a JOIN invoices i ON i.application_id=a.id`)
+    ).rows[0];
+    const events =
+      await db.query(`SELECT count(*)::int AS count FROM provider_events
+      WHERE outcome IN ('reconciliation_required','late_payment_review')`);
+    const outbox = await db.query(
+      `SELECT status,count(*)::int AS count FROM outbox GROUP BY status`,
+    );
     const summary = {
-      awaitingAction: 0,
-      paymentPending: 0,
-      paymentExpired: 0,
-      paymentExceptions: 0,
-      insurerTimeouts: 0,
+      awaitingAction: counts.awaiting_action as number,
+      paymentPending: counts.payment_pending as number,
+      paymentExpired: counts.payment_expired as number,
+      paymentExceptions: counts.payment_exceptions as number,
+      insurerTimeouts: counts.insurer_timeouts as number,
     };
-    for (const row of cases.rows) {
-      const state = paymentState(row);
-      if (
-        ["queued", "referred", "additional_information", "timeout"].includes(
-          row.insurer_status,
-        )
-      )
-        summary.awaitingAction++;
-      if (state === "pending") summary.paymentPending++;
-      if (state === "expired") summary.paymentExpired++;
-      if (["failed", "reconciliation_required"].includes(state))
-        summary.paymentExceptions++;
-      if (row.insurer_status === "timeout") summary.insurerTimeouts++;
-    }
     return {
       tenant: actor.tenant,
       asOf: new Date().toISOString(),
@@ -80,10 +82,7 @@ export async function overview(actor: Actor) {
       integration: {
         payment: "simulator_only",
         insurer: "simulator_only",
-        verifiedExceptionEvents: events.rows.reduce(
-          (total, row) => total + row.count,
-          0,
-        ),
+        verifiedExceptionEvents: events.rows[0].count,
         outbox: Object.fromEntries(
           outbox.rows.map((row) => [row.status, row.count]),
         ),
@@ -94,6 +93,7 @@ export async function overview(actor: Actor) {
 }
 
 export async function cases(actor: Actor, input: unknown) {
+  requireOperations(actor);
   const filter = caseFilter.parse(input);
   return transaction(actor, async (db) => {
     const rows = await db.query(
@@ -129,6 +129,7 @@ export async function cases(actor: Actor, input: unknown) {
 }
 
 export async function caseEvidence(actor: Actor, id: string) {
+  requireOperations(actor);
   const caseId = z.uuid().parse(id);
   return transaction(actor, async (db) => {
     const found = await db.query(
@@ -198,9 +199,18 @@ export async function caseEvidence(actor: Actor, id: string) {
 }
 
 export async function integrationStatus(actor: Actor) {
+  requireOperations(actor);
   return transaction(actor, async (db: pg.PoolClient) => {
     const failures = await db.query(`SELECT status,count(*)::int AS count,
       min(created_at) AS oldest FROM outbox WHERE status='retry_required' GROUP BY status`);
+    const inbox = (
+      await db.query(`SELECT
+      count(*) FILTER (WHERE status='received')::int AS received,
+      count(*) FILTER (WHERE status='failed')::int AS failed,
+      count(*) FILTER (WHERE status='processed')::int AS processed,
+      min(received_at) FILTER (WHERE status<>'processed') AS oldest_pending_at
+      FROM payment_inbox`)
+    ).rows[0];
     return {
       asOf: new Date().toISOString(),
       adapters: [
@@ -219,6 +229,12 @@ export async function integrationStatus(actor: Actor) {
       ],
       retryRequired: failures.rows[0]?.count ?? 0,
       oldestRetryAt: failures.rows[0]?.oldest ?? null,
+      paymentInbox: {
+        received: inbox.received,
+        failed: inbox.failed,
+        processed: inbox.processed,
+        oldestPendingAt: inbox.oldest_pending_at,
+      },
       synthetic: true,
     };
   });

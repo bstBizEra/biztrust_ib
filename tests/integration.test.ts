@@ -483,6 +483,21 @@ test("staff API uses its own audience and only returns tenant-scoped, masked cas
     },
   });
   assert.equal(reusedAtCustomerApi.status, 401);
+  const originalStaffStillValid = await fetch(`${origin}/ops/v1/cases`, {
+    headers: staffCookie,
+  });
+  assert.equal(originalStaffStillValid.status, 200);
+  const originalCustomer = await session(alice);
+  await fetch(`${origin}/ops/v1/session`, {
+    headers: {
+      Cookie: originalCustomer.Cookie.replace("bt_session=", "bt_ops_session="),
+    },
+  });
+  assert.equal(
+    (await fetch(`${origin}/api/applications`, { headers: originalCustomer }))
+      .status,
+    200,
+  );
   const legacyOperations = await fetch(
     `${origin}/api/operations/reconciliation`,
     {

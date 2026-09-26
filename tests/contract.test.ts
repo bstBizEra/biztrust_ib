@@ -26,7 +26,7 @@ test("OpenAPI is valid and mutation/provider schemas match runtime validation", 
       `Regenerate OpenAPI after changing ${name}`,
     );
   }
-  assert.equal(Object.keys(spec.paths).length, 23);
+  assert.equal(Object.keys(spec.paths).length, 24);
   assert.ok(spec.paths["/ops/v1/cases"].get.security[0].staffSession);
   assert.ok(
     spec.paths["/api/webhooks/payment"].post.security[0].providerSignature,
