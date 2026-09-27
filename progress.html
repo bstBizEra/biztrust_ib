@@ -37,10 +37,23 @@
         outline: 3px solid #0b7a68;
         outline-offset: 3px;
       }
+      /*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+      .hidden {
+        display: none;
+      }
+      .hs-collapse-open\:rotate-180.hs-collapse.open,
+      .hs-collapse-open\:rotate-180.hs-collapse-toggle.open,
+      .hs-collapse.open .hs-collapse-open\:rotate-180,
+      .hs-collapse-toggle.open .hs-collapse-open\:rotate-180 {
+        rotate: 180deg;
+      }
       .shell {
         min-height: 100vh;
         display: grid;
         grid-template-columns: 238px minmax(0, 1fr);
+      }
+      .shell:has(#sidebar-links.hidden) {
+        grid-template-columns: 74px minmax(0, 1fr);
       }
       .rail {
         background: #173f30;
@@ -49,6 +62,44 @@
         display: flex;
         flex-direction: column;
         gap: 34px;
+      }
+      .rail:has(#sidebar-links.hidden) {
+        padding-inline: 12px;
+      }
+      .rail-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .rail:has(#sidebar-links.hidden) .rail-header {
+        flex-direction: column;
+      }
+      .rail:has(#sidebar-links.hidden) .brand-name {
+        display: none;
+      }
+      .rail-toggle {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border: 1px solid #739a80;
+        border-radius: 8px;
+        color: white;
+        background: #285b44;
+        cursor: pointer;
+      }
+      .rail-toggle:hover {
+        background: #397052;
+      }
+      .rail-toggle svg {
+        width: 17px;
+        height: 17px;
+        transition: transform 0.2s ease;
+      }
+      .rail-links {
+        overflow: hidden;
       }
       .brand {
         display: flex;
@@ -252,6 +303,67 @@
       }
       .metric progress {
         margin-top: 12px;
+      }
+      .pulse-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.35fr 1fr;
+        gap: 12px;
+      }
+      .pulse-panel {
+        min-width: 0;
+        background: #fff;
+        border: 1px solid #dfe8e2;
+        border-top: 3px solid #69a995;
+        border-radius: 9px;
+        padding: 17px 18px;
+      }
+      .pulse-panel h3 {
+        margin: 0 0 8px;
+        font-size: 15px;
+      }
+      .pulse-panel p {
+        margin: 0 0 12px;
+        color: #52675b;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .pulse-number {
+        display: block;
+        color: #253d31;
+        font-size: 27px;
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -0.04em;
+      }
+      .pulse-panel ul,
+      .pulse-panel ol {
+        margin: 12px 0 0;
+        padding-left: 19px;
+      }
+      .pulse-panel li {
+        margin-bottom: 9px;
+        color: #40594b;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .pulse-panel li:last-child {
+        margin-bottom: 0;
+      }
+      .pulse-panel li strong,
+      .pulse-panel li small {
+        display: block;
+      }
+      .pulse-panel li small {
+        color: #64766a;
+        margin-top: 2px;
+      }
+      .pulse-ids {
+        margin-bottom: 3px;
+      }
+      .pulse-panel .pulse-note {
+        border-top: 1px solid #e3ebe5;
+        margin: 12px 0 0;
+        padding-top: 10px;
       }
       progress {
         display: block;
@@ -1357,6 +1469,9 @@
         .scope-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+        .pulse-grid {
+          grid-template-columns: 1fr;
+        }
       }
       @media (max-width: 1180px) {
         .module-grid {
@@ -1370,18 +1485,20 @@
         .shell {
           display: block;
         }
-        .rail {
+        .rail,
+        .rail:has(#sidebar-links.hidden) {
           padding: 14px 18px;
           gap: 10px;
         }
-        .rail nav {
-          display: flex;
-          overflow-x: auto;
+        .rail:has(#sidebar-links.hidden) .rail-header {
+          flex-direction: row;
+        }
+        .rail:has(#sidebar-links.hidden) .brand-name {
+          display: inline;
         }
         .rail nav a {
-          white-space: nowrap;
+          white-space: normal;
         }
-        .rail-label,
         .rail-bottom {
           display: none;
         }
@@ -1442,6 +1559,12 @@
           grid-template-columns: 1fr;
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        .rail-links,
+        .rail-toggle svg {
+          transition: none;
+        }
+      }
       @media (max-width: 560px) {
         .module-grid {
           grid-template-columns: 1fr;
@@ -1499,18 +1622,49 @@
     </style>
   </head>
   <body>
-<p style="padding:12px 24px;background:#fff3cd;color:#493600;margin:0">Public progress snapshot. Internal document links are omitted. Demo evidence does not authorize production or insurance coverage.</p>
     <a class="skip-link" href="#overview">Skip to implementation plan</a>
     <div class="shell">
       <aside class="rail" aria-label="Project navigation">
         <div class="rail-inner">
-          <a class="brand" aria-disabled="true" title="Internal document omitted from public snapshot"
-            ><img src="assets/logo.svg" alt="" />BizTrust</a
+          <div class="rail-header">
+            <a class="brand" aria-disabled="true" title="Internal document omitted from public snapshot"
+              ><img src="assets/logo.svg" alt="" /><span
+                class="brand-name"
+                >BizTrust</span
+              ></a
+            ><button
+              class="rail-toggle hs-collapse-toggle"
+              type="button"
+              id="sidebar-toggle"
+              aria-label="Toggle project navigation"
+              aria-expanded="false"
+              aria-controls="sidebar-links"
+              data-hs-collapse="#sidebar-links"
+            >
+              <svg
+                class="hs-collapse-open:rotate-180"
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+          <div
+            class="rail-links hs-collapse hidden"
+            id="sidebar-links"
+            role="region"
+            aria-labelledby="sidebar-toggle"
           >
-          <div>
             <p class="rail-label">Implementation plan</p>
             <nav aria-label="Plan sections">
               <a class="active" href="#overview">Overview</a
+              ><a href="#today">Done / today / next</a
               ><a href="#roadmap">Planning → production</a
               ><a href="#repositories">Repositories &amp; reuse</a
               ><a href="#system">System diagrams</a
@@ -1521,19 +1675,19 @@
               ><a href="#production">Production gates</a
               ><a href="#milestones">Milestones &amp; owners</a>
             </nav>
+            <div>
+              <p class="rail-label">Project documents</p>
+              <nav aria-label="Project documents">
+                <a aria-disabled="true" title="Internal document omitted from public snapshot">Plan source ↗</a
+                ><a aria-disabled="true" title="Internal document omitted from public snapshot">Update history ↗</a
+                ><a aria-disabled="true" title="Internal document omitted from public snapshot">Architecture ↗</a
+                ><a aria-disabled="true" title="Internal document omitted from public snapshot">Release gate ↗</a>
+              </nav>
+            </div>
+            <p class="rail-bottom">
+              Local demonstration · v0.2.0<br />Source: docs/progress.md
+            </p>
           </div>
-          <div>
-            <p class="rail-label">Project documents</p>
-            <nav aria-label="Project documents">
-              <a aria-disabled="true" title="Internal document omitted from public snapshot">Plan source ↗</a
-              ><a aria-disabled="true" title="Internal document omitted from public snapshot">Update history ↗</a
-              ><a aria-disabled="true" title="Internal document omitted from public snapshot">Architecture ↗</a
-              ><a aria-disabled="true" title="Internal document omitted from public snapshot">Release gate ↗</a>
-            </nav>
-          </div>
-          <p class="rail-bottom">
-            Local demonstration · v0.2.0<br />Source: docs/progress.md
-          </p>
         </div>
       </aside>
       <div class="main">
@@ -1592,6 +1746,162 @@
               ><small>Implementation or acceptance pending</small>
             </div>
           </section>
+          <section id="today" aria-labelledby="today-title">
+            <div class="section-heading">
+              <h2 id="today-title">Done, today and remaining</h2>
+              <p>Plan snapshot · 27 September 2026</p>
+            </div>
+            <div class="pulse-grid">
+              <article class="pulse-panel">
+                <h3>What have we done?</h3>
+                <span class="pulse-number">4 verified</span>
+                <p>Milestones verified to their stated local boundaries.</p>
+                <ul>
+                  <li><a href="#BT-01">BT-01</a> Customer demo</li>
+                  <li><a href="#BT-02">BT-02</a> Staff demo</li>
+                  <li><a href="#BT-03">BT-03</a> Payment simulator</li>
+                  <li><a href="#BT-18">BT-18</a> Public progress board</li>
+                </ul>
+                <p class="pulse-note">
+                  <a aria-disabled="true" title="Internal document omitted from public snapshot">Read the update history</a>
+                </p>
+              </article>
+              <article class="pulse-panel">
+                <h3>Today's plan</h3>
+                <p>
+                  Bounded engineering loop PAUSED after the dated 38-file,
+                  four-patch local integration snapshot. The user authorized the
+                  bounded five-priority documentation and review preparation
+                  recorded below; the recurring schedule was not restarted. The
+                  45-test isolated full verifier passed on the current
+                  application candidate, and no further concrete
+                  dependency-ready local engineering package is identified
+                  within the current authorization. Resume only with a bounded
+                  scope, named owner, exact candidate/environment and verifier
+                  after the relevant owner or hosted decision evidence arrives.
+                  The dated patches remain snapshots; local technical proof does
+                  not grant integration or production acceptance.
+                </p>
+                <ol>
+                  <li>
+                    <div class="pulse-ids">
+                      <a class="id-link" href="#BT-09">BT-09</a>
+                    </div>
+                    <strong
+                      >Review
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >D01–D07 recovery decisions</a
+                      >
+                      and
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">five-step plan</a>;
+                      name target, custodians and pilot limits. Skills:
+                      ecc:living-docs-governance now; conditional
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >skill routes</a
+                      ></strong
+                    ><small
+                      >Infrastructure / security · D: source archives verified;
+                      portable drill and G4 decisions pending</small
+                    >
+                  </li>
+                  <li>
+                    <div class="pulse-ids">
+                      <a class="id-link" href="#BT-12">BT-12</a>,
+                      <a class="id-link" href="#BT-14">BT-14</a>
+                    </div>
+                    <strong
+                      >Review the dated
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >four-patch handoff</a
+                      >
+                      and
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >scoped integration review</a
+                      >
+                      with owners. Skills: ecc:git-workflow now; conditional
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >skill routes</a
+                      ></strong
+                    ><small
+                      >Git / ADF · Four-patch replay and 38 captured blobs
+                      passed; later board edits are outside snapshot;
+                      owner/hosted review pending</small
+                    >
+                  </li>
+                  <li>
+                    <div class="pulse-ids">
+                      <a class="id-link" href="#BT-12">BT-12</a>,
+                      <a class="id-link" href="#BT-14">BT-14</a>
+                    </div>
+                    <strong
+                      >Fill
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >AP-01/02 appointments and candidate review records</a
+                      >. Skills: ecc:living-docs-governance;
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >skill routes</a
+                      ></strong
+                    ><small
+                      >Project Sponsor / named reviewers · Register prepared;
+                      names and human decisions pending</small
+                    >
+                  </li>
+                  <li>
+                    <div class="pulse-ids">
+                      <a class="id-link" href="#BT-04">BT-04</a>,
+                      <a class="id-link" href="#BT-05">BT-05</a>,
+                      <a class="id-link" href="#BT-10">BT-10</a>
+                    </div>
+                    <strong
+                      >Fill
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >AP-03–05 and OD-04/05/10 decisions</a
+                      >
+                      for product, wording and identity. Skills:
+                      ecc:living-docs-governance now; conditional
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >skill routes</a
+                      ></strong
+                    ><small
+                      >Brokerage / legal / identity owners · Decision register
+                      prepared; authority and acceptance pending</small
+                    >
+                  </li>
+                  <li>
+                    <div class="pulse-ids">
+                      <a class="id-link" href="#BT-17">BT-17</a>
+                    </div>
+                    <strong
+                      >Review PR #13 and
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >remaining hosted proof cases</a
+                      >. Skills: ecc:git-workflow; conditional
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >skill routes</a
+                      ></strong
+                    ><small
+                      >Repository administrator · Main rule/check passed; PR
+                      blocked for human review; other proof cases pending</small
+                    >
+                  </li>
+                </ol>
+              </article>
+              <article class="pulse-panel">
+                <h3>How many more steps?</h3>
+                <span class="pulse-number">5 workstreams</span>
+                <p>
+                  In the <a aria-disabled="true" title="Internal document omitted from public snapshot">next working sequence</a>; these
+                  are not a time estimate.
+                </p>
+                <span class="pulse-number">14 open outcomes</span>
+                <p>4 in progress · 5 blocked · 5 planned</p>
+                <p class="pulse-note">
+                  Production activation remains gated by owner decisions and
+                  acceptance evidence.
+                </p>
+              </article>
+            </div>
+          </section>
           <a class="repo-shortcut" href="#repositories"
             ><span
               ><strong>Repository reuse plan</strong
@@ -1642,6 +1952,17 @@
                 >
               </div>
               <div class="scope">
+                <h3>Data recovery</h3>
+                <p>
+                  Same-machine restore/30 DB tests and D: source archive
+                  readback passed
+                </p>
+                <small
+                  >Next: Off-host/key recovery, targets and G4 owner
+                  acceptance</small
+                >
+              </div>
+              <div class="scope">
                 <h3>Release</h3>
                 <p>0.2.0 prerelease source and container workflow</p>
                 <small
@@ -1652,11 +1973,11 @@
               <div class="scope">
                 <h3>Public progress board</h3>
                 <p>
-                  Public static board verified at the exact Pages URL; later
-                  edits need manual republishing
+                  Earlier static board verified at the exact Pages URL; sidebar
+                  refresh is locally verified
                 </p>
                 <small
-                  >Next: Manual snapshot refresh after source changes</small
+                  >Next: Publish and verify the refreshed static snapshot</small
                 >
               </div>
             </div>
@@ -1922,8 +2243,8 @@
                 <div>
                   <h3>P5 Security &amp; operations</h3>
                   <p class="phase-outcome">
-                    Operable private runtime and classified storage;
-                    implementation and acceptance planned
+                    Isolated synthetic restore and restored-database tests
+                    passed; wider security/operations acceptance pending
                   </p>
                   <div class="phase-progress">
                     <div class="phase-progress-label">
@@ -8324,7 +8645,10 @@
                       <tr>
                         <th scope="row">12</th>
                         <td>Data, documents and analytics</td>
-                        <td>Partial: PostgreSQL RLS, snapshots and audit</td>
+                        <td>
+                          Partial: PostgreSQL RLS, audit, isolated restore and
+                          30 restored-DB tests
+                        </td>
                         <td>
                           Classified objects, encryption, retention,
                           export/reporting and restoration
@@ -8354,7 +8678,8 @@
                         <th scope="row">14</th>
                         <td>Security, resilience and operational control</td>
                         <td>
-                          Partial: local controls and read-only staff console
+                          Partial: local controls, read-only staff and
+                          restored-DB validation, scoped health correction
                         </td>
                         <td>
                           Privileged workflows, KMS, SLOs, alerting, recovery
@@ -8519,7 +8844,7 @@
                   data-filter="in-progress"
                   aria-pressed="false"
                 >
-                  In progress (3)</button
+                  In progress (4)</button
                 ><button
                   type="button"
                   data-filter="blocked"
@@ -8531,7 +8856,7 @@
                   data-filter="planned"
                   aria-pressed="false"
                 >
-                  Planned (6)
+                  Planned (5)
                 </button>
               </div>
               <input
@@ -8653,9 +8978,14 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      >Business evidence listed in
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">discovery</a>; current catalogue is
-                      synthetic</span
+                      >Blocked because signed insurer/distribution authority and
+                      approved product terms, eligibility, rates and publication
+                      rules are not evidenced; the catalogue is synthetic.
+                      Unblock for governed work when the Brokerage / product
+                      lead records scoped agreements and an approved
+                      product/version decision; BT-10 legal content approval is
+                      also needed before real-product publication.
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">Discovery</a></span
                     >
                   </p>
                 </div>
@@ -8683,9 +9013,13 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      >Issuer/client registration and staff policy;
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">operations</a> documents local
-                      contract</span
+                      >Blocked because accepted live customer/staff OIDC setup,
+                      provisioning, role policy and MFA decision are not
+                      evidenced. Unblock for identity work when the Identity
+                      administrator approves separate customer/staff issuer and
+                      client registration plus role/MFA policy; live sign-in and
+                      positive/negative authorization acceptance still need
+                      verification. <a aria-disabled="true" title="Internal document omitted from public snapshot">Operations</a></span
                     >
                   </p>
                 </div>
@@ -8744,9 +9078,13 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      >Provider contract, settlement/refund authority and
-                      reconciliation rules;
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">system boundary</a></span
+                      >Blocked because a payment-provider sandbox contract,
+                      settlement/refund authority and reconciliation rules are
+                      missing. Unblock for integration work when Finance
+                      supplies those decisions and approved sandbox access;
+                      adapters, autonomous worker, ledger, recovery and provider
+                      acceptance remain to be built and verified.
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">System boundary</a></span
                     >
                   </p>
                 </div>
@@ -8774,8 +9112,13 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      >Partner contract, state mapping and binding authority;
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">system boundary</a></span
+                      >Blocked because a contracted insurer sandbox, native
+                      state mapping and binding/policy-evidence authority are
+                      missing. Unblock for partner work when the Insurer liaison
+                      supplies an approved partner contract, sandbox and
+                      authoritative state/evidence rules; authenticated intake,
+                      delivery/retry and per-partner acceptance remain pending.
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">System boundary</a></span
                     >
                   </p>
                 </div>
@@ -8783,12 +9126,12 @@
               <article
                 id="BT-09"
                 class="milestone"
-                data-status="planned"
-                data-search="bt-09 data and operations classified storage, key management, retention, telemetry, backup restoration and incident ownership infrastructure / security planned"
+                data-status="in-progress"
+                data-search="bt-09 data and operations classified storage, key management, retention, telemetry, backup restoration and incident ownership infrastructure / security in progress"
               >
                 <div class="milestone-top">
                   <span class="milestone-id">BT-09</span
-                  ><span class="badge planned">Planned</span>
+                  ><span class="badge in-progress">In progress</span>
                 </div>
                 <h3>Data and operations</h3>
                 <p class="milestone-detail">
@@ -8803,8 +9146,23 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      >Targets and acceptance evidence;
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">operations</a></span
+                      ><a aria-disabled="true" title="Internal document omitted from public snapshot">BT-09-S1</a>
+                      same-user/machine synthetic restore and 30/30
+                      restored-database checks passed; current application
+                      candidate passed 45/45 isolated full tests, build/startup,
+                      34 accessibility checks and audit zero.
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >D01–D07 recovery decision register</a
+                      >
+                      now records proposed offline portable drive, separate key
+                      custody and different-machine drill; no device/key setup
+                      or portable drill occurred.
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">Dated evidence</a>.
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">D: development backup</a>
+                      verified two same-user/machine source archives (97 and 105
+                      files); no off-host recovery. G4 remains open: recovery
+                      target, portable key/restore, retention, incident
+                      ownership and human security acceptance pending</span
                     >
                   </p>
                 </div>
@@ -8832,8 +9190,13 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      >Approved wording and translations;
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">discovery</a></span
+                      >Blocked because reviewed Lao/English product and legal
+                      wording, notices and licensed distribution scope are not
+                      approved. Unblock for content work when a qualified
+                      Business / legal reviewer records approved wording,
+                      translations, notices and scope for each proposed product;
+                      publication still depends on BT-04 product authority.
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">Discovery</a></span
                     >
                   </p>
                 </div>
@@ -8892,14 +9255,14 @@
                     ><span
                       >BT-04 and BT-10;
                       <a aria-disabled="true" title="Internal document omitted from public snapshot">BT-12-S1</a>
-                      uncommitted read-only inspector and preview code present;
-                      Git reports credential-free lint, typecheck, 13/13 pure
-                      tests and sanitized build passed on 27 September;
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">dated evidence</a> records
-                      diff review with no actionable finding and expiry test
-                      authored but unrun; DB/auth/browser/full verification
-                      blocked by credential restriction; governance/publication
-                      blocked by BT-04/BT-10</span
+                      uncommitted synthetic inspector/preview candidate;
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">dated acceptance evidence</a
+                      >: isolated migrations and focused 7/7 passed,
+                      current-candidate full <code>npm run verify</code> passed
+                      (45 tests, build/startup, 34 accessibility checks, eight
+                      browser journeys, audit zero high-severity findings);
+                      product governance, human/security review and hosted
+                      integration remain pending</span
                     >
                   </p>
                 </div>
@@ -8958,14 +9321,15 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      >BT-04 and BT-05; existing customer/operations roles;
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">BT-12-S1</a>
-                      uses existing operations/tenant boundary in uncommitted
-                      inspector code; credential-free checks and source review
-                      reported, elapsed staff-session test authored but unrun;
-                      authenticated HTTP and DB isolation verification blocked
-                      by credential restriction; no role/tenant administration
-                      accepted; BT-04/BT-05 remain dependencies</span
+                      >BT-04 and BT-05; existing operations/tenant boundary
+                      exercised by
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">BT-12-S1</a>;
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">dated acceptance evidence</a
+                      >: isolated expiry and seven-table non-persistence passed,
+                      full verify/browser accessibility passed after
+                      navigation-focus repair; new role/tenant administration,
+                      owner acceptance and hosted integration remain
+                      pending</span
                     >
                   </p>
                 </div>
@@ -9060,11 +9424,28 @@
                       ><a aria-disabled="true" title="Internal document omitted from public snapshot">Contribution workflow</a>,
                       <a aria-disabled="true" title="Internal document omitted from public snapshot">skill routing</a>,
                       <a aria-disabled="true" title="Internal document omitted from public snapshot">dated evidence</a>;
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">prompting rules</a> and revised
-                      chat ownership documented;
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">Git review</a>
-                      reports no effective main protection; enforcement
-                      pending</span
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >scoped integration review</a
+                      >
+                      records the historical three-patch check and proposed
+                      strict current-base protection;
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >current four-patch handoff</a
+                      >
+                      replayed 38 captured files locally. Original checkout
+                      retained its pre-existing PR template; implementation
+                      checkout template repaired.
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot"
+                        >Hosted BT-17 execution</a
+                      >
+                      and proof PR #13: main protection readback confirms strict
+                      unique CI check, one human approval, stale-review
+                      dismissal, conversations and admin enforcement; hosted
+                      check passed for two-file proof baseline; PR blocked for
+                      missing review. AI security/code reviews found no blocking
+                      issue but do not fill AP-01/AP-02. Isolated missing-check,
+                      stale-review, positive approval and unpublished
+                      feature-candidate hosted proof remain open</span
                     >
                   </p>
                 </div>
@@ -9097,8 +9478,10 @@
                       <code>codex/docs/progress-pages</code>; hosted
                       build/deploy/report passed; live HTTPS page, logo,
                       anchors, phase bars and BT-18 search observed;
-                      <a aria-disabled="true" title="Internal document omitted from public snapshot">dated evidence</a>; later
-                      source changes require manual republishing</span
+                      <a aria-disabled="true" title="Internal document omitted from public snapshot">dated evidence</a>;
+                      collapsible Preline navigation verified locally on
+                      desktop/mobile; this source refresh awaits hosted Pages
+                      verification</span
                     >
                   </p>
                 </div>
@@ -9120,6 +9503,469 @@
         </main>
       </div>
     </div>
+    <script>
+      !(function (e, t) {
+        if ("object" == typeof exports && "object" == typeof module)
+          module.exports = t();
+        else if ("function" == typeof define && define.amd) define([], t);
+        else {
+          var n = t();
+          for (var i in n) ("object" == typeof exports ? exports : e)[i] = n[i];
+        }
+      })(self, () =>
+        (() => {
+          "use strict";
+          var e = {
+              2961(e, t) {
+                /*
+                 * HSBasePlugin
+                 * @version: 4.2.0
+                 * @author: Preline Labs Ltd.
+                 * @license: Licensed under MIT and Preline UI Fair Use License (https://preline.co/docs/license.html)
+                 * Copyright 2024 Preline Labs Ltd.
+                 */
+                Object.defineProperty(t, "__esModule", { value: !0 });
+                t.default = class {
+                  constructor(e, t, n) {
+                    ((this.el = e),
+                      (this.options = t),
+                      (this.events = n),
+                      (this.el = e),
+                      (this.options = t),
+                      (this.events = {}));
+                  }
+                  createCollection(e, t) {
+                    var n, i;
+                    let s = e;
+                    if (!Array.isArray(s) && "undefined" != typeof window) {
+                      const e =
+                          null === (n = this.constructor) || void 0 === n
+                            ? void 0
+                            : n.name,
+                        t =
+                          "string" == typeof e && e.startsWith("HS")
+                            ? `$hs${e.slice(2)}Collection`
+                            : null;
+                      t &&
+                        (Array.isArray(window[t]) || (window[t] = []),
+                        (s = window[t]));
+                    }
+                    Array.isArray(s) &&
+                      s.push({
+                        id:
+                          (null === (i = null == t ? void 0 : t.el) ||
+                          void 0 === i
+                            ? void 0
+                            : i.id) || s.length + 1,
+                        element: t,
+                      });
+                  }
+                  fireEvent(e, t = null) {
+                    if (this.events.hasOwnProperty(e)) return this.events[e](t);
+                  }
+                  on(e, t) {
+                    this.events[e] = t;
+                  }
+                };
+              },
+              7902(e, t, n) {
+                var i =
+                  (this && this.__importDefault) ||
+                  function (e) {
+                    return e && e.__esModule ? e : { default: e };
+                  };
+                Object.defineProperty(t, "__esModule", { value: !0 });
+                const s = i(n(2470));
+                (window.addEventListener("load", () => {
+                  s.default.autoInit();
+                }),
+                  "undefined" != typeof window &&
+                    (window.HSAccordion = s.default));
+              },
+              2470(e, t, n) {
+                /*
+                 * HSCollapse
+                 * @version: 4.2.0
+                 * @author: Preline Labs Ltd.
+                 * @license: Licensed under MIT and Preline UI Fair Use License (https://preline.co/docs/license.html)
+                 * Copyright 2024 Preline Labs Ltd.
+                 */
+                var i =
+                  (this && this.__importDefault) ||
+                  function (e) {
+                    return e && e.__esModule ? e : { default: e };
+                  };
+                Object.defineProperty(t, "__esModule", { value: !0 });
+                const s = n(292),
+                  o = i(n(2961));
+                class l extends o.default {
+                  constructor(e, t, n) {
+                    (super(e, t, n),
+                      (this.contentId = this.el.dataset.hsCollapse),
+                      (this.content = document.querySelector(this.contentId)),
+                      (this.animationInProcess = !1),
+                      this.content && this.init());
+                  }
+                  elementClick() {
+                    this.content.classList.contains("open")
+                      ? this.hide()
+                      : this.show();
+                  }
+                  init() {
+                    var e;
+                    (this.createCollection(window.$hsCollapseCollection, this),
+                      (this.onElementClickListener = () => this.elementClick()),
+                      (null === (e = null == this ? void 0 : this.el) ||
+                      void 0 === e
+                        ? void 0
+                        : e.ariaExpanded) &&
+                        (this.el.classList.contains("open")
+                          ? (this.el.ariaExpanded = "true")
+                          : (this.el.ariaExpanded = "false")),
+                      this.el.addEventListener(
+                        "click",
+                        this.onElementClickListener,
+                      ));
+                  }
+                  hideAllMegaMenuItems() {
+                    this.content
+                      .querySelectorAll(".hs-mega-menu-content.block")
+                      .forEach((e) => {
+                        (e.classList.remove("block"),
+                          e.classList.add("hidden"));
+                      });
+                  }
+                  show() {
+                    var e;
+                    if (
+                      this.animationInProcess ||
+                      this.el.classList.contains("open")
+                    )
+                      return !1;
+                    ((this.animationInProcess = !0),
+                      this.el.classList.add("open"),
+                      (null === (e = null == this ? void 0 : this.el) ||
+                      void 0 === e
+                        ? void 0
+                        : e.ariaExpanded) && (this.el.ariaExpanded = "true"),
+                      this.content.classList.add("open"),
+                      this.content.classList.remove("hidden"),
+                      (this.content.style.height = "0"),
+                      setTimeout(() => {
+                        ((this.content.style.height = `${this.content.scrollHeight}px`),
+                          this.fireEvent("beforeOpen", this.el),
+                          (0, s.dispatch)(
+                            "beforeOpen.hs.collapse",
+                            this.el,
+                            this.el,
+                          ),
+                          (0, s.afterTransition)(this.content, () => {
+                            ((this.content.style.height = ""),
+                              this.fireEvent("open", this.el),
+                              (0, s.dispatch)(
+                                "open.hs.collapse",
+                                this.el,
+                                this.el,
+                              ),
+                              (this.animationInProcess = !1));
+                          }));
+                      }));
+                  }
+                  hide() {
+                    var e;
+                    if (
+                      this.animationInProcess ||
+                      !this.el.classList.contains("open")
+                    )
+                      return !1;
+                    ((this.animationInProcess = !0),
+                      this.el.classList.remove("open"),
+                      (null === (e = null == this ? void 0 : this.el) ||
+                      void 0 === e
+                        ? void 0
+                        : e.ariaExpanded) && (this.el.ariaExpanded = "false"),
+                      (this.content.style.height = `${this.content.scrollHeight}px`),
+                      setTimeout(() => {
+                        this.content.style.height = "0";
+                      }),
+                      this.content.classList.remove("open"),
+                      (0, s.afterTransition)(this.content, () => {
+                        (this.content.classList.add("hidden"),
+                          (this.content.style.height = ""),
+                          this.fireEvent("hide", this.el),
+                          (0, s.dispatch)("hide.hs.collapse", this.el, this.el),
+                          (this.animationInProcess = !1));
+                      }),
+                      this.content.querySelectorAll(
+                        ".hs-mega-menu-content.block",
+                      ).length && this.hideAllMegaMenuItems());
+                  }
+                  destroy() {
+                    (this.el.removeEventListener(
+                      "click",
+                      this.onElementClickListener,
+                    ),
+                      (this.content = null),
+                      (this.animationInProcess = !1),
+                      (window.$hsCollapseCollection =
+                        window.$hsCollapseCollection.filter(
+                          ({ element: e }) => e.el !== this.el,
+                        )));
+                  }
+                  static findInCollection(e) {
+                    return (
+                      window.$hsCollapseCollection.find((t) =>
+                        e instanceof l
+                          ? t.element.el === e.el
+                          : "string" == typeof e
+                            ? t.element.el === document.querySelector(e)
+                            : t.element.el === e,
+                      ) || null
+                    );
+                  }
+                  static getInstance(e, t = !1) {
+                    const n = window.$hsCollapseCollection.find(
+                      (t) =>
+                        t.element.el ===
+                        ("string" == typeof e ? document.querySelector(e) : e),
+                    );
+                    return n ? (t ? n : n.element.el) : null;
+                  }
+                  static autoInit() {
+                    (window.$hsCollapseCollection ||
+                      (window.$hsCollapseCollection = []),
+                      window.$hsCollapseCollection &&
+                        (window.$hsCollapseCollection =
+                          window.$hsCollapseCollection.filter(
+                            ({ element: e }) => document.contains(e.el),
+                          )),
+                      document
+                        .querySelectorAll(
+                          ".hs-collapse-toggle:not(.--prevent-on-load-init)",
+                        )
+                        .forEach((e) => {
+                          window.$hsCollapseCollection.find((t) => {
+                            var n;
+                            return (
+                              (null === (n = null == t ? void 0 : t.element) ||
+                              void 0 === n
+                                ? void 0
+                                : n.el) === e
+                            );
+                          }) || new l(e);
+                        }));
+                  }
+                  static show(e) {
+                    const t = l.findInCollection(e);
+                    t &&
+                      t.element.content.classList.contains("hidden") &&
+                      t.element.show();
+                  }
+                  static hide(e) {
+                    const t = l.findInCollection(e);
+                    t &&
+                      !t.element.content.classList.contains("hidden") &&
+                      t.element.hide();
+                  }
+                  static on(e, t, n) {
+                    const i = l.findInCollection(t);
+                    i && (i.element.events[e] = n);
+                  }
+                }
+                t.default = l;
+              },
+              292(e, t) {
+                /*
+                 * @version: 4.2.0
+                 * @author: Preline Labs Ltd.
+                 * @license: Licensed under MIT and Preline UI Fair Use License (https://preline.co/docs/license.html)
+                 * Copyright 2024 Preline Labs Ltd.
+                 */
+                (Object.defineProperty(t, "__esModule", { value: !0 }),
+                  (t.stringToBoolean =
+                    t.menuSearchHistory =
+                    t.isScrollable =
+                    t.isParentOrElementHidden =
+                    t.isJson =
+                    t.isIpadOS =
+                    t.isIOS =
+                    t.isFormElement =
+                    t.isFocused =
+                    t.isEnoughSpace =
+                    t.isDirectChild =
+                    t.htmlToElement =
+                    t.getZIndex =
+                    t.getHighestZIndex =
+                    t.getClassPropertyAlt =
+                    t.getClassProperty =
+                    t.dispatch =
+                    t.debounce =
+                    t.classToClassList =
+                    t.afterTransition =
+                      void 0));
+                t.stringToBoolean = (e) => "true" === e;
+                t.getClassProperty = (e, t, n = "") =>
+                  (window.getComputedStyle(e).getPropertyValue(t) || n).replace(
+                    " ",
+                    "",
+                  );
+                t.getClassPropertyAlt = (e, t, n = "") => {
+                  let i = "";
+                  return (
+                    e.classList.forEach((e) => {
+                      e.includes(t) && (i = e);
+                    }),
+                    i.match(/:(.*)]/) ? i.match(/:(.*)]/)[1] : n
+                  );
+                };
+                const n = (e) =>
+                  window.getComputedStyle(e).getPropertyValue("z-index");
+                t.getZIndex = n;
+                t.getHighestZIndex = (e) => {
+                  let t = Number.NEGATIVE_INFINITY;
+                  return (
+                    e.forEach((e) => {
+                      let i = n(e);
+                      "auto" !== i && ((i = parseInt(i, 10)), i > t && (t = i));
+                    }),
+                    t
+                  );
+                };
+                t.isDirectChild = (e, t) => {
+                  const n = e.children;
+                  for (let e = 0; e < n.length; e++) if (n[e] === t) return !0;
+                  return !1;
+                };
+                t.isEnoughSpace = (e, t, n = "auto", i = 10, s = null) => {
+                  const o = t.getBoundingClientRect(),
+                    l = s ? s.getBoundingClientRect() : null,
+                    r = window.innerHeight,
+                    a = l ? o.top - l.top : o.top,
+                    c = (s ? l.bottom : r) - o.bottom,
+                    d = e.clientHeight + i;
+                  return "bottom" === n
+                    ? c >= d
+                    : "top" === n
+                      ? a >= d
+                      : a >= d || c >= d;
+                };
+                t.isFocused = (e) => document.activeElement === e;
+                t.isFormElement = (e) =>
+                  e instanceof HTMLInputElement ||
+                  e instanceof HTMLTextAreaElement ||
+                  e instanceof HTMLSelectElement;
+                t.isIOS = () =>
+                  !!/iPad|iPhone|iPod/.test(navigator.platform) ||
+                  (navigator.maxTouchPoints &&
+                    navigator.maxTouchPoints > 2 &&
+                    /MacIntel/.test(navigator.platform));
+                t.isIpadOS = () =>
+                  navigator.maxTouchPoints &&
+                  navigator.maxTouchPoints > 2 &&
+                  /MacIntel/.test(navigator.platform);
+                t.isJson = (e) => {
+                  if ("string" != typeof e) return !1;
+                  const t = e.trim()[0],
+                    n = e.trim().slice(-1);
+                  if (("{" === t && "}" === n) || ("[" === t && "]" === n))
+                    try {
+                      return (JSON.parse(e), !0);
+                    } catch (e) {
+                      return !1;
+                    }
+                  return !1;
+                };
+                const i = (e) => {
+                  if (!e) return !1;
+                  return (
+                    "none" === window.getComputedStyle(e).display ||
+                    i(e.parentElement)
+                  );
+                };
+                t.isParentOrElementHidden = i;
+                t.isScrollable = (e) => {
+                  const t = window.getComputedStyle(e),
+                    n = t.overflowY,
+                    i = t.overflowX,
+                    s =
+                      ("scroll" === n || "auto" === n) &&
+                      e.scrollHeight > e.clientHeight,
+                    o =
+                      ("scroll" === i || "auto" === i) &&
+                      e.scrollWidth > e.clientWidth;
+                  return s || o;
+                };
+                t.debounce = (e, t = 200) => {
+                  let n;
+                  return (...i) => {
+                    (clearTimeout(n),
+                      (n = setTimeout(() => {
+                        e.apply(this, i);
+                      }, t)));
+                  };
+                };
+                t.dispatch = (e, t, n = null) => {
+                  const i = new CustomEvent(e, {
+                    detail: { payload: n },
+                    bubbles: !0,
+                    cancelable: !0,
+                    composed: !1,
+                  });
+                  t.dispatchEvent(i);
+                };
+                t.afterTransition = (e, t) => {
+                  const n = () => {
+                      (t(), e.removeEventListener("transitionend", n, !0));
+                    },
+                    i = window.getComputedStyle(e),
+                    s = i.getPropertyValue("transition-duration");
+                  "none" !== i.getPropertyValue("transition-property") &&
+                  parseFloat(s) > 0
+                    ? e.addEventListener("transitionend", n, !0)
+                    : t();
+                };
+                t.htmlToElement = (e) => {
+                  const t = document.createElement("template");
+                  return (
+                    (e = e.trim()),
+                    (t.innerHTML = e),
+                    t.content.firstChild
+                  );
+                };
+                t.classToClassList = (e, t, n = " ", i = "add") => {
+                  e.split(n).forEach((e) => {
+                    e.trim() &&
+                      ("add" === i
+                        ? t.classList.add(e)
+                        : t.classList.remove(e));
+                  });
+                };
+                const s = {
+                  historyIndex: -1,
+                  addHistory(e) {
+                    this.historyIndex = e;
+                  },
+                  existsInHistory(e) {
+                    return e > this.historyIndex;
+                  },
+                  clearHistory() {
+                    this.historyIndex = -1;
+                  },
+                };
+                t.menuSearchHistory = s;
+              },
+            },
+            t = {};
+          var n = (function n(i) {
+            var s = t[i];
+            if (void 0 !== s) return s.exports;
+            var o = (t[i] = { exports: {} });
+            return (e[i].call(o.exports, o, o.exports, n), o.exports);
+          })(7902);
+          return n;
+        })(),
+      );
+    </script>
     <script>
       const buttons = [...document.querySelectorAll("[data-filter]")];
       const cards = [...document.querySelectorAll(".milestone")];
