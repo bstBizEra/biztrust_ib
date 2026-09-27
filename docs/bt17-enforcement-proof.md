@@ -43,3 +43,14 @@ App `15368` to succeed. Then inspect review `5330948194` for dismissal, the
 current review decision and merge state. Count stale-review enforcement only if
 the required check succeeds on the current candidate while approval is missing
 and the PR remains blocked. Do not submit a replacement review in case A.
+
+**B — missing current-head check.** A later documentation-only commit B would
+carry `[skip ci]` in its commit message. GitHub documents that this skips
+`push` and `pull_request` workflows and can leave a required check Pending;
+verify the actual current-head check state rather than inferring absence from
+an API omission or a skipped job with an accepted conclusion. After separate
+review of B's exact tree, a separately authorized eligible review on B would
+isolate the check gate only if GitHub reports approval accepted, the required
+check remains pending or missing on B, and the PR remains blocked. An API
+error, wrong check source, stale head, or another missing gate invalidates
+that interpretation. Do not alter the required-check rule or fabricate a check.
