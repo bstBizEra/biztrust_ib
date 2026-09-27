@@ -28,3 +28,18 @@ every individual protection. Do not attempt an invalid merge to test enforcement
 
 This proof does not authorize merging, tagging, release, deployment, live payment,
 insurer issuance or insurance coverage. Preserve the rejection of `DEMO_MODE=false`.
+
+## Planned non-merge enforcement cases (local candidates; unrun)
+
+These documentation-only commits stage separate stale-review, missing-check and
+recovery observations. They change no workflow, required context or protection.
+Each hosted step needs its own current-head, base, review, check and policy
+readback; a blocked merge state alone cannot identify which gate caused it.
+
+**A — stale review.** After independent review of this candidate, an ordinary
+push of commit A would move PR #13 from its currently approved head. Wait for the
+new head's required `BizTrust required verification` check from GitHub Actions
+App `15368` to succeed. Then inspect review `5330948194` for dismissal, the
+current review decision and merge state. Count stale-review enforcement only if
+the required check succeeds on the current candidate while approval is missing
+and the PR remains blocked. Do not submit a replacement review in case A.
