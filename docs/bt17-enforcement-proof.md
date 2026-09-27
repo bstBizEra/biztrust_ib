@@ -11,15 +11,16 @@ unchanged. Confirm the emitted check name and GitHub Actions source before
 requiring it in branch protection.
 
 Proposed main protection: require an up-to-date passing verification check from
-GitHub Actions, one independent human approval, dismissal of stale approvals and
-resolved conversations. Enforce rules for administrators; allow no routine bypass,
-force push or deletion.
+GitHub Actions, one independent approval accepted by GitHub, dismissal of stale
+approvals and resolved conversations. Enforce rules for administrators; allow no
+routine bypass, force push or deletion.
 
-Proof records must distinguish pending/failed checks, missing human approval,
-stale approval and a fully passing current revision. Agent security and independent
-code reviews are engineering evidence only; they do not supply a human GitHub
-approval. No reviewer may approve their own authored PR. If no eligible human is
-available, leave positive approval and stale-review proof unrun and keep the PR open.
+Proof records must distinguish pending/failed checks, missing required approval,
+stale approval and a fully passing current revision. AP-01 and AP-02 are agent
+engineering review assignments; their findings alone do not prove an eligible
+GitHub approval. No reviewer may approve their own authored PR. Until GitHub
+accepts an independent eligible review, leave positive approval and stale-review
+proof unrun and keep the PR open.
 
 Record the actual PR head/base, check run, effective settings and observed merge
 state in the project progress records. A blocked merge state alone does not prove
