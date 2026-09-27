@@ -54,3 +54,18 @@ isolate the check gate only if GitHub reports approval accepted, the required
 check remains pending or missing on B, and the PR remains blocked. An API
 error, wrong check source, stale head, or another missing gate invalidates
 that interpretation. Do not alter the required-check rule or fabricate a check.
+
+**C — positive recovery.** A final documentation-only commit C without a skip
+directive would restore an ordinary PR verification run. Its push would make
+any B review stale; do not reuse B's approval. After independent review of C,
+require a fresh eligible review on C, successful required CI from App `15368`
+for the current candidate, `reviewDecision=APPROVED` and an open PR with
+`mergeStateStatus=CLEAN`. Record the PR head and any test-merge SHA separately;
+a check on a test-merge commit is evidence only when GitHub associates it with
+the required current PR evaluation. Observe without attempting a merge.
+
+At every stage, stop on null or malformed responses, incomplete pagination,
+candidate/base/policy/repository-scope drift, an unverified check source,
+ambiguous review history, or failed token cleanup. A failed recovery remains
+blocked and requires a new bounded diagnosis; do not weaken protection,
+force-push, repeat an uncertain review POST, or treat an unrun case as passed.
