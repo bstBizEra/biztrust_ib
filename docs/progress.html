@@ -1620,6 +1620,33 @@
         }
       }
     </style>
+    <noscript
+      ><style>
+        #sidebar-links.hidden {
+          display: block !important;
+        }
+        .rail-toggle {
+          display: none;
+        }
+        .shell:has(#sidebar-links.hidden) {
+          grid-template-columns: 238px minmax(0, 1fr);
+        }
+        .rail:has(#sidebar-links.hidden) {
+          padding: 30px 22px;
+        }
+        .rail:has(#sidebar-links.hidden) .rail-header {
+          flex-direction: row;
+        }
+        .rail:has(#sidebar-links.hidden) .brand-name {
+          display: inline;
+        }
+        @media (max-width: 800px) {
+          .rail:has(#sidebar-links.hidden) {
+            padding: 14px 18px;
+          }
+        }
+      </style></noscript
+    >
   </head>
   <body>
     <a class="skip-link" href="#overview">Skip to implementation plan</a>
