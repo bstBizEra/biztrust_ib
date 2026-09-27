@@ -482,6 +482,280 @@ try {
     path: "output/playwright/operations-overview.png",
     fullPage: true,
   });
+  // BT-12-S1 assertions require an authorized isolated demo runtime.
+  const [inspectionResponse] = await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.url() === `${origin}/ops/v1/products` &&
+        response.status() === 200,
+    ),
+    page
+      .getByRole("button", { name: "Products & rating", exact: true })
+      .click(),
+  ]);
+  const inspection = await inspectionResponse.json();
+  assert.equal(inspection.synthetic, true);
+  assert.equal(inspection.mode, "inspection");
+  assert.equal(inspection.products.length, 24);
+  await page
+    .getByText("24 of 24 synthetic products shown", { exact: true })
+    .waitFor();
+  await page
+    .getByLabel("Product category", { exact: true })
+    .selectOption("travel");
+  await page
+    .getByText("2 of 24 synthetic products shown", { exact: true })
+    .waitFor();
+  const unusedTravelInsurer = inspection.products.find(
+    (product) =>
+      !inspection.products.some(
+        (travel) =>
+          travel.category === "travel" &&
+          travel.insurerId === product.insurerId,
+      ),
+  ).insurerId;
+  await page
+    .getByLabel("Demo insurer", { exact: true })
+    .selectOption(unusedTravelInsurer);
+  await page
+    .getByRole("heading", { name: "No synthetic products found" })
+    .waitFor();
+  await accessibility("operations-products-no-filter-match");
+  await page
+    .getByRole("button", { name: "Show all products", exact: true })
+    .click();
+  await page.getByRole("button", { name: /^Travel Essential / }).click();
+  await page
+    .getByRole("heading", { name: "Travel Essential", exact: true })
+    .waitFor();
+  const travelFixture = inspection.products.find(
+    (product) => product.id === "travel-essential",
+  );
+  assert.equal(
+    await page
+      .locator(".ops-product-metadata")
+      .getByText(travelFixture.productVersion, { exact: true })
+      .count(),
+    1,
+  );
+  assert.equal(
+    await page
+      .locator(".ops-product-metadata")
+      .getByText(travelFixture.ruleVersion, { exact: true })
+      .count(),
+    1,
+  );
+  const calculateSample = async () => {
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().endsWith("/preview") &&
+          response.request().method() === "POST",
+      ),
+      page
+        .getByRole("button", { name: "Calculate sample premium", exact: true })
+        .click(),
+    ]);
+    return response;
+  };
+  const travelPreview = await calculateSample();
+  assert.equal(travelPreview.status(), 200);
+  const previewBody = await travelPreview.json();
+  assert.equal(previewBody.total, 168000);
+  assert.equal(previewBody.previewOnly, true);
+  assert.equal(previewBody.productVersion, travelFixture.productVersion);
+  assert.equal("quoteId" in previewBody || "expiresAt" in previewBody, false);
+  await page
+    .locator(".ops-product-total")
+    .getByText("LAK 168,000", { exact: true })
+    .waitFor();
+  const opsCoverageSlider = page.getByRole("slider", {
+    name: "Sample coverage amount",
+    exact: true,
+  });
+  const initialCoverage = Number(await opsCoverageSlider.inputValue());
+  await opsCoverageSlider.focus();
+  await page.keyboard.press("ArrowRight");
+  assert.equal(
+    Number(await opsCoverageSlider.inputValue()),
+    initialCoverage + travelFixture.flex.step,
+  );
+  await page.locator(".ops-product-result").waitFor({ state: "hidden" });
+  await page
+    .getByRole("button", { name: "Reset sample inputs", exact: true })
+    .click();
+  assert.equal(Number(await opsCoverageSlider.inputValue()), initialCoverage);
+  assert.equal(
+    await page.getByLabel("Sample trip days", { exact: true }).inputValue(),
+    "7",
+  );
+  await page.getByLabel("Sample applicant age", { exact: true }).fill("17");
+  assert.equal(
+    await page
+      .getByLabel("Sample applicant age", { exact: true })
+      .evaluate((input) => input.checkValidity()),
+    false,
+  );
+  await page
+    .getByRole("button", { name: "Reset sample inputs", exact: true })
+    .click();
+  await page.getByRole("button", { name: /^Health Essential / }).click();
+  await page.getByLabel("Sample applicant age", { exact: true }).fill("61");
+  assert.equal((await (await calculateSample()).json()).total, 4500000);
+  await page
+    .locator(".ops-product-total")
+    .getByText("LAK 4,500,000", { exact: true })
+    .waitFor();
+  await page
+    .getByRole("button", { name: "Reset sample inputs", exact: true })
+    .click();
+  const healthSlider = page.getByRole("slider", {
+    name: "Sample coverage amount",
+    exact: true,
+  });
+  await healthSlider.focus();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await page
+    .getByRole("checkbox", { name: /^Outpatient consultations/ })
+    .check();
+  assert.equal((await (await calculateSample()).json()).total, 5832000);
+  await page
+    .locator(".ops-product-total")
+    .getByText("LAK 5,832,000", { exact: true })
+    .waitFor();
+  assert.equal(
+    await page
+      .locator(".ops-products")
+      .getByRole("button", {
+        name: /publish|approve|save draft|edit rate|assign role/i,
+      })
+      .count(),
+    0,
+  );
+  for (const width of [1440, 390, 320]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await noOverflow();
+    await accessibility(`operations-product-inspection-${width}`);
+    await page.screenshot({
+      path: `output/playwright/operations-products-${width}.png`,
+      fullPage: true,
+    });
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  for (const [status, code, message] of [
+    [400, "INVALID_COVERAGE", "Unsupported sample coverage."],
+    [503, "SERVICE_UNAVAILABLE", "Sample pricing is temporarily unavailable."],
+    [409, "PRODUCT_VERSION_MISMATCH", "Stale product version."],
+  ]) {
+    await page.route(
+      "**/ops/v1/products/*/preview",
+      (route) =>
+        route.fulfill({
+          status,
+          contentType: "application/json",
+          body: JSON.stringify({ error: { code, message } }),
+        }),
+      { times: 1 },
+    );
+    assert.equal((await calculateSample()).status(), status);
+    await page.locator(".ops-products [role=alert]").waitFor();
+    await page.locator(".ops-product-result").waitFor({ state: "hidden" });
+    if (status === 409) {
+      assert.equal(
+        await page
+          .getByRole("button", {
+            name: "Calculate sample premium",
+            exact: true,
+          })
+          .isDisabled(),
+        true,
+      );
+      await page
+        .getByRole("button", { name: "Refresh products", exact: true })
+        .click();
+      await page
+        .getByText("24 of 24 synthetic products shown", { exact: true })
+        .waitFor();
+    }
+  }
+  await page.route(
+    "**/ops/v1/products",
+    (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: {
+            code: "SERVICE_UNAVAILABLE",
+            message: "Inspection is temporarily unavailable.",
+          },
+        }),
+      }),
+    { times: 1 },
+  );
+  await page.getByRole("button", { name: "Refresh", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Retry products", exact: true })
+    .waitFor();
+  await accessibility("operations-products-load-error");
+  await page.route(
+    "**/ops/v1/products",
+    (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          synthetic: true,
+          mode: "inspection",
+          products: [],
+        }),
+      }),
+    { times: 1 },
+  );
+  await page
+    .getByRole("button", { name: "Retry products", exact: true })
+    .click();
+  await page
+    .getByRole("heading", { name: "No synthetic products found" })
+    .waitFor();
+  await page
+    .getByRole("button", { name: "Refresh products", exact: true })
+    .click();
+  await page
+    .getByText("24 of 24 synthetic products shown", { exact: true })
+    .waitFor();
+  let heldInspection;
+  await page.route(
+    "**/ops/v1/products",
+    (route) => {
+      heldInspection = route;
+    },
+    { times: 1 },
+  );
+  await page.getByRole("button", { name: "Refresh", exact: true }).click();
+  await page
+    .getByText("Loading synthetic products…", { exact: true })
+    .waitFor();
+  assert.equal(await page.locator(".ops-product-detail").count(), 0);
+  await accessibility("operations-products-loading");
+  assert.ok(
+    heldInspection,
+    "Inspection request should be pending for the loading check",
+  );
+  await heldInspection.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify(inspection),
+  });
+  await page
+    .getByText("24 of 24 synthetic products shown", { exact: true })
+    .waitFor();
+  report.journeys.push(
+    "Read-only synthetic product/insurer/category inspection, versioned nonpersistent server preview, golden premiums, keyboard/reset, invalid/stale/server-error recovery and desktop/390px/320px accessibility",
+  );
+  await page.getByRole("button", { name: "Overview", exact: true }).click();
+  await page.locator(".ops-case-link").first().waitFor();
   const opsReference = await page.locator(".ops-case-link").first().innerText();
   await page.locator(".ops-case-link").first().click();
   await page
@@ -537,6 +811,25 @@ try {
       fullPage: true,
     });
   }
+  // Losing the staff cookie must clear the inspector and return to sign-in.
+  await context.clearCookies();
+  await page
+    .getByRole("button", { name: "Products & rating", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Open isolated staff demo" })
+    .waitFor();
+  await page
+    .getByText("Your staff session has expired. Sign in again to continue.", {
+      exact: true,
+    })
+    .waitFor();
+  assert.equal(await page.locator(".ops-product-detail").count(), 0);
+  await accessibility("operations-products-session-expired");
+  await page.getByRole("button", { name: "Open isolated staff demo" }).click();
+  await page
+    .getByText("24 of 24 synthetic products shown", { exact: true })
+    .waitFor();
   await page.getByRole("button", { name: "Sign out of staff console" }).click();
   await page
     .getByRole("button", { name: "Open isolated staff demo" })

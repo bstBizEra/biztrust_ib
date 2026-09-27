@@ -18,11 +18,13 @@
     "test:integration": "tsx --test --test-concurrency=1 tests/integration.test.ts",
     "test:e2e": "node scripts/browser-smoke.mjs",
     "test:startup": "node scripts/startup-smoke.mjs",
+    "progress:build": "node scripts/build-progress.mjs",
+    "progress:check": "node scripts/build-progress.mjs --check",
     "lint": "eslint .",
     "format": "prettier --write src server shared scripts tests docs *.json *.ts *.html README.md",
     "format:check": "prettier --check src server shared scripts tests docs *.json *.ts *.html README.md",
     "security": "npm audit --omit=dev --audit-level=high --registry=https://registry.npmjs.org",
-    "verify": "npm run lint && npm run typecheck && npm test && npm run build && npm run test:startup && npm run test:e2e && npm run security"
+    "verify": "npm run progress:check && npm run lint && npm run typecheck && npm test && npm run build && npm run test:startup && npm run test:e2e && npm run security"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

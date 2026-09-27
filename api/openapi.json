@@ -2149,6 +2149,236 @@
         }
       }
     },
+    "/ops/v1/products": {
+      "get": {
+        "summary": "Inspect synthetic product and rating versions",
+        "description": "Loopback demo only. Shared code fixtures, not tenant-owned governance records. No query parameters are accepted. demoAvailable is fixture availability, not insurer approval.",
+        "security": [
+          {
+            "staffSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Synthetic product inspection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationsProductsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ops/v1/products/{id}/preview": {
+      "post": {
+        "summary": "Preview synthetic pricing without creating business records",
+        "description": "Loopback demo only. Authentication is checked before CSRF. Expected productVersion and ruleVersion must match (409 PRODUCT_VERSION_MISMATCH otherwise). Unknown/unavailable products return 404 PRODUCT_UNAVAILABLE. No quote ID, expiry, audit event or other business record is created; preview is not an offer or coverage.",
+        "security": [
+          {
+            "staffSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "From GET /ops/v1/session; staff mutations require the exact same-origin Origin header."
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Must exactly match APP_ORIGIN."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductPreviewInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Non-persistent synthetic preview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPreviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Typed error with safe message and request ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ops/v1/overview": {
       "get": {
         "summary": "Tenant-scoped operational counts and simulator status",
@@ -2755,6 +2985,367 @@
         },
         "required": [
           "outcome"
+        ],
+        "additionalProperties": false
+      },
+      "ProductPreviewInput": {
+        "type": "object",
+        "properties": {
+          "age": {
+            "type": "integer",
+            "minimum": 18,
+            "maximum": 70
+          },
+          "days": {
+            "default": 7,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 90
+          },
+          "coverageAmount": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 4000000000
+          },
+          "addons": {
+            "maxItems": 2,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            }
+          },
+          "productVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "ruleVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "age",
+          "days",
+          "productVersion",
+          "ruleVersion"
+        ],
+        "additionalProperties": false
+      },
+      "OperationsProductsResponse": {
+        "type": "object",
+        "properties": {
+          "synthetic": {
+            "type": "boolean",
+            "const": true
+          },
+          "mode": {
+            "type": "string",
+            "const": "inspection"
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "insurerId": {
+                  "type": "string"
+                },
+                "insurer": {
+                  "type": "string"
+                },
+                "productVersion": {
+                  "type": "string"
+                },
+                "ruleVersion": {
+                  "type": "string"
+                },
+                "effectiveFrom": {
+                  "type": "string"
+                },
+                "effectiveTo": {
+                  "type": "string"
+                },
+                "synthetic": {
+                  "type": "boolean",
+                  "const": true
+                },
+                "demoAvailable": {
+                  "type": "boolean"
+                },
+                "source": {
+                  "type": "string"
+                },
+                "eligibility": {
+                  "type": "string"
+                },
+                "conditions": {
+                  "type": "string"
+                },
+                "coverage": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "limit": {
+                  "type": "string"
+                },
+                "exclusion": {
+                  "type": "string"
+                },
+                "deductible": {
+                  "type": "string"
+                },
+                "basePremium": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "period": {
+                  "type": "string",
+                  "enum": [
+                    "day",
+                    "year"
+                  ]
+                },
+                "flex": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "baseAmount": {
+                      "type": "number"
+                    },
+                    "min": {
+                      "type": "number"
+                    },
+                    "max": {
+                      "type": "number"
+                    },
+                    "step": {
+                      "type": "number"
+                    },
+                    "addons": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "ratePercent": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "ratePercent"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "baseAmount",
+                    "min",
+                    "max",
+                    "step",
+                    "addons"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "category",
+                "description",
+                "insurerId",
+                "insurer",
+                "productVersion",
+                "ruleVersion",
+                "effectiveFrom",
+                "effectiveTo",
+                "synthetic",
+                "demoAvailable",
+                "source",
+                "eligibility",
+                "conditions",
+                "coverage",
+                "limit",
+                "exclusion",
+                "deductible",
+                "basePremium",
+                "period",
+                "flex"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "synthetic",
+          "mode",
+          "products"
+        ],
+        "additionalProperties": false
+      },
+      "ProductPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "synthetic": {
+            "type": "boolean",
+            "const": true
+          },
+          "previewOnly": {
+            "type": "boolean",
+            "const": true
+          },
+          "mode": {
+            "type": "string",
+            "const": "preview"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "productVersion": {
+            "type": "string"
+          },
+          "ruleVersion": {
+            "type": "string"
+          },
+          "input": {
+            "type": "object",
+            "properties": {
+              "age": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "days": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "coverageAmount": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "addons": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "age",
+              "days",
+              "coverageAmount",
+              "addons"
+            ],
+            "additionalProperties": false
+          },
+          "breakdown": {
+            "type": "object",
+            "properties": {
+              "base": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "addons": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "ratePercent": {
+                      "type": "number"
+                    },
+                    "premium": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "ratePercent",
+                    "premium"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "base",
+              "addons"
+            ],
+            "additionalProperties": false
+          },
+          "premium": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "fee": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "total": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "currency": {
+            "type": "string",
+            "const": "LAK"
+          }
+        },
+        "required": [
+          "synthetic",
+          "previewOnly",
+          "mode",
+          "productId",
+          "productVersion",
+          "ruleVersion",
+          "input",
+          "breakdown",
+          "premium",
+          "fee",
+          "total",
+          "currency"
         ],
         "additionalProperties": false
       },
