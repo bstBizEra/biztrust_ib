@@ -1662,12 +1662,12 @@
               <div class="scope">
                 <h3>Engineering loop</h3>
                 <p>
-                  PAUSED: dated local replay passed; bounded documentation work
+                  PAUSED: R9 local BT-11 review verified; R10 packaging
                   authorized
                 </p>
                 <small
-                  >Next: Owner review, hosted integration and next scoped
-                  package</small
+                  >Next: Local commit/PR draft, then separate hosted and owner
+                  decisions</small
                 >
               </div>
             </div>
@@ -8895,7 +8895,27 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >BT-04 through BT-10 and
-                      <a href="releases.md">release gate</a></span
+                      <a href="releases.md">release gate</a>;
+                      <a href="dev-mode-transition.md">local mode decision</a>:
+                      R9 isolated P1/P2 read-only candidate based on
+                      <code>ee44f68</code> passed 47/47 tests, 34 accessibility
+                      checks, eight browser journeys and audit zero
+                      vulnerabilities; AP-01/AP-02 exact-source AI reviews found
+                      no remaining actionable issue after route, database URL
+                      and error-redaction repairs. R10 local commit and PR draft
+                      were later completed; staging/release G5/G6 and production
+                      gates open R10 original local commit
+                      <code>0ac17e7</code> was created/frozen on base
+                      <code>ee44f68</code>; R14 documentation PR #12 merged as
+                      main <code>717a4e2</code> with postmerge required CI
+                      success. R15 local branch
+                      <code>codex/feature/bt11-main-reconciliation</code> from
+                      <code>717a4e2</code> applies the original 12-file BT-11
+                      package without conflict and without a new commit yet. R9
+                      47-test/34-accessibility/eight-journey/audit-zero proof is
+                      reused, not rerun; source-pin/staged-tree and independent
+                      review are pending. Hosted BT-11 publication and
+                      staging/release acceptance remain open.</span
                     >
                   </p>
                 </div>
@@ -8925,24 +8945,17 @@
                     ><span
                       >BT-04 and BT-10;
                       <a href="first-implementation-package.md">BT-12-S1</a>
-                      uncommitted synthetic inspector/preview candidate;
+                      synthetic inspector/preview slice;
                       <a href="progress-updates.md">dated acceptance evidence</a
                       >: isolated migrations and focused 7/7 passed,
                       current-candidate full <code>npm run verify</code> passed
                       (45 tests, build/startup, 34 accessibility checks, eight
-                      browser journeys, audit zero high-severity findings); R1
-                      AP-01/AP-02 scoped exact-file AI engineering reviews found
-                      no actionable issue; 20 frozen executable hashes match
-                      historical 45-test evidence, with 13 later documents
-                      different; R2 froze a 37-path local integration package
-                      with exact replay tree
-                      <code>cc2189618fb6bceee58f94eab2e6e5681224700d</code>;
-                      AP-02 accepted its binding with zero findings; R3 replayed
-                      those 37 paths on the publicly verified main base in an
-                      isolated checkout, with staged Git blobs matching the
-                      frozen manifest; local commit, exact feature PR hosted
-                      CI/review and accountable product owner decisions remain
-                      pending</span
+                      browser journeys, audit zero high-severity findings);
+                      historical R1-R3 reviews and 37-path replay bound the
+                      local candidate; PR #14 was subsequently merged into main
+                      <code>ee44f68</code>, the verified base for this BT-11
+                      package. Product approval, G1/G2/G5 owner decisions and
+                      production acceptance remain open</span
                     >
                   </p>
                 </div>
@@ -9007,13 +9020,12 @@
                       <a href="progress-updates.md">dated acceptance evidence</a
                       >: isolated expiry and seven-table non-persistence passed,
                       full verify/browser accessibility passed after
-                      navigation-focus repair; R1 scoped app/API/UI/tests/health
-                      review found no actionable code issue; R2 froze the
-                      37-path local package and AP-02 accepted its binding with
-                      zero findings; R3 replayed the package on the publicly
-                      verified main base with matching staged Git blobs; new
-                      role/tenant administration, owner acceptance, local commit
-                      and exact feature PR hosted CI/review remain pending</span
+                      navigation-focus repair; historical R1-R3 scoped review
+                      and 37-path replay preceded PR #14 merging into main
+                      <code>ee44f68</code>, the verified base for this BT-11
+                      package. New role/tenant administration, identity owner
+                      acceptance, G1/G2/G5 and production decisions remain
+                      open</span
                     >
                   </p>
                 </div>

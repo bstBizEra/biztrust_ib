@@ -14,6 +14,7 @@ const server = spawn(process.execPath, ["--import", "tsx", "server/index.ts"], {
     PORT: String(port),
     APP_ORIGIN: origin,
     HOST: "127.0.0.1",
+    APP_MODE: "demo",
     DEMO_MODE: "true",
     BIZTRUST_VITE_CACHE: ".data/vite-startup-smoke",
   },
