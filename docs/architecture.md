@@ -6,7 +6,7 @@ Version 0.1 is a local multi-insurer demonstrator: browse 12 categories / 24 var
 
 ## Engineering delivery harness
 
-The project-specific engineering-agent team, BADF integration, evidence lifecycle, memory/learning pipeline, and controlled delivery plan are specified in [BIZTRUST-ADF-ENG-001-v0.2](architecture/BIZTRUST-ADF-ENG-001-v0.2.md). The specification consumes BADF by pinned reference and does not copy its canonical policies or validators into the product repository.
+The project-specific engineering-agent team, BADF integration, evidence lifecycle, memory/learning pipeline, model-routing policy, and controlled delivery plan are specified in [BIZTRUST-ADF-ENG-001-v0.3](architecture/BIZTRUST-ADF-ENG-001-v0.3.md). The specification consumes BADF by pinned reference and does not copy its canonical policies or validators into the product repository.
 
 ## ADR 001 — modular monolith
 
