@@ -6,6 +6,11 @@ import {
   paymentEvent,
   insurerInput,
 } from "../server/domain.ts";
+import {
+  productPreviewInput,
+  operationsProductsResponse,
+  productPreviewResponse,
+} from "../server/operations-products.ts";
 
 function schema(input: z.ZodType) {
   const value = z.toJSONSchema(input);
@@ -377,6 +382,56 @@ const spec = {
         responses: { "200": response("Staff context"), ...standard },
       },
     },
+    "/ops/v1/products": {
+      get: {
+        summary: "Inspect synthetic product and rating versions",
+        description:
+          "Loopback demo only. Shared code fixtures, not tenant-owned governance records. No query parameters are accepted. demoAvailable is fixture availability, not insurer approval.",
+        security: [{ staffSession: [] }],
+        responses: {
+          "200": response(
+            "Synthetic product inspection",
+            ref("OperationsProductsResponse"),
+          ),
+          ...standard,
+        },
+      },
+    },
+    "/ops/v1/products/{id}/preview": {
+      post: {
+        summary: "Preview synthetic pricing without creating business records",
+        description:
+          "Loopback demo only. Authentication is checked before CSRF. Expected productVersion and ruleVersion must match (409 PRODUCT_VERSION_MISMATCH otherwise). Unknown/unavailable products return 404 PRODUCT_UNAVAILABLE. No quote ID, expiry, audit event or other business record is created; preview is not an offer or coverage.",
+        security: [{ staffSession: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+          },
+          staffCsrfHeader,
+          {
+            name: "Origin",
+            in: "header",
+            required: true,
+            schema: { type: "string" },
+            description: "Must exactly match APP_ORIGIN.",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: json(ref("ProductPreviewInput")),
+        },
+        responses: {
+          "200": response(
+            "Non-persistent synthetic preview",
+            ref("ProductPreviewResponse"),
+          ),
+          ...standard,
+        },
+      },
+    },
     "/ops/v1/overview": {
       get: {
         summary: "Tenant-scoped operational counts and simulator status",
@@ -460,6 +515,9 @@ const spec = {
       ApplicationInput: schema(applicationInput),
       PaymentEvent: schema(paymentEvent),
       InsurerInput: schema(insurerInput),
+      ProductPreviewInput: schema(productPreviewInput),
+      OperationsProductsResponse: schema(operationsProductsResponse),
+      ProductPreviewResponse: schema(productPreviewResponse),
       Error: {
         type: "object",
         required: ["error"],

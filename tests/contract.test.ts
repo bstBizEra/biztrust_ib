@@ -9,6 +9,11 @@ import {
   paymentEvent,
   insurerInput,
 } from "../server/domain.ts";
+import {
+  productPreviewInput,
+  operationsProductsResponse,
+  productPreviewResponse,
+} from "../server/operations-products.ts";
 test("OpenAPI is valid and mutation/provider schemas match runtime validation", async () => {
   await SwaggerParser.validate("api/openapi.json");
   const spec = JSON.parse(readFileSync("api/openapi.json", "utf8"));
@@ -17,6 +22,9 @@ test("OpenAPI is valid and mutation/provider schemas match runtime validation", 
     ApplicationInput: applicationInput,
     PaymentEvent: paymentEvent,
     InsurerInput: insurerInput,
+    ProductPreviewInput: productPreviewInput,
+    OperationsProductsResponse: operationsProductsResponse,
+    ProductPreviewResponse: productPreviewResponse,
   })) {
     const generated = z.toJSONSchema(schema);
     delete generated.$schema;
@@ -26,7 +34,25 @@ test("OpenAPI is valid and mutation/provider schemas match runtime validation", 
       `Regenerate OpenAPI after changing ${name}`,
     );
   }
-  assert.equal(Object.keys(spec.paths).length, 24);
+  assert.equal(Object.keys(spec.paths).length, 26);
+  assert.ok(spec.paths["/ops/v1/products"].get.security[0].staffSession);
+  const preview = spec.paths["/ops/v1/products/{id}/preview"].post;
+  assert.ok(preview.security[0].staffSession);
+  for (const name of ["X-CSRF-Token", "Origin"])
+    assert.ok(
+      preview.parameters.some(
+        (parameter: { name: string; required?: boolean }) =>
+          parameter.name === name && parameter.required,
+      ),
+    );
+  assert.equal(
+    spec.components.schemas.ProductPreviewInput.additionalProperties,
+    false,
+  );
+  assert.equal(
+    spec.components.schemas.ProductPreviewResponse.additionalProperties,
+    false,
+  );
   assert.ok(spec.paths["/ops/v1/cases"].get.security[0].staffSession);
   assert.ok(
     spec.paths["/api/webhooks/payment"].post.security[0].providerSignature,

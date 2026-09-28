@@ -1,0 +1,592 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-09-26",
+  "summary": "Reuse the existing stack first. Next candidates support identity, durable workers, forms and staff queues; later services depend on the hosting and data decisions. The register maps recommendations to phases and acceptance evidence. Listing a project does not mean it is installed or production-accepted.",
+  "acquisitionBoundary": "Planning update only: no new dependency, clone, remote fork, service or workflow was activated.",
+  "entries": [
+    {
+      "id": "logto",
+      "name": "Logto",
+      "url": "https://github.com/logto-io/logto",
+      "kind": "Repository",
+      "tier": "Next",
+      "method": "Upstream service",
+      "modules": ["identity", "customer-api", "staff-api"],
+      "phases": ["P1", "P3"],
+      "milestones": ["BT-05", "BT-14"],
+      "license": "MPL-2.0",
+      "purpose": "Reuse identity, sign-in, organization and permission capabilities.",
+      "current": "The application has Logto-oriented OIDC configuration; no accepted live identity deployment is recorded.",
+      "integration": "Use Logto Cloud or a pinned official service image after hosting selection. Configure separate customer/staff applications and resource audiences. If self-hosted, use a dedicated identity database/role. Map membership to BizTrust tenant rules.",
+      "acceptance": "Prove provisioning/offboarding, required MFA, session revocation and wrong-audience/cross-tenant denial. Upstream quickstart Compose is not a production deployment.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/logto-io/logto"
+        },
+        {
+          "label": "OSS deployment guide",
+          "url": "https://docs.logto.io/logto-oss/get-started-with-oss"
+        },
+        {
+          "label": "Authorization",
+          "url": "https://docs.logto.io/authorization"
+        }
+      ]
+    },
+    {
+      "id": "openid-client",
+      "name": "openid-client",
+      "url": "https://github.com/panva/openid-client",
+      "kind": "Repository",
+      "tier": "Existing",
+      "method": "Package",
+      "modules": ["identity", "customer-api", "staff-api"],
+      "phases": ["P2", "P3"],
+      "milestones": ["BT-05"],
+      "license": "MIT",
+      "purpose": "Keep the OAuth/OIDC client already used by both server identity adapters.",
+      "current": "package-lock.json pins 6.8.8; imported in server/auth.ts and server/staff-auth.ts.",
+      "integration": "Extend existing discovery and code-flow adapters with PKCE/state/nonce and isolated sessions; keep tenant/object authorization in BizTrust.",
+      "acceptance": "Run real issuer login/logout, replay, expiry, revocation and audience-separation tests.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Retain locked 6.8.8 baseline. Upgrade compatible v6 releases only with identity regression evidence.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/panva/openid-client"
+        }
+      ]
+    },
+    {
+      "id": "pg-boss",
+      "name": "pg-boss",
+      "url": "https://github.com/timgit/pg-boss",
+      "kind": "Repository",
+      "tier": "Next",
+      "method": "Package",
+      "modules": ["events", "payments", "insurer", "notifications"],
+      "phases": ["P4"],
+      "milestones": ["BT-07", "BT-08", "BT-15"],
+      "license": "MIT",
+      "purpose": "Candidate for durable background jobs using the PostgreSQL service already in the design.",
+      "current": "Not installed. Current payment recovery needs webhook redelivery; no autonomous worker exists.",
+      "integration": "Run a worker from the application image, with separate queue schema and migration privileges. Enqueue minimal record IDs. Retain the authoritative inbox/outbox and atomic domain transactions; recover missed enqueue operations by durable scanning or a transaction-aware enqueue.",
+      "acceptance": "Spike Node 24/PostgreSQL compatibility, least-privilege roles, restarts, concurrent workers, bounded retries and dead letters. Business and provider operations remain idempotent; queue claims alone do not prove exactly-once outcomes.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/timgit/pg-boss"
+        },
+        {
+          "label": "Requirements",
+          "url": "https://github.com/timgit/pg-boss#requirements"
+        }
+      ]
+    },
+    {
+      "id": "react-hook-form",
+      "name": "React Hook Form",
+      "url": "https://github.com/react-hook-form/react-hook-form",
+      "kind": "Repository",
+      "tier": "Next",
+      "method": "Conditional package",
+      "modules": ["customer-ui", "staff-ui", "quotes", "catalog"],
+      "phases": ["P3"],
+      "milestones": ["BT-06", "BT-12"],
+      "license": "MIT",
+      "purpose": "Reduce repeated form state and validation work for product capture and staff editing.",
+      "current": "Not installed; current React forms already work for the demo.",
+      "integration": "Trial one new product/staff form with react-hook-form and a compatible Zod resolver. Keep existing controls and shared schemas; server validation and approved product versions remain authoritative.",
+      "acceptance": "Accept only if the pilot simplifies nested/repeated inputs and preserves keyboard errors, bilingual labels, consent and server rejection handling.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/react-hook-form/react-hook-form"
+        },
+        {
+          "label": "Resolvers source",
+          "url": "https://github.com/react-hook-form/resolvers"
+        }
+      ]
+    },
+    {
+      "id": "tanstack-table",
+      "name": "TanStack Table",
+      "url": "https://github.com/TanStack/table",
+      "kind": "Repository",
+      "tier": "Next",
+      "method": "Conditional package",
+      "modules": ["staff-ui", "cases", "payments"],
+      "phases": ["P3"],
+      "milestones": ["BT-06", "BT-15"],
+      "license": "MIT",
+      "purpose": "Reuse table state for growing case, reconciliation and audit work queues.",
+      "current": "Not installed; the console has a small read-only table.",
+      "integration": "Use @tanstack/react-table when server paging/filtering and column controls are needed. Retain BizTrust layout and call staff APIs for scoped data.",
+      "acceptance": "Verify server-side sort/filter allowlists, tenant-safe pagination, accessible headers, keyboard actions and mobile containment. Client filters never authorize records.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/TanStack/table"
+        }
+      ]
+    },
+    {
+      "id": "node-postgres",
+      "name": "node-postgres",
+      "url": "https://github.com/brianc/node-postgres",
+      "kind": "Repository",
+      "tier": "Existing",
+      "method": "Package",
+      "modules": ["data", "audit", "events"],
+      "phases": ["P2", "P3", "P4"],
+      "milestones": ["BT-03", "BT-09"],
+      "license": "MIT",
+      "purpose": "Keep direct PostgreSQL transactions and tenant isolation contracts.",
+      "current": "pg 8.23.0 is locked and used by server/db.ts.",
+      "integration": "Extend existing migrations and parameterized queries. Set tenant scope transaction-locally; preserve domain/audit/outbox atomicity.",
+      "acceptance": "Preserve forced RLS and prove pool reuse cannot leak tenant context, with rollback and negative authorization coverage.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Retain locked pg 8.23.0 baseline; review runtime and database compatibility before upgrades.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/brianc/node-postgres"
+        }
+      ]
+    },
+    {
+      "id": "zod",
+      "name": "Zod",
+      "url": "https://github.com/colinhacks/zod",
+      "kind": "Repository",
+      "tier": "Existing",
+      "method": "Package",
+      "modules": ["customer-api", "staff-api", "rules", "quotes"],
+      "phases": ["P2", "P3", "P4"],
+      "milestones": ["BT-06", "BT-12"],
+      "license": "MIT",
+      "purpose": "Reuse typed boundary validation for API inputs and provider mapping.",
+      "current": "zod 4.6.5 is locked in the application.",
+      "integration": "Version approved product schemas and validate commands on the server. Derive UI validation where useful; keep exact premium calculations in shared/pricing.ts.",
+      "acceptance": "Test invalid fields, payload bounds, product versions and consent; reject unknown or unsupported provider state.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Retain locked Zod 4.6.5 baseline; align any form resolver to the selected Zod version.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/colinhacks/zod"
+        }
+      ]
+    },
+    {
+      "id": "playwright",
+      "name": "Playwright",
+      "url": "https://github.com/microsoft/playwright",
+      "kind": "Repository",
+      "tier": "Existing",
+      "method": "Package",
+      "modules": ["customer-ui", "staff-ui", "delivery"],
+      "phases": ["P2", "P3", "P6"],
+      "milestones": ["BT-01", "BT-02", "BT-11"],
+      "license": "Apache-2.0",
+      "purpose": "Extend the existing browser verification instead of introducing another E2E framework.",
+      "current": "playwright 1.63.0 and the CLI are already installed; local smoke journeys exist.",
+      "integration": "Add accepted role/customer/provider scenarios to the existing scripts and hosted CI using controlled fixtures.",
+      "acceptance": "Record exact release/browser versions and reproducible tenant, session, accessibility and workflow evidence.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Keep package/browser binary versions aligned to package-lock.json and the CI artifact.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/microsoft/playwright"
+        }
+      ]
+    },
+    {
+      "id": "axe-core",
+      "name": "axe-core",
+      "url": "https://github.com/dequelabs/axe-core",
+      "kind": "Repository",
+      "tier": "Existing",
+      "method": "Package",
+      "modules": ["customer-ui", "staff-ui", "delivery"],
+      "phases": ["P2", "P3", "P6"],
+      "milestones": ["BT-01", "BT-02", "BT-11"],
+      "license": "MPL-2.0",
+      "purpose": "Continue automated accessibility checks alongside browser journeys.",
+      "current": "axe-core and @axe-core/playwright resolve to 4.13.0 in the lockfile.",
+      "integration": "Reuse existing integration and add checks for staff actions, forms and document flows.",
+      "acceptance": "Combine automated results with manual keyboard, assistive-technology and Lao/English review; automated scans do not prove full accessibility.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Keep the engine and Playwright integration versions compatible and locked.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/dequelabs/axe-core"
+        }
+      ]
+    },
+    {
+      "id": "apisix",
+      "name": "Apache APISIX",
+      "url": "https://github.com/apache/apisix",
+      "kind": "Repository",
+      "tier": "Later",
+      "method": "Upstream service",
+      "modules": ["gateway", "delivery"],
+      "phases": ["P6"],
+      "milestones": ["BT-11"],
+      "license": "Apache-2.0",
+      "purpose": "Use a supported edge gateway once the deployment topology is confirmed.",
+      "current": "No gateway, production DNS or operations hostname has been adopted.",
+      "integration": "Use a pinned official image and project-owned routing configuration. Evaluate standalone file-driven mode before adding etcd. Keep application audience/tenant checks and private upstreams.",
+      "acceptance": "Confirm DNS/hosting/TLS, exact customer/staff routes, raw webhook bodies, trusted proxies, private Admin API, request limits and rollback.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/apache/apisix"
+        },
+        {
+          "label": "Deployment modes",
+          "url": "https://apisix.apache.org/docs/apisix/deployment-modes/"
+        }
+      ]
+    },
+    {
+      "id": "opentelemetry-js",
+      "name": "OpenTelemetry JavaScript",
+      "url": "https://github.com/open-telemetry/opentelemetry-js",
+      "kind": "Repository",
+      "tier": "Later",
+      "method": "Package",
+      "modules": ["telemetry", "customer-api", "staff-api", "events"],
+      "phases": ["P5"],
+      "milestones": ["BT-09", "BT-16"],
+      "license": "Apache-2.0",
+      "purpose": "Reuse standard tracing and metrics across API, database and worker operations.",
+      "current": "Not installed; existing request IDs and health counts are the baseline.",
+      "integration": "Select compatible API/SDK/exporter and Express/HTTP/pg instrumentation packages. Initialize before ESM application imports and propagate correlation into jobs.",
+      "acceptance": "Verify runtime support, redaction, sampling and shutdown flush. Keep personal data and secrets out of telemetry; retain the business audit separately.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/open-telemetry/opentelemetry-js"
+        },
+        {
+          "label": "Node guide",
+          "url": "https://opentelemetry.io/docs/languages/js/getting-started/nodejs/"
+        },
+        {
+          "label": "Instrumentation packages",
+          "url": "https://github.com/open-telemetry/opentelemetry-js-contrib"
+        }
+      ]
+    },
+    {
+      "id": "opentelemetry-collector",
+      "name": "OpenTelemetry Collector",
+      "url": "https://github.com/open-telemetry/opentelemetry-collector",
+      "kind": "Repository",
+      "tier": "Later",
+      "method": "Conditional service",
+      "modules": ["telemetry", "delivery"],
+      "phases": ["P5"],
+      "milestones": ["BT-09", "BT-16"],
+      "license": "Apache-2.0",
+      "purpose": "Receive, filter and export telemetry if a local collector is needed.",
+      "current": "No collector or storage/query backend has been selected.",
+      "integration": "Choose a supported distribution only after required processors/exporters are known. A hosted OTLP endpoint may remove the need for this service.",
+      "acceptance": "Verify private authenticated transport, batching/resource limits, redaction, backend outage behavior and alert ownership. Select telemetry storage and dashboards separately.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/open-telemetry/opentelemetry-collector"
+        },
+        {
+          "label": "Deployment choices",
+          "url": "https://opentelemetry.io/docs/collector/deploy/"
+        }
+      ]
+    },
+    {
+      "id": "pgbackrest",
+      "name": "pgBackRest",
+      "url": "https://github.com/pgbackrest/pgbackrest",
+      "kind": "Repository",
+      "tier": "Later",
+      "method": "Package",
+      "modules": ["data", "delivery"],
+      "phases": ["P5", "P6", "P7"],
+      "milestones": ["BT-09", "BT-11", "BT-16"],
+      "license": "MIT",
+      "purpose": "Use established backup and point-in-time recovery tooling for self-managed PostgreSQL.",
+      "current": "No production restore acceptance recorded; managed database recovery remains an alternative.",
+      "integration": "Install the supported OS package/binary on the selected Linux database host; configure WAL archiving, encrypted off-host repository, retention and restricted credentials.",
+      "acceptance": "Restore in isolation and measure agreed RPO/RTO, including tenant/audit checks. Test document-store and key-service recovery separately.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Record the exact OS package version or released binary checksum/signature; record an image digest if containerized. Verify compatibility with the selected PostgreSQL version.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/pgbackrest/pgbackrest"
+        },
+        {
+          "label": "License",
+          "url": "https://github.com/pgbackrest/pgbackrest/blob/main/LICENSE"
+        },
+        {
+          "label": "User guide",
+          "url": "https://pgbackrest.org/user-guide.html"
+        }
+      ]
+    },
+    {
+      "id": "clamav",
+      "name": "ClamAV",
+      "url": "https://github.com/Cisco-Talos/clamav",
+      "kind": "Repository",
+      "tier": "Later",
+      "method": "Conditional service",
+      "modules": ["documents", "events"],
+      "phases": ["P5"],
+      "milestones": ["BT-09", "BT-15"],
+      "license": "GPL-2.0 (see COPYING.txt and release notices)",
+      "purpose": "Candidate scanner for uploaded customer and insurer artifacts.",
+      "current": "No upload endpoint, quarantine store or scanning pipeline exists.",
+      "integration": "Use an upstream scanner process/container with current signatures behind a private document adapter, or an accepted managed scanning service. Quarantine before any download/release.",
+      "acceptance": "Exercise clean/malicious test fixtures, stale signatures, timeouts, size/archive limits and unavailable scanner; incomplete scans must remain quarantined.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/Cisco-Talos/clamav"
+        },
+        {
+          "label": "License notices",
+          "url": "https://github.com/Cisco-Talos/clamav/blob/main/COPYING.txt"
+        },
+        {
+          "label": "Official documentation",
+          "url": "https://docs.clamav.net/"
+        }
+      ]
+    },
+    {
+      "id": "openbao",
+      "name": "OpenBao",
+      "url": "https://github.com/openbao/openbao",
+      "kind": "Repository",
+      "tier": "Later",
+      "method": "Conditional service",
+      "modules": ["kms", "data", "documents"],
+      "phases": ["P5"],
+      "milestones": ["BT-09", "BT-15"],
+      "license": "MPL-2.0",
+      "purpose": "Candidate secret and encryption-key service when hosting requires self-management.",
+      "current": "No KMS adapter or classified field encryption exists; managed KMS remains an alternative.",
+      "integration": "Use a pinned official image/binary through a backend adapter, scoped workload credentials and transit key versions. Resolve operations/unseal/recovery ownership first.",
+      "acceptance": "Prove restricted decrypt, rotation, revocation, outages and recovery. Installing the service does not encrypt current JSONB or stored objects.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/openbao/openbao"
+        },
+        {
+          "label": "Transit",
+          "url": "https://openbao.org/docs/secrets/transit/"
+        },
+        {
+          "label": "Install and verify",
+          "url": "https://openbao.org/docs/install/"
+        }
+      ]
+    },
+    {
+      "id": "uppy",
+      "name": "Uppy",
+      "url": "https://github.com/transloadit/uppy",
+      "kind": "Repository",
+      "tier": "Later",
+      "method": "Conditional package",
+      "modules": ["customer-ui", "staff-ui", "documents"],
+      "phases": ["P4", "P5"],
+      "milestones": ["BT-15"],
+      "license": "MIT",
+      "purpose": "Reuse upload UI and resumable transfer if real document capture needs it.",
+      "current": "Not installed; the demo only downloads synthetic evidence.",
+      "integration": "Add selected Uppy packages after authorized upload APIs, private storage and quarantine are designed. Prefer a native file input for a simple single-file pilot.",
+      "acceptance": "Verify tenant-bound upload tokens, MIME/size validation, interruption recovery, keyboard/Lao labels and scan-before-release. Do not put object-store credentials in the browser.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/transloadit/uppy"
+        }
+      ]
+    },
+    {
+      "id": "nodemailer",
+      "name": "Nodemailer",
+      "url": "https://github.com/nodemailer/nodemailer",
+      "kind": "Repository",
+      "tier": "Later",
+      "method": "Conditional package",
+      "modules": ["notifications", "events"],
+      "phases": ["P4"],
+      "milestones": ["BT-15"],
+      "license": "MIT-0",
+      "purpose": "Use an SMTP transport if email is an approved customer/staff notification channel.",
+      "current": "No delivery adapter is installed; channel/provider selection remains open.",
+      "integration": "Send approved templates from a durable notification job through restricted provider credentials; store delivery correlation and preferences.",
+      "acceptance": "Verify retries/deduplication, TLS, bounce handling, approved wording and privacy. SMTP acceptance is not customer receipt and cannot alter coverage state.",
+      "forkPolicy": "Use upstream releases. Fork only for a documented patch that cannot be delivered by configuration or an adapter, with an owner and upstream-sync plan.",
+      "versionPolicy": "Select a compatible reviewed release at implementation; commit the package lock or service image digest. No floating main/latest in a release.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/nodemailer/nodemailer"
+        },
+        {
+          "label": "Package license",
+          "url": "https://github.com/nodemailer/nodemailer/blob/master/package.json"
+        },
+        {
+          "label": "License text",
+          "url": "https://github.com/nodemailer/nodemailer/blob/master/LICENSE"
+        }
+      ]
+    },
+    {
+      "id": "madr",
+      "name": "Markdown ADR templates",
+      "url": "https://github.com/adr/madr",
+      "kind": "Repository",
+      "tier": "Next",
+      "method": "Clone to inspect",
+      "modules": ["delivery"],
+      "phases": ["P0", "P1"],
+      "milestones": ["BT-05", "BT-09", "BT-11", "BT-12"],
+      "license": "MIT OR CC0-1.0",
+      "purpose": "Use a small architecture-decision template to record choices and reduce repeated design discussions.",
+      "current": "Reference selected; no upstream template has been copied or workflow enabled.",
+      "integration": "Copy only a reviewed minimal template into docs/adr with source revision/license. Record context, alternatives, owner, outcome and affected milestones.",
+      "acceptance": "Engineering decisions retain explicit human owner acceptance and link to technical evidence; the document cannot grant business or production authority.",
+      "forkPolicy": "No full fork needed. Keep the adapted project template with provenance; clone only to inspect the chosen revision.",
+      "versionPolicy": "Reviewed source revision ba75bb1b20d42af5746b246ad348c202419ae681; this is provenance, not an installed dependency.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/adr/madr"
+        },
+        {
+          "label": "License",
+          "url": "https://github.com/adr/madr/blob/ba75bb1b20d42af5746b246ad348c202419ae681/LICENSE"
+        }
+      ]
+    },
+    {
+      "id": "decision-gate",
+      "name": "ceaksan/decision-gate",
+      "url": "https://github.com/ceaksan/decision-gate",
+      "kind": "Repository",
+      "tier": "Reference",
+      "method": "Clone to inspect",
+      "modules": ["delivery"],
+      "phases": ["P0", "P1"],
+      "milestones": ["BT-06", "BT-09", "BT-11", "BT-12"],
+      "license": "MIT",
+      "purpose": "Optional AI-assisted review rubric for proposals and architecture decisions.",
+      "current": "A Claude Code skill, not an insurance rules or authorization engine. Small history: three commits; latest observed 12 March 2026.",
+      "integration": "Inspect the pinned source and adapt the rubric if useful. Keep external AI/MCP jurors disabled unless their access and data use are explicitly configured. Treat results as advisory evidence.",
+      "acceptance": "A score or GO verdict must not publish products, approve payments, bind policies, grant roles or open the production gate.",
+      "forkPolicy": "Optional fork only for a deliberately maintained customized skill. A small attributed checklist in this project is simpler.",
+      "versionPolicy": "Reviewed revision 322dab6c6eaba6cafa12b45909801af9f2bb9194; clone for inspection only, without installing or executing the skill.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/ceaksan/decision-gate"
+        },
+        {
+          "label": "Reviewed revision",
+          "url": "https://github.com/ceaksan/decision-gate/tree/322dab6c6eaba6cafa12b45909801af9f2bb9194"
+        }
+      ]
+    },
+    {
+      "id": "gh-aw-design-gate",
+      "name": "GitHub Agentic Workflows design gate",
+      "url": "https://github.com/github/gh-aw/blob/main/.github/workflows/design-decision-gate.md",
+      "kind": "Workflow",
+      "tier": "Reference",
+      "method": "Reference only",
+      "modules": ["delivery"],
+      "phases": ["P1", "P6"],
+      "milestones": ["BT-11"],
+      "license": "MIT (parent repository)",
+      "purpose": "Reference for checking architecture-decision documentation during engineering review.",
+      "current": "The supplied URL is one repository-specific Markdown workflow, not a standalone application.",
+      "integration": "If later adopted, adapt its imports, paths, triggers, engine and outputs to BizTrust. Compile and inspect generated lock YAML and test effective permissions/branch checks before enabling it.",
+      "acceptance": "Workflow prose is not proof of branch protection. Use a patched reviewed release; recorded token-exposure advisory affects versions >=0.83.3 and <0.85.4. No live financial/identity authority is delegated.",
+      "forkPolicy": "Reference or adapt a pinned workflow. Fork the parent repository only when maintaining a required compiler/tool patch.",
+      "versionPolicy": "Reviewed parent revision 0f371720744ba6d850fcb1519405381c6ee5751e; choose a patched released tool version if adopting later.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/github/gh-aw/blob/main/.github/workflows/design-decision-gate.md"
+        },
+        {
+          "label": "Workflow structure",
+          "url": "https://github.github.com/gh-aw/reference/workflow-structure/"
+        },
+        {
+          "label": "Official advisory",
+          "url": "https://github.com/github/gh-aw/security/advisories/GHSA-8h78-hpm7-29gg"
+        }
+      ]
+    },
+    {
+      "id": "decision-gate-topic",
+      "name": "Decision-gate topic index",
+      "url": "https://github.com/topics/decision-gate",
+      "kind": "Topic",
+      "tier": "Reference",
+      "method": "Reference only",
+      "modules": ["delivery"],
+      "phases": ["P1"],
+      "milestones": ["BT-11"],
+      "license": "Not applicable — discovery index",
+      "purpose": "Bookmark for finding projects to assess individually.",
+      "current": "The supplied link is a GitHub topic page, not a cloneable repository.",
+      "integration": "Evaluate any chosen project by its own source, license, integration fit and maintenance evidence; a shared topic does not establish compatibility.",
+      "acceptance": "Select a specific upstream before acquisition. No topic-listed project is automatically included.",
+      "forkPolicy": "Cannot clone or fork a topic page.",
+      "versionPolicy": "No package/revision applies to a topic index.",
+      "sources": [
+        {
+          "label": "Upstream source",
+          "url": "https://github.com/topics/decision-gate"
+        }
+      ]
+    }
+  ]
+}
