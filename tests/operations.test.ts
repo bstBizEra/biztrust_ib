@@ -1,9 +1,12 @@
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
+import { randomBytes } from "node:crypto";
 import type { Server } from "node:http";
 import { createApp } from "../server/app.ts";
 import { config, validateIdentityConfiguration } from "../server/config.ts";
-import { pool } from "../server/db.ts";
+import { pool, transaction } from "../server/db.ts";
+import { products } from "../server/catalog.ts";
+import { hash } from "../server/domain.ts";
 import {
   overview,
   cases,
@@ -172,4 +175,224 @@ test("staff demo workspace is isolated, serves real domain evidence, and logout 
     (await fetch(`${origin}/ops/v1/cases`, { headers })).status,
     401,
   );
+});
+
+// Database-backed acceptance cases: run only in an authorized isolated demo DB.
+test("product inspection rejects anonymous and customer sessions before preview CSRF", async () => {
+  assert.equal((await fetch(`${origin}/ops/v1/products`)).status, 401);
+  const anonymous = await fetch(
+    `${origin}/ops/v1/products/travel-essential/preview`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    },
+  );
+  assert.equal(anonymous.status, 401);
+  assert.equal((await anonymous.json()).error.code, "STAFF_SIGN_IN_REQUIRED");
+
+  const initial = await fetch(`${origin}/api/session`);
+  const initialCookie = initial.headers.getSetCookie()[0].split(";")[0];
+  const initialSession = await initial.json();
+  const login = await fetch(`${origin}/api/auth/demo`, {
+    method: "POST",
+    headers: {
+      Cookie: initialCookie,
+      "Content-Type": "application/json",
+      Origin: config.origin,
+      "X-CSRF-Token": initialSession.csrf,
+    },
+    body: "{}",
+  });
+  assert.equal(login.status, 200);
+  const customerCookie = login.headers.getSetCookie()[0].split(";")[0];
+  for (const cookie of [
+    customerCookie,
+    customerCookie.replace("bt_session=", "bt_ops_session="),
+  ]) {
+    assert.equal(
+      (
+        await fetch(`${origin}/ops/v1/products`, {
+          headers: { Cookie: cookie },
+        })
+      ).status,
+      401,
+    );
+    assert.equal(
+      (
+        await fetch(`${origin}/ops/v1/products/travel-essential/preview`, {
+          method: "POST",
+          headers: { Cookie: cookie, "Content-Type": "application/json" },
+          body: "{}",
+        })
+      ).status,
+      401,
+    );
+  }
+});
+
+test("staff product previews validate boundaries and leave all seven business tables unchanged", async () => {
+  const staff = await openDemo();
+  const other = await openDemo();
+  const headers = {
+    Cookie: staff.cookie,
+    "Content-Type": "application/json",
+    Origin: config.origin,
+    "X-CSRF-Token": staff.csrf,
+  };
+  const snapshot = () =>
+    transaction(
+      { tenant: staff.tenant, user: "inspection-test", role: "operations" },
+      async (db) => {
+        const records: Record<string, unknown[]> = {};
+        for (const table of [
+          "quotes",
+          "applications",
+          "invoices",
+          "provider_events",
+          "payment_inbox",
+          "outbox",
+          "audit_events",
+        ])
+          records[table] = (
+            await db.query(
+              `SELECT to_jsonb(record) AS record FROM ${table} AS record ORDER BY id`,
+            )
+          ).rows;
+        return records;
+      },
+    );
+  const beforePreview = await snapshot();
+  const response = await fetch(`${origin}/ops/v1/products`, { headers });
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("cache-control") || "", /no-store/);
+  const inspection = await response.json();
+  assert.equal(inspection.mode, "inspection");
+  assert.equal(inspection.synthetic, true);
+  assert.equal(inspection.products.length, products.length);
+  const input = {
+    productVersion: products[0].version,
+    ruleVersion: products[0].ruleVersion,
+    age: 30,
+    days: 7,
+  };
+  const previewUrl = `${origin}/ops/v1/products/travel-essential/preview`;
+  const preview = (body: unknown, requestHeaders = headers, url = previewUrl) =>
+    fetch(url, {
+      method: "POST",
+      headers: requestHeaders,
+      body: JSON.stringify(body),
+    });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const result = await preview(input);
+    assert.equal(result.status, 200);
+    const body = await result.json();
+    assert.equal(body.total, 168000);
+    assert.equal(body.previewOnly, true);
+    assert.equal(body.productVersion, input.productVersion);
+    assert.equal(body.ruleVersion, input.ruleVersion);
+    assert.equal("id" in body, false);
+    assert.equal("expiresAt" in body, false);
+  }
+  for (const invalidHeaders of [
+    { ...headers, "X-CSRF-Token": "" },
+    { ...headers, "X-CSRF-Token": other.csrf },
+    { ...headers, Origin: "https://foreign.example.test" },
+    { ...headers, Origin: "" },
+  ])
+    assert.equal((await preview(input, invalidHeaders)).status, 403);
+  assert.equal(
+    (
+      await fetch(`${origin}/ops/v1/products?tenant=${other.tenant}`, {
+        headers,
+      })
+    ).status,
+    400,
+  );
+  for (const field of ["tenant", "role", "actor", "premium", "productId"])
+    assert.equal(
+      (await preview({ ...input, [field]: "injected" })).status,
+      400,
+    );
+  for (const field of ["productVersion", "ruleVersion"]) {
+    const result = await preview({ ...input, [field]: "stale" });
+    assert.equal(result.status, 409);
+    assert.equal((await result.json()).error.code, "PRODUCT_VERSION_MISMATCH");
+  }
+  assert.equal(
+    (await preview(input, headers, `${origin}/ops/v1/products/unknown/preview`))
+      .status,
+    404,
+  );
+  assert.equal((await preview({ ...input, age: 17 })).status, 400);
+  const invalidCoverage = await preview({
+    ...input,
+    coverageAmount: 160000000,
+  });
+  assert.equal(invalidCoverage.status, 400);
+  assert.equal((await invalidCoverage.json()).error.code, "INVALID_COVERAGE");
+  assert.deepEqual(await snapshot(), beforePreview);
+
+  assert.equal(
+    (await fetch(`${origin}/ops/auth/logout`, { method: "POST", headers }))
+      .status,
+    200,
+  );
+  assert.equal(
+    (await fetch(`${origin}/ops/v1/products`, { headers })).status,
+    401,
+  );
+  assert.equal((await preview(input)).status, 401);
+});
+
+test("elapsed staff sessions cannot inspect products or preview pricing", async () => {
+  const staff = await openDemo();
+  const product = products.find((item) => item.id === "travel-essential")!;
+  const requests = (cookie: string) => [
+    fetch(`${origin}/ops/v1/products`, { headers: { Cookie: cookie } }),
+    fetch(`${origin}/ops/v1/products/${product.id}/preview`, {
+      method: "POST",
+      headers: {
+        Cookie: cookie,
+        "Content-Type": "application/json",
+        Origin: config.origin,
+        "X-CSRF-Token": staff.csrf,
+      },
+      body: JSON.stringify({
+        productVersion: product.version,
+        ruleVersion: product.ruleVersion,
+        age: 30,
+        days: 7,
+      }),
+    }),
+  ];
+  for (const response of await Promise.all(requests(staff.cookie)))
+    assert.equal(response.status, 200);
+
+  const expiredToken = randomBytes(32).toString("hex");
+  const tokenHash = hash(expiredToken);
+  try {
+    // Copy valid session data with an elapsed DB timestamp; runtime cannot UPDATE sessions.
+    const expired = await pool.query(
+      `INSERT INTO auth_sessions(token_hash,data,expires_at)
+       SELECT $1,data,now()-interval '1 second' FROM auth_sessions WHERE token_hash=$2
+       RETURNING expires_at<=now() AS expired`,
+      [tokenHash, hash(staff.cookie.split("=")[1])],
+    );
+    assert.equal(expired.rowCount, 1);
+    assert.equal(expired.rows[0].expired, true);
+    for (const response of await Promise.all(
+      requests(`bt_ops_session=${expiredToken}`),
+    )) {
+      assert.equal(response.status, 401);
+      assert.equal(
+        (await response.json()).error.code,
+        "STAFF_SIGN_IN_REQUIRED",
+      );
+    }
+  } finally {
+    await pool.query("DELETE FROM auth_sessions WHERE token_hash=$1", [
+      tokenHash,
+    ]);
+  }
 });

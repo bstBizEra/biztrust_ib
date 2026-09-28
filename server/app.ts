@@ -5,6 +5,7 @@ import { rateLimit } from "express-rate-limit";
 import { randomUUID } from "node:crypto";
 import { ZodError } from "zod";
 import QRCode from "qrcode";
+import metadata from "../package.json" with { type: "json" };
 import { acceptVerifiedPayment } from "./payment-inbox.ts";
 import { config } from "./config.ts";
 import { categories, insurers, products } from "./catalog.ts";
@@ -34,6 +35,7 @@ import {
   caseEvidence,
   integrationStatus,
 } from "./operations.ts";
+import { inspectProducts, previewProduct } from "./operations-products.ts";
 import {
   createQuote,
   createApplication,
@@ -118,6 +120,21 @@ export function createApp() {
     startStaffDemo,
   );
   app.get("/ops/v1/session", staffSessionResponse);
+  app.get("/ops/v1/products", (req, res) =>
+    res.json(inspectProducts(staffActor(req), req.query)),
+  );
+  app.post(
+    "/ops/v1/products/:id/preview",
+    (req, _res, next) => {
+      staffActor(req);
+      next();
+    },
+    staffCsrf,
+    (req, res) =>
+      res.json(
+        previewProduct(staffActor(req), String(req.params.id), req.body),
+      ),
+  );
   app.get("/ops/v1/overview", async (req, res) =>
     res.json(await overview(staffActor(req))),
   );
@@ -135,7 +152,7 @@ export function createApp() {
     res.json({
       status: "ok",
       mode: config.demo ? "demonstration" : "production",
-      version: "0.1.0",
+      version: metadata.version,
     });
   });
   app.post(

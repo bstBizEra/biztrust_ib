@@ -1,6 +1,231 @@
 body:has(.ops-app) {
   margin: 0;
 }
+
+.ops-products {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.ops-product-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 14px;
+  padding: 18px;
+}
+.ops-products label,
+.ops-products legend {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #375346;
+}
+.ops-products select,
+.ops-products input[type="number"] {
+  width: 100%;
+  min-width: 0;
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid #b8cbbf;
+  border-radius: 6px;
+  background: #fff;
+  color: #263f31;
+}
+.ops-product-layout {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.85fr) minmax(0, 1.7fr);
+  align-items: start;
+  gap: 18px;
+  min-width: 0;
+}
+.ops-product-list {
+  display: grid;
+  gap: 7px;
+  padding: 0 14px 16px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+.ops-app .ops-product-choice {
+  display: grid;
+  gap: 5px;
+  text-align: left;
+  padding: 13px;
+  border: 1px solid #d3dfd7;
+  border-radius: 7px;
+  background: #fff;
+}
+.ops-app .ops-product-choice[aria-pressed="true"] {
+  background: #e9f4ef;
+  border-color: #0b7a68;
+  box-shadow: inset 3px 0 #0b7a68;
+}
+.ops-product-choice strong {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.ops-product-choice span {
+  font-size: 11px;
+  color: #52685b;
+}
+.ops-product-detail {
+  padding: 20px;
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.ops-product-detail h2 {
+  font-size: 18px;
+}
+.ops-product-metadata {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px 18px;
+  margin: 0;
+}
+.ops-product-metadata div,
+.ops-product-facts div {
+  min-width: 0;
+}
+.ops-product-metadata dt,
+.ops-product-facts dt {
+  color: #53685b;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+.ops-product-metadata dd,
+.ops-product-facts dd {
+  margin: 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.ops-product-facts {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+.ops-product-facts ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.ops-product-source {
+  padding: 12px;
+  background: #f3f7f4;
+  border-radius: 7px;
+}
+.ops-product-controls {
+  display: grid;
+  gap: 17px;
+  padding-top: 20px;
+  border-top: 1px solid #dce6df;
+}
+.ops-product-controls fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.ops-product-controls legend {
+  margin-bottom: 10px;
+}
+.ops-products input[type="range"] {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  accent-color: #0b7a68;
+}
+.ops-product-range-label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  justify-content: space-between;
+}
+.ops-product-range-label output {
+  font-weight: 600;
+  color: #235d42;
+}
+.ops-product-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.ops-products .ops-product-addon {
+  display: flex;
+  gap: 10px;
+  align-items: start;
+  font-weight: 400;
+  padding: 8px 0;
+}
+.ops-product-addon input {
+  accent-color: #0b7a68;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+.ops-product-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.ops-product-result {
+  padding: 16px;
+  border: 1px solid #bdd9c8;
+  border-radius: 8px;
+  background: #f1f8f4;
+}
+.ops-product-result dl {
+  margin: 12px 0;
+}
+.ops-product-result dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 7px;
+  font-size: 12px;
+}
+.ops-product-result dd {
+  margin: 0;
+  white-space: nowrap;
+}
+.ops-product-result .ops-product-total {
+  border-top: 1px solid #c9ded1;
+  padding-top: 10px;
+  font-weight: 700;
+}
+.ops-product-message {
+  padding: 18px;
+}
+.ops-product-message .ops-button {
+  margin-top: 12px;
+}
+.ops-products [role="alert"] {
+  color: #843e2c;
+}
+@media (max-width: 1100px) {
+  .ops-product-layout {
+    grid-template-columns: 1fr;
+  }
+  .ops-product-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 320px;
+  }
+}
+@media (max-width: 560px) {
+  .ops-product-filters,
+  .ops-product-metadata,
+  .ops-product-inputs {
+    grid-template-columns: 1fr;
+  }
+  .ops-product-list {
+    grid-template-columns: 1fr;
+  }
+  .ops-product-detail {
+    padding: 16px;
+  }
+  .ops-product-result dl div {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}
 .ops-app {
   --ops-ink: #2f302f;
   --ops-muted: #63716b;
@@ -63,6 +288,7 @@ body:has(.ops-app) {
 .ops-app a:focus-visible,
 .ops-app input:focus-visible,
 .ops-app select:focus-visible,
+.ops-sidebar nav:focus-visible,
 .ops-dialog button:focus-visible {
   outline: 3px solid #0b7a68;
   outline-offset: 3px;

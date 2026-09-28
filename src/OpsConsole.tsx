@@ -31,6 +31,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import "./ops-console.css";
+import OpsProductInspector from "./OpsProductInspector";
 
 interface StaffSession {
   authenticated: boolean;
@@ -121,7 +122,8 @@ interface Resource<T> {
   loading: boolean;
   error: string;
 }
-type Page = "overview" | "cases" | "payments" | "integrations" | "system";
+type Page =
+  "overview" | "products" | "cases" | "payments" | "integrations" | "system";
 const pages: {
   id: Page;
   label: string;
@@ -133,6 +135,13 @@ const pages: {
     label: "Overview",
     icon: LayoutDashboard,
     description: "Your operating picture, with the evidence behind every case.",
+  },
+  {
+    id: "products",
+    label: "Products & rating",
+    icon: Layers3,
+    description:
+      "Inspect synthetic product versions and preview sample pricing without saving records.",
   },
   {
     id: "cases",
@@ -587,9 +596,9 @@ export default function OpsConsole() {
   const [paymentFilter, setPaymentFilter] = useState("");
   const [query, setQuery] = useState("");
   const [filterError, setFilterError] = useState("");
-  const loadSession = useCallback(async () => {
+  const loadSession = useCallback(async (preserveError = false) => {
     setSessionLoading(true);
-    setSessionError("");
+    if (!preserveError) setSessionError("");
     try {
       setSession(await request<StaffSession>("/ops/v1/session"));
     } catch (error) {
@@ -614,7 +623,7 @@ export default function OpsConsole() {
     setSessionError(
       "Your staff session has expired. Sign in again to continue.",
     );
-    void loadSession();
+    void loadSession(true);
   }, [loadSession]);
   const authenticated = Boolean(session?.authenticated);
   const overview = useResource<Overview>(
@@ -713,7 +722,7 @@ export default function OpsConsole() {
             <span>Staff workspace</span>
           </div>
         </div>
-        <nav aria-label="Operations">
+        <nav aria-label="Operations" tabIndex={0}>
           <span className="ops-nav-label">WORKSPACE</span>
           {pages.map((item) => (
             <button
@@ -887,6 +896,14 @@ export default function OpsConsole() {
                 </div>
               )}
               {sessionError && <Notice error>{sessionError}</Notice>}
+              {page === "products" && session && (
+                <OpsProductInspector
+                  key={session.tenant}
+                  csrf={session.csrf}
+                  revision={revision}
+                  onExpired={onExpired}
+                />
+              )}
               {overview.error &&
                 ["overview", "payments", "system"].includes(page) && (
                   <Notice error>{overview.error}</Notice>
