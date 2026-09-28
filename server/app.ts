@@ -76,12 +76,33 @@ export function createApp() {
   );
   app.use((req, res, next) => {
     res.setHeader("X-Request-Id", randomUUID());
+    const path = req.path.toLowerCase();
     if (
-      req.path.startsWith("/api/") ||
-      req.path === "/ops" ||
-      req.path.startsWith("/ops/")
+      path === "/api" ||
+      path.startsWith("/api/") ||
+      path === "/ops" ||
+      path.startsWith("/ops/")
     )
       res.setHeader("Cache-Control", "no-store");
+    next();
+  });
+  app.use((req, res, next) => {
+    const path = req.path.toLowerCase();
+    if (
+      config.mode === "development" &&
+      (path === "/api" ||
+        path.startsWith("/api/") ||
+        path === "/ops" ||
+        path.startsWith("/ops/")) &&
+      !(req.method === "GET" && ["/api/health", "/api/catalog"].includes(path))
+    )
+      return res.status(503).json({
+        error: {
+          code: "DEVELOPMENT_READ_ONLY",
+          message: "Development transactions and sign-in are not enabled.",
+          requestId: res.getHeader("X-Request-Id"),
+        },
+      });
     next();
   });
   app.use(
@@ -151,7 +172,7 @@ export function createApp() {
     await pool.query("SELECT 1");
     res.json({
       status: "ok",
-      mode: config.demo ? "demonstration" : "production",
+      mode: config.mode === "demo" ? "demonstration" : config.mode,
       version: metadata.version,
     });
   });
@@ -179,21 +200,21 @@ export function createApp() {
       res.json(await acceptVerifiedPayment(event));
     },
   );
-  app.use(
-    "/api",
-    express.json({ limit: "32kb" }),
-    cookieParser(),
-    sessionMiddleware,
-    csrfMiddleware,
-  );
   app.get("/api/catalog", (_req, res) =>
     res.json({
       categories,
       insurers,
       products,
       synthetic: true,
-      mode: "demonstration",
+      mode: config.mode === "demo" ? "demonstration" : config.mode,
     }),
+  );
+  app.use(
+    "/api",
+    express.json({ limit: "32kb" }),
+    cookieParser(),
+    sessionMiddleware,
+    csrfMiddleware,
   );
   app.get("/api/session", (req, res) =>
     res.json({

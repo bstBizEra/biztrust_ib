@@ -23,7 +23,7 @@ if (process.argv.includes("--production-assets")) {
   app.use(vite.middlewares);
 }
 server.listen(config.port, config.host, () =>
-  console.log(`BizTrust local demonstration: ${config.origin}`),
+  console.log(`BizTrust ${config.mode}: ${config.origin}`),
 );
 for (const signal of ["SIGINT", "SIGTERM"] as const)
   process.on(signal, () =>
