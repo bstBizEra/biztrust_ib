@@ -1538,7 +1538,7 @@
       <div class="main">
         <header class="topbar">
           <p class="eyebrow">Project delivery / Implementation plan</p>
-          <span class="topbar-meta">Snapshot · 28 September 2026</span>
+          <span class="topbar-meta">Snapshot · 29 September 2026</span>
         </header>
         <main class="content">
           <div class="heading" id="overview">
@@ -8698,9 +8698,20 @@
                   <p>
                     <span class="meta-label">Evidence / dependency</span
                     ><span
-                      >Issuer/client registration and staff policy;
-                      <a href="operations.md">operations</a> documents local
-                      contract</span
+                      >Issuer/client registration and staff policy remain owner
+                      decisions. R34 malformed-session CSRF guard and R39
+                      session expiry/logout-replay tests passed their separate
+                      local checks and independent source reviews;
+                      <a href="bt05-csrf-session.md">R34 contract</a>,
+                      <a href="bt05-session-lifecycle.md">R39 contract</a> and
+                      <a href="progress-updates.md">dated updates</a> retain
+                      exact historical evidence. PR #17 merged to main c8c059e
+                      with required main CI passing 50 tests, 34 accessibility
+                      checks and eight journeys. R47 combined candidate passed
+                      isolated verification and AP-01/AP-02 exact-candidate
+                      reviews; R48 hosted CI, App review and guarded merge
+                      remain pending. No live identity or G2 acceptance is
+                      implied.</span
                     >
                   </p>
                 </div>
@@ -9024,7 +9035,7 @@
                       and 37-path replay preceded PR #14 merging into main
                       <code>ee44f68</code>, the verified base for this BT-11
                       package. New role/tenant administration, identity owner
-                      acceptance, G1/G2/G5 and production decisions remain open
+                      acceptance, G1/G2/G5 and production decisions remain open.
                       R26 BT-14-S2 test-only source
                       <code>tests/integration.test.ts</code> SHA-256
                       <code
@@ -9042,7 +9053,13 @@
                       startup/build and production dependency audit zero;
                       source/history and child/cluster/PID cleanup passed. No
                       migration or hosted run; owner and phase gates open.
-                      <a href="progress-updates.md">R27 update</a>.</span
+                      <a href="progress-updates.md">R27 update</a>. R28 combined
+                      current-main local verification passed 53 tests, 34
+                      accessibility checks, eight journeys and audit zero with
+                      reciprocal isolation unchanged; see
+                      <a href="progress-updates.md">R28 update</a>. Live
+                      tenant/role administration, identity-owner and phase
+                      acceptance remain open.</span
                     >
                   </p>
                 </div>
