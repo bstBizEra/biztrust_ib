@@ -1,6 +1,6 @@
 # BT-05 R39: customer session lifecycle evidence
 
-**Snapshot:** 29 September 2026. Local test-only package implemented and verified; integration and live identity acceptance remain pending.
+**Snapshot:** 29 September 2026. R47 combined verification and independent reviews passed. R48 packaging and hosted PR #18 checks/review/integration are pending under the approved batch. Earlier sections preserve dated package history; live identity and production acceptance remain open.
 
 ## Bounded scope
 
@@ -49,4 +49,30 @@ Contract recorded before test implementation. Two tests now exercise real HTTP d
 - Inspect local hooks/signing before committing; stop if the commit would require credential use or an unreviewed external action. No GitHub calls, credentials, `.env`, services, publication, review submission, merge, settings, release, deployment, Pages or schedule change.
 - Record the resulting commit and PR draft outside the commit to avoid self-referential hashes; update the original and release local boards with the observed result afterward. Integration base freshness must be checked again before any separately authorized publication.
 
-**Next:** complete this local package, then obtain scoped publication authorization. No hosted verification has run for this package. PR #17 merge authorization, approved identity environment/access matrix, recovery and accountable-owner acceptance remain pending. G00/G1–G6 and production gates stay open; scheduling remains paused.
+**R40 next (historical):** complete this local package, then obtain scoped publication authorization. No hosted verification had run at that checkpoint. The current authorized sequence is recorded below.
+
+## R47 reconciliation with integrated PR #17
+
+The Project Owner authorized the two-PR synthetic-development integration batch on 29 September 2026. PR #17 merged as `c8c059e6bcac8f7ca701eae04efeaa9fe16bfe0f`, parent `b7a6af650ad75d55df8073fc70cda8dbc0d0391d`, reviewed tree `c71a0c47fd597d215186305ab66e331c17019025`. [Main CI](https://github.com/bstBizEra/biztrust_ib/actions/runs/36590274275/job/109481245752) passed with 50 tests, 34 accessibility checks, eight journeys and audit zero. The source branch and protections were retained.
+
+Reconcile PR #18 head `0c178f70a9634e66097a414e75880c8953ea8325` by merging that exact main commit into its published branch. Git owns the index/commit, Progress Board owns the three conflicted Markdown sources and regenerated HTML, ADF owns this record, and separate AP-01/AP-02 agents review the resulting candidate. Primary skill: `ecc:git-workflow`; configured model unchanged. The four expected conflicts are documentation only. Preserve the exact CSRF fix and both test files, with no new runtime, dependency or schema behavior.
+
+The direct remote main ref and fetched commit identify `c8c059e`; the PR record still exposed the prior base `b7a6af6`, which also equals the local merge-base. The reason for that API field is not established. Local reconciliation binds the independent main ref and exact commit. Subsequent hosted approval and merge require fresh candidate/base, CI, review, threads and full policy guards.
+
+Must-pass: record the resolved source/tree; use the reviewed isolated runner on task-owned PostgreSQL `127.0.0.1:25432` for migrations and `npm run verify`, with dotenv disabled, synthetic credentials redacted and owned services stopped; preserve historical evidence; complete separate security/code reviews and board checks. Combined execution is pending at this contract checkpoint. Deadline 15:51 UTC; at most two local repairs per failure. Stop on unexpected drift/conflicts, failed gates or unexplained code changes.
+
+The same approval covers the verified derived commit's push/CI, one exact App approval with token revocation, guarded squash merge and main CI. It expires at completion, revocation or 2026-09-30T15:20:59Z. Other PRs, hosted settings, tags/releases, branch deletion, deployment, Pages and schedule restart are excluded. Identity environment/access decisions, recovery and accountable-owner acceptance, G00/G1–G6 and production gates remain open.
+
+### R47 verified reconciliation checkpoint
+
+The resolved pending merge was frozen at tree `117edd6af7aff12dc9bc7a4c79f6fdb060dc23ba` (HEAD `0c178f70`, MERGE_HEAD `c8c059e6`). AP-01 and AP-02 independently cleared the candidate. AP-02 found one stale “Current R15” documentation heading, which was restored to “Historical” before verification. Runtime and both test files remain the exact authorized union; dependencies and schema are unchanged.
+
+Actual command: `pwsh -NoProfile -File output/bt05-r47-reconciliation-20260929/full-verification/run.ps1`, executed runner SHA-256 `AF52384853398B107F4745557CB8F7999B6A88AB9D645030CCDD31090206ECBD`. Execution started 15:45:36 UTC. Both `npm run db:migrate` and `npm run verify` exited 0: **52 tests, 34 accessibility checks, eight browser journeys, no page errors and zero reported dependency-audit vulnerabilities**. Build, lint, types, board freshness and startup checks passed. No application repair or rerun was required.
+
+The suite completed before the 15:51 UTC deadline; final cleanup and evidence capture finished about 15:51:05 UTC. Owned-child cleanup, stopped cluster, absent PID file, source stability and historical-evidence preservation all passed. ADF independently observed no listener on 25432 and no PID file. Summary SHA-256 `A0A4A2BE7B980244191D8A0F2EC9800A6562C7BC6A67C823D9ECD5BE074CD8F8`; redacted log `4075A7D151AF71FA877A708AD2E1DFC1F9EB23FB4ED98EC2B05C65980D0559C0`; ten-artifact verification manifest `83DC70A4990D1F7D000693F90B515E833459182858F2152CF77EB7BE6CBE861D`. Evidence is under `output/bt05-r47-reconciliation-20260929/`; safe receipts were mirrored to both human boards.
+
+### R48 package and publication unit
+
+Under the same approved batch, from 15:51:32 to 16:11:32 UTC, synchronize these evidence notes and board sources, inspect the explicit staged diff and preserve both parents in a local Conventional Commit. Then freshly verify actual main `c8c059e6`, the still-published PR #18 head `0c178f70`, source branch and full protections; push the derived commit without force and inspect its exact-head hosted CI and review history. Only documented evidence wording changes after R47 verification are permitted before packaging. Recheck formatting/board freshness and the resulting source pins; repeat application verification only if relevant code or dependencies change.
+
+Git owns staging, packaging and authorized publication; Progress Board owns its four board files; ADF owns this note. No App review is submitted until the adapter binds the resulting revision/history and its offline checks and independent review pass. The batch already authorizes that subsequent one-review/revocation and guarded squash merge/main-CI sequence; no extra approval round is introduced. Stop on unexpected drift or failed gates, at most two local repairs. The previously stated expiry, production/owner boundaries and exclusions remain effective; scheduling stays paused.
