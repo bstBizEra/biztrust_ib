@@ -36,6 +36,18 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - name: Generate dependency SBOM from the lockfile
+        run: |
+          mkdir -p output/security
+          npm run --silent security:sbom > output/security/sbom.cdx.json
+          sha256sum package-lock.json > output/security/package-lock.sha256
+      - name: Retain dependency inventory
+        uses: actions/upload-artifact@v7
+        with:
+          name: dependency-sbom-${{ github.sha }}
+          path: output/security/
+          if-no-files-found: error
+          retention-days: 14
       - name: Create restricted runtime role and ephemeral signing key
         run: |
           psql "$DATABASE_ADMIN_URL" -v ON_ERROR_STOP=1 -c "CREATE ROLE biztrust_app LOGIN NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE PASSWORD 'isolated-runtime-only'"
