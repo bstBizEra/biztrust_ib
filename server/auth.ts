@@ -114,7 +114,8 @@ export function csrfMiddleware(
 ) {
   if (
     !["GET", "HEAD", "OPTIONS"].includes(req.method) &&
-    (req.get("origin") !== config.origin ||
+    (!req.session?.csrf ||
+      req.get("origin") !== config.origin ||
       req.get("x-csrf-token") !== req.session.csrf)
   )
     return next(
