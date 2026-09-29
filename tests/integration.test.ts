@@ -185,6 +185,47 @@ test("RLS blocks another customer, another tenant, missing context, and context 
     /row-level security/,
   );
 });
+test("tenant isolation allows own resources and denies reciprocal, unknown and caller-selected tenant contexts", async () => {
+  const sameOwnerInB = { ...eve, user: alice.user };
+  const a = await fixture(alice);
+  const b = await fixture(sameOwnerInB);
+  for (const [owner, own, other, otherOwner] of [
+    [alice, a, b, sameOwnerInB],
+    [sameOwnerInB, b, a, alice],
+  ] as const) {
+    assert.equal(
+      (await applicationDetail(owner, own.reference)).application.reference,
+      own.reference,
+    );
+    await assert.rejects(
+      applicationDetail(owner, other.reference),
+      /could not be found/,
+    );
+    await assert.rejects(
+      applicationDetail({ ...owner, tenant: `unknown-${run}` }, own.reference),
+      /could not be found/,
+    );
+    const headers = await session(owner);
+    const ownResponse = await fetch(
+      `${origin}/api/applications/${own.reference}`,
+      { headers },
+    );
+    assert.equal(ownResponse.status, 200);
+    assert.equal(
+      (await ownResponse.json()).application.reference,
+      own.reference,
+    );
+    const manipulated = await fetch(
+      `${origin}/api/applications/${other.reference}?tenant=${otherOwner.tenant}`,
+      { headers: { ...headers, "X-Tenant-ID": otherOwner.tenant } },
+    );
+    assert.equal(manipulated.status, 404);
+    assert.equal(
+      (await manipulated.json()).error.code,
+      "APPLICATION_NOT_FOUND",
+    );
+  }
+});
 test("application submission is durable and exactly-once under concurrent retries; changed requests conflict", async () => {
   const quote = await createQuote(alice, {
     productId: "motor-essential",
