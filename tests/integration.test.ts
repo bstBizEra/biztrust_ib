@@ -286,6 +286,160 @@ test("audit correlation links submission and verified payment attempts while pre
   );
 });
 
+test("audit state records persisted payment and insurer transitions without duplicate or rejected writes", async () => {
+  const f = await fixture();
+  const failed = { ...eventFor(f), status: "failed" };
+  const settled = eventFor(f);
+  await processPayment(failed);
+  await processPayment(settled);
+  const afterSettlement = await applicationDetail(alice, f.reference);
+  assert.equal(afterSettlement.invoice.status, "settled");
+  assert.equal(afterSettlement.application.insurer_status, "queued");
+  assert.equal(afterSettlement.application.evidence, null);
+  const unchanged = { ...eventFor(f), status: "failed" };
+  await processPayment(unchanged);
+  await simulatorInsurer(alice, f.reference, "processing");
+  await simulatorInsurer(alice, f.reference, "issued");
+  const completed = await applicationDetail(alice, f.reference);
+  assert.deepEqual(
+    completed.history
+      .slice(2)
+      .map(({ action, detail }) => [
+        action,
+        detail.previousState,
+        detail.resultingState,
+      ]),
+    [
+      ["payment.failed", "pending", "failed"],
+      ["insurer.queued", "awaiting_payment", "queued"],
+      ["payment.settled", "failed", "settled"],
+      ["payment.already_settled", "settled", "settled"],
+      ["insurer.processing", "queued", "processing"],
+      ["insurer.issued", "processing", "issued"],
+    ],
+  );
+  assert.equal(
+    completed.history.find((e) => e.action === "insurer.queued")?.detail
+      .eventId,
+    settled.eventId,
+  );
+  assert.equal(completed.application.evidence.synthetic, true);
+  assert.equal(completed.application.evidence.noCoverage, true);
+  for (const event of [failed, settled, unchanged])
+    assert.equal((await processPayment(event)).duplicate, true);
+  assert.equal(
+    (await simulatorInsurer(alice, f.reference, "issued")).duplicate,
+    true,
+  );
+  await assert.rejects(simulatorInsurer(alice, f.reference, "rejected"));
+  await assert.rejects(
+    processPayment({ ...settled, amount: settled.amount + 1 }),
+  );
+  assert.deepEqual(await applicationDetail(alice, f.reference), completed);
+
+  for (const late of [false, true]) {
+    const review = await fixture();
+    if (late)
+      await transaction(alice, (db) =>
+        db.query(
+          "UPDATE invoices SET expires_at=now()-interval '1 minute' WHERE id=$1",
+          [review.invoice.id],
+        ),
+      );
+    const event = eventFor(review);
+    if (!late) event.amount += 1;
+    await processPayment(event);
+    const result = await applicationDetail(alice, review.reference);
+    assert.equal(result.invoice.status, "reconciliation_required");
+    assert.equal(result.application.insurer_status, "awaiting_payment");
+    assert.deepEqual(result.history.at(-1)?.detail, {
+      eventId: event.eventId,
+      synthetic: true,
+      previousState: "pending",
+      resultingState: "reconciliation_required",
+    });
+    assert.equal(
+      result.history.at(-1)?.action,
+      late ? "payment.late_payment_review" : "payment.reconciliation_required",
+    );
+  }
+});
+
+test("audit state failures roll back payment, insurer, provider event and outbox writes", async (t) => {
+  for (const failedAction of [
+    "insurer.queued",
+    "payment.settled",
+    "insurer.issued",
+  ]) {
+    const f = await fixture();
+    const event = eventFor(f);
+    const insurer = failedAction === "insurer.issued";
+    if (insurer) await processPayment(event);
+    const snapshot = async () => ({
+      detail: await applicationDetail(alice, f.reference),
+      related: await transaction(alice, async (db) => ({
+        events: (
+          await db.query(
+            "SELECT * FROM provider_events WHERE invoice_id=$1 ORDER BY id",
+            [f.invoice.id],
+          )
+        ).rows,
+        outbox: (
+          await db.query(
+            "SELECT * FROM outbox WHERE application_id=$1 ORDER BY id",
+            [f.application.id],
+          )
+        ).rows,
+      })),
+    });
+    const beforeFailure = await snapshot();
+    // Intercept only the failing write; all other queries and rollback use PostgreSQL.
+    const fault = t.mock.method(
+      pg.Client.prototype,
+      "query",
+      new Proxy(pg.Client.prototype.query, {
+        apply(target, receiver, args) {
+          if (
+            typeof args[0] === "string" &&
+            args[0].startsWith("INSERT INTO audit_events") &&
+            args[1]?.[2] === failedAction
+          )
+            throw new Error("Synthetic audit write failure");
+          return Reflect.apply(target, receiver, args);
+        },
+      }),
+    );
+    try {
+      await assert.rejects(
+        insurer
+          ? simulatorInsurer(alice, f.reference, "issued")
+          : processPayment(event),
+        /Synthetic audit write failure/,
+      );
+    } finally {
+      fault.mock.restore();
+    }
+    assert.deepEqual(await snapshot(), beforeFailure);
+    const recovered = insurer
+      ? await simulatorInsurer(alice, f.reference, "issued")
+      : await processPayment(event);
+    assert.equal(recovered.duplicate, false);
+    const afterRecovery = await snapshot();
+    assert.equal(afterRecovery.detail.invoice.status, "settled");
+    assert.equal(
+      afterRecovery.detail.application.insurer_status,
+      insurer ? "issued" : "queued",
+    );
+    assert.equal(afterRecovery.related.events.length, 1);
+    assert.equal(afterRecovery.related.outbox.length, 1);
+    assert.equal(
+      afterRecovery.detail.history.filter((e) => e.action === failedAction)
+        .length,
+      1,
+    );
+  }
+});
+
 test("runtime uses a non-superuser, non-bypass role and all business tables force RLS", async () => {
   const role = (
     await pool.query(

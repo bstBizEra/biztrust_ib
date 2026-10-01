@@ -267,8 +267,9 @@ export async function processPayment(body: unknown) {
       "INSERT INTO provider_events(id,tenant_id,owner_id,invoice_id,body_hash,outcome) VALUES($1,$2,$3,$4,$5,$6)",
       [event.eventId, actor.tenant, actor.user, invoice.id, bodyHash, outcome],
     );
+    let resultingState = invoice.status;
     if (outcome !== "already_settled") {
-      const state =
+      resultingState =
         outcome === "settled"
           ? "settled"
           : outcome === "failed"
@@ -276,13 +277,20 @@ export async function processPayment(body: unknown) {
             : "reconciliation_required";
       await db.query(
         "UPDATE invoices SET status=$1,settled_at=CASE WHEN $1='settled' THEN now() ELSE NULL END WHERE id=$2",
-        [state, invoice.id],
+        [resultingState, invoice.id],
       );
-      if (state === "settled") {
-        await db.query(
+      if (resultingState === "settled") {
+        const queued = await db.query(
           "UPDATE applications SET insurer_status='queued',updated_at=now() WHERE id=$1 AND insurer_status='awaiting_payment'",
           [invoice.application_id],
         );
+        if (queued.rowCount)
+          await audit(db, actor, "insurer.queued", invoice.application_id, {
+            previousState: "awaiting_payment",
+            resultingState: "queued",
+            eventId: event.eventId,
+            synthetic: true,
+          });
         await db.query(
           "INSERT INTO outbox(id,tenant_id,owner_id,application_id,kind) VALUES($1,$2,$3,$4,'insurer.submit') ON CONFLICT(application_id) DO NOTHING",
           [randomUUID(), actor.tenant, actor.user, invoice.application_id],
@@ -292,6 +300,8 @@ export async function processPayment(body: unknown) {
     await audit(db, actor, `payment.${outcome}`, invoice.id, {
       eventId: event.eventId,
       synthetic: true,
+      previousState: invoice.status,
+      resultingState,
     });
     return { outcome, duplicate: false };
   });
@@ -348,6 +358,8 @@ export async function simulatorInsurer(
     await audit(db, actor, `insurer.${outcome}`, app.id, {
       source: "local-insurer-simulator",
       synthetic: true,
+      previousState: app.insurer_status,
+      resultingState: outcome,
     });
     return { outcome, duplicate: false };
   });

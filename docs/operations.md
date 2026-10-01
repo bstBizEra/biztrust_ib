@@ -41,6 +41,8 @@ HTTP requests receive a server-generated `X-Request-Id`. The shared audit writer
 
 Preserve local data using an access-controlled, encrypted PostgreSQL custom-format dump with securely supplied administrative credentials. Rehearse restoration only into a separate database with matching roles; apply migrations and rerun RLS tests before any cutover. No destructive restore or down migration is supplied.
 
+New payment and insurer audit entries also record `previousState` and `resultingState` from the persisted transaction. Settlement's automatic `awaiting_payment` → `queued` insurer change has its own event; payment settlement still grants no coverage. Duplicate events preserve original evidence, and a failed audit insert rolls back the related state writes. Historical rows are not backfilled. These synthetic records do not establish real provider authority or approved retention.
+
 Production backup/restore, RPO/RTO targets, monitoring dashboards, alert ownership, central retention, gateway, certificates and real provider sandboxes have not been validated. They remain release prerequisites.
 
 For suspected tenant/payment integrity failure: stop business mutations, preserve request/provider event IDs and audit, have the authorized owner revoke affected membership/session/key, isolate the environment and reconcile before resuming. Do not delete evidence to clear errors.
