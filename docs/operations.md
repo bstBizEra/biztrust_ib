@@ -28,6 +28,14 @@ Do not remove data, shared PostgreSQL services, Windows reservations, hosts or L
 
 ## Verification
 
+### Payment exception inspection (BCK-001)
+
+The Payment exceptions metric opens `GET /ops/v1/payment-exceptions?limit=50`. This staff-only, tenant-scoped projection counts and lists invoices in `failed` or `reconciliation_required` using the overview's predicate. Its total and list share one database statement snapshot; results are ordered by case creation time descending, then case ID descending. The default limit is 50, maximum 100. Unknown filters and invalid limits are rejected. `truncated` means additional matching cases exist; this endpoint has no pagination cursor.
+
+The console shows the refreshed projection count and timestamp, not the earlier overview count. A zero snapshot shows no exceptions; a failed request shows an error and clears stale rows. Case detail remains the existing read-only evidence view. Payment state remains independent of insurer state and never asserts coverage. See [the package](bck001-payment-exceptions.md) for exact local verification, source hashes and remaining acceptance limits.
+
+### Commands
+
 - `npm run verify`: lint, types, domain/integration/contract tests, build, browser journeys/accessibility, production dependency audit.
 - `npm run test:e2e`: isolated built web server and clean browser context; screenshots and JSON under `output/playwright/`. Windows uses Chrome; CI installs Playwright Chromium.
 - `npm run format:check`: source formatting.

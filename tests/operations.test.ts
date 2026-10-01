@@ -1,6 +1,7 @@
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
-import { randomBytes } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
+import { createQuote, createApplication } from "../server/services.ts";
 import type { Server } from "node:http";
 import { createApp } from "../server/app.ts";
 import { config, validateIdentityConfiguration } from "../server/config.ts";
@@ -12,9 +13,190 @@ import {
   cases,
   caseEvidence,
   integrationStatus,
+  paymentExceptions,
 } from "../server/operations.ts";
 
 let server: Server;
+
+test("payment exception projection rejects anonymous requests and invalid scope", async () => {
+  const endpoint = `${origin}/ops/v1/payment-exceptions`;
+  assert.equal((await fetch(endpoint)).status, 401);
+  const staff = await openDemo();
+  for (const query of [
+    "limit=0",
+    "limit=101",
+    "limit=1.5",
+    "limit=1&limit=2",
+    "tenant=other",
+    "role=operations",
+    "payment=settled",
+    "limit=%27%20OR%201%3D1",
+  ]) {
+    const response = await fetch(`${endpoint}?${query}`, {
+      headers: { Cookie: staff.cookie },
+    });
+    assert.equal(response.status, 400, query);
+  }
+});
+
+test("payment exception projection has bounded ordered snapshot, isolated rows and unchanged evidence", async () => {
+  const staff = await openDemo();
+  const other = await openDemo();
+  const actor = {
+    tenant: staff.tenant,
+    user: "exception-read-test",
+    role: "operations" as const,
+  };
+  const headers = { Cookie: staff.cookie };
+  const read = async (limit = 50) => {
+    const response = await fetch(
+      `${origin}/ops/v1/payment-exceptions?limit=${limit}`,
+      { headers },
+    );
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("cache-control") || "", /no-store/);
+    return response.json();
+  };
+  const initial = await read();
+  assert.equal(initial.count, 1);
+  assert.equal(initial.cases[0].paymentStatus, "reconciliation_required");
+  assert.equal(initial.synthetic, true);
+  assert.equal(initial.tenant, staff.tenant);
+  assert.equal(initial.truncated, false);
+  assert.ok(Number.isFinite(Date.parse(initial.asOf)));
+  assert.match(initial.asOf, /Z$/);
+
+  // Domain-created synthetic cases; fixed times deliberately exercise the ID tie-breaker.
+  const customer = {
+    tenant: staff.tenant,
+    user: randomUUID(),
+    role: "customer" as const,
+  };
+  for (let n = 0; n < 101; n++) {
+    const quote = await createQuote(customer, {
+      productId: "travel-essential",
+      age: 30,
+      days: 7,
+    });
+    await createApplication(
+      customer,
+      {
+        quoteId: quote.id,
+        fullName: "Synthetic Exception",
+        email: "exception@example.test",
+        consent: true,
+        disclosure: true,
+      },
+      randomUUID(),
+    );
+  }
+  await transaction(actor, async (db) => {
+    await db.query("UPDATE invoices SET status='failed' WHERE owner_id=$1", [
+      customer.user,
+    ]);
+    await db.query(
+      "UPDATE applications SET created_at='2026-01-01T00:00:00Z' WHERE owner_id=$1",
+      [customer.user],
+    );
+  });
+  const snapshot = () =>
+    transaction(actor, async (db) => {
+      const result = await db.query(`SELECT
+      (SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM applications a) AS applications,
+      (SELECT jsonb_agg(to_jsonb(i) ORDER BY id) FROM invoices i) AS invoices,
+      (SELECT count(*) FROM audit_events) AS audit,
+      (SELECT count(*) FROM provider_events) AS events,
+      (SELECT count(*) FROM outbox) AS outbox`);
+      return result.rows[0];
+    });
+  const beforeReads = await snapshot();
+  const full = await read(100);
+  assert.equal(full.count, 102);
+  assert.equal(full.cases.length, 100);
+  assert.equal(full.limit, 100);
+  assert.equal(full.truncated, true);
+  const prefix = await read(1);
+  assert.equal(prefix.count, 102);
+  assert.equal(prefix.cases.length, 1);
+  assert.equal(prefix.truncated, true);
+  assert.deepEqual(prefix.cases, full.cases.slice(0, 1));
+  assert.deepEqual((await read(100)).cases, full.cases);
+  const summary = await (
+    await fetch(`${origin}/ops/v1/overview`, { headers })
+  ).json();
+  assert.equal(summary.summary.paymentExceptions, full.count);
+  for (let n = 0; n < full.cases.length; n++) {
+    const row = full.cases[n];
+    assert.ok(
+      ["failed", "reconciliation_required"].includes(row.paymentStatus),
+    );
+    assert.deepEqual(
+      Object.keys(row).sort(),
+      [
+        "caseId",
+        "reference",
+        "productId",
+        "productVersion",
+        "insurerStatus",
+        "paymentStatus",
+        "amountMinor",
+        "currency",
+        "createdAt",
+        "updatedAt",
+      ].sort(),
+    );
+    if (n) {
+      const previous = full.cases[n - 1];
+      assert.ok(
+        Date.parse(previous.createdAt) > Date.parse(row.createdAt) ||
+          (previous.createdAt === row.createdAt &&
+            previous.caseId > row.caseId),
+      );
+    }
+  }
+  assert.equal(JSON.stringify(full).includes("exception@example.test"), false);
+  assert.equal(JSON.stringify(full).includes("coverage"), false);
+  const otherResponse = await fetch(`${origin}/ops/v1/payment-exceptions`, {
+    headers: { Cookie: other.cookie },
+  });
+  const foreign = await otherResponse.json();
+  assert.equal(foreign.count, 1);
+  assert.ok(
+    foreign.cases.every(
+      (row: { caseId: string }) =>
+        !full.cases.some(
+          (own: { caseId: string }) => own.caseId === row.caseId,
+        ),
+    ),
+  );
+  const detailResponse = await fetch(
+    `${origin}/ops/v1/cases/${full.cases[1].caseId}`,
+    { headers },
+  );
+  const detail = await detailResponse.json();
+  assert.deepEqual(detail.allowedActions, []);
+  assert.equal(detail.payment.status, full.cases[1].paymentStatus);
+  assert.equal(detail.insurerStatus, full.cases[1].insurerStatus);
+  assert.equal(
+    (
+      await fetch(`${origin}/ops/v1/cases/${full.cases[1].caseId}`, {
+        headers: { Cookie: other.cookie },
+      })
+    ).status,
+    404,
+  );
+  assert.deepEqual(await snapshot(), beforeReads);
+  await transaction(actor, (db) =>
+    db.query(
+      "UPDATE invoices SET status='pending' WHERE status IN ('failed','reconciliation_required')",
+    ),
+  );
+  const empty = await read();
+  assert.equal(empty.count, 0);
+  assert.deepEqual(empty.cases, []);
+  assert.equal(empty.truncated, false);
+});
+
 let origin: string;
 before(async () => {
   assert.equal(config.demo, true);
@@ -77,6 +259,7 @@ test("operations use cases require staff capabilities even when called without H
     () => cases(customer, {}),
     () => caseEvidence(customer, "unused"),
     () => integrationStatus(customer),
+    () => paymentExceptions(customer, {}),
   ])
     await assert.rejects(call, /requires staff access/);
 });

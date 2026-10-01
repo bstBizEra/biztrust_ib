@@ -1,5 +1,6 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { z } from "zod";
+import { paymentExceptionsResponse } from "../server/operations.ts";
 import {
   quoteInput,
   applicationInput,
@@ -439,6 +440,29 @@ const spec = {
         responses: { "200": response("Operations overview"), ...standard },
       },
     },
+    "/ops/v1/payment-exceptions": {
+      get: {
+        summary:
+          "Read-only synthetic payment exceptions: one snapshot for total and bounded cases",
+        description:
+          "Current invoice status failed or reconciliation_required; ordered by application created_at DESC, id DESC. Unknown query keys are rejected. Count and cases share one database statement snapshot; asOf is its UTC statement timestamp. Later requests refresh state rather than replaying an earlier overview. No cursor/full traversal or action authority; truncated indicates omitted matches.",
+        security: [{ staffSession: [] }],
+        parameters: [
+          {
+            name: "limit",
+            in: "query",
+            schema: { type: "integer", minimum: 1, maximum: 100, default: 50 },
+          },
+        ],
+        responses: {
+          "200": response(
+            "Financial/business-confidential synthetic case evidence without customer contacts or raw provider payload",
+            ref("PaymentExceptionsResponse"),
+          ),
+          ...standard,
+        },
+      },
+    },
     "/ops/v1/cases": {
       get: {
         summary: "Tenant-scoped case queue without customer PII",
@@ -510,6 +534,7 @@ const spec = {
       },
     },
     schemas: {
+      PaymentExceptionsResponse: schema(paymentExceptionsResponse),
       Empty: { type: "object", maxProperties: 0 },
       QuoteInput: schema(quoteInput),
       ApplicationInput: schema(applicationInput),

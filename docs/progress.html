@@ -8611,7 +8611,20 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       ><a href="operations.md">Operations</a>,
-                      <a href="verification.md">verification</a></span
+                      <a href="verification.md">verification</a>
+                      <a href="bck001-payment-exceptions.md"
+                        >BCK-001 local drill-down</a
+                      >: one-snapshot, bounded tenant-scoped exceptions and
+                      read-only detail; 55-test full pre-copy check, then final
+                      UI lint/build/browser checks (39 accessibility, nine
+                      journeys). Full verify on final UI hashes, hosted review
+                      and owner acceptance remain open. S3
+                      <a href="bck002-audit-correlation.md"
+                        >combined local verification</a
+                      >
+                      passed 59 tests, 39 accessibility checks and nine journeys
+                      with the final BCK-001 read-only drill-down; hosted and
+                      user acceptance remain open.</span
                     >
                   </p>
                 </div>
@@ -8756,7 +8769,13 @@
                       records persisted previous/resulting payment and insurer
                       states, the settlement queue transition, replay stability
                       and audit-write rollback; 57-test isolated verification
-                      passed. Staff actions and owner acceptance remain
+                      passed. Staff actions and owner acceptance remain pending.
+                      S3
+                      <a href="bck002-audit-correlation.md"
+                        >combined local verification</a
+                      >
+                      passed 59 tests with BCK-001 and BCK-002 S1/S2 together;
+                      governed staff actions and owner acceptance remain
                       pending.</span
                     >
                   </p>
@@ -8787,7 +8806,13 @@
                     ><span
                       >Provider contract, settlement/refund authority and
                       reconciliation rules;
-                      <a href="system-boundary.md">system boundary</a></span
+                      <a href="system-boundary.md">system boundary</a> S3
+                      <a href="bck002-audit-correlation.md"
+                        >combined local verification</a
+                      >
+                      covers synthetic exception and audit behavior only;
+                      provider contract, autonomous worker, ledger and Finance
+                      acceptance remain open.</span
                     >
                   </p>
                 </div>
@@ -9074,7 +9099,12 @@
                       reciprocal isolation unchanged; see
                       <a href="progress-updates.md">R28 update</a>. Live
                       tenant/role administration, identity-owner and phase
-                      acceptance remain open.</span
+                      acceptance remain open. S3
+                      <a href="bck002-audit-correlation.md"
+                        >combined local verification</a
+                      >
+                      retains tenant-scoped exception and audit checks; live
+                      identity/role owner and G2 acceptance remain open.</span
                     >
                   </p>
                 </div>
