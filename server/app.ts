@@ -10,6 +10,7 @@ import { acceptVerifiedPayment } from "./payment-inbox.ts";
 import { config } from "./config.ts";
 import { categories, insurers, products } from "./catalog.ts";
 import { pool } from "./db.ts";
+import { requestIdContext } from "./request-context.ts";
 import {
   sessionMiddleware,
   csrfMiddleware,
@@ -75,7 +76,8 @@ export function createApp() {
     }),
   );
   app.use((req, res, next) => {
-    res.setHeader("X-Request-Id", randomUUID());
+    const requestId = randomUUID();
+    res.setHeader("X-Request-Id", requestId);
     const path = req.path.toLowerCase();
     if (
       path === "/api" ||
@@ -84,7 +86,7 @@ export function createApp() {
       path.startsWith("/ops/")
     )
       res.setHeader("Cache-Control", "no-store");
-    next();
+    requestIdContext.run(requestId, next);
   });
   app.use((req, res, next) => {
     const path = req.path.toLowerCase();

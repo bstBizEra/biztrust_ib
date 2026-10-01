@@ -2,6 +2,12 @@
 
 Append entries here when a milestone in [project progression](progress.md) changes status or scope. Newest first. Each entry should say what was actually checked, where, and what remains. Links to local files are preferable to untraceable summaries; omit secrets and personal data.
 
+## 2026-10-01 - BT-06 BCK-002 request-to-audit correlation
+
+**Milestone:** BT-06 remains **Planned** for controlled staff actions; this is a P2/P3/P5 foundation, not delivery of assignment or financial/insurer commands. The separate `codex/feature/bck002-audit-correlation` candidate at local base `8c5b5451f69eb89aa8e64038be6519011a6ecb9e` carries the existing server-generated `X-Request-Id` into material audit entries through request-scoped context. Concurrent requests across two tenants retained their own IDs; forged caller IDs were ignored; replay left prior audit unchanged; direct non-HTTP work received no invented ID. Existing actor, tenant, authorization, retention and state rules were unchanged. This adds traceability relevant to BT-07 evidence and BT-14 assurance, without changing their **Blocked** and **In progress** states. [BCK-002 package](bck002-audit-correlation.md).
+
+At 2026-10-01T13:23:59Z, isolated `npm run verify` passed 55/55 tests, 34 automated accessibility checks, eight browser journeys, lint, typecheck, build, startup and production audit with zero vulnerabilities. The full summary SHA-256 is `04C0CBA30A8E0CAFCCD2450358DBCC8B0E2947801EDA45BAA4D016F37D3CB04F`; source remained stable and the disposable database cluster stopped. AP-01/AP-02 independent AI reviews found no actionable issue. BCK-002 is based separately on main and **does not include BCK-001**; these results are not combined-branch verification. Worker correlation, provider integration, live identity, retention/KPI owner targets, hosted CI/review and G00/G1-G6 remain open. No publication, production activation or schedule restart occurred; the engineering schedule remains **PAUSED**.
+
 ## 2026-09-29 - BT-14 R28 current-main reconciliation
 
 **Milestone:** BT-14 remains **In progress**. The reviewed reciprocal tenant-isolation test was merged locally with public main `31f2d82ab4e1af15a52358d4f32e22efc0d7c2e4`; only five BT-14 paths differ from main and the tested test blob remains `dff86c04a939fa045ade162b877847b4174f59d8`. The board keeps both the older BT-14 R26/R27 and main BT-05 histories. This is P2/P3 engineering assurance for G2, not live tenant/role administration acceptance.

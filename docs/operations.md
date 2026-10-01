@@ -37,6 +37,8 @@ Tests use unique synthetic tenants and an isolated CI database. They never make 
 
 ## Recovery and incidents
 
+HTTP requests receive a server-generated `X-Request-Id`. The shared audit writer records that same ID as `detail.requestId` for new material operations within the request, including verified payment callbacks. Client-supplied IDs are ignored. Replaying an idempotent operation produces a new response ID but preserves its original business audit. Direct non-HTTP service calls and historical records have no inferred request ID. Existing actor, tenant, RLS and append-only rules remain authoritative; a request ID grants no access. See [BCK-002](bck002-audit-correlation.md) for local evidence and limits. No headers, cookies, payloads or contact fields are added to audit capture.
+
 Preserve local data using an access-controlled, encrypted PostgreSQL custom-format dump with securely supplied administrative credentials. Rehearse restoration only into a separate database with matching roles; apply migrations and rerun RLS tests before any cutover. No destructive restore or down migration is supplied.
 
 Production backup/restore, RPO/RTO targets, monitoring dashboards, alert ownership, central retention, gateway, certificates and real provider sandboxes have not been validated. They remain release prerequisites.

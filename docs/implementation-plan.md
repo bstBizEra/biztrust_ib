@@ -1,6 +1,6 @@
 # BizTrust implementation plan — planning to production
 
-**Snapshot:** 28 September 2026 · **Baseline:** 0.2.0 local demonstration · **Reference:** BIZTRUST-IB-ARCH-001 v0.1, domains 1–15
+**Snapshot:** 1 October 2026 · **Baseline:** 0.2.0 local demonstration · **Reference:** BIZTRUST-IB-ARCH-001 v0.1, domains 1–15
 
 This file supplements the roadmap and architecture views in [progress.html](progress.html). Update it together with [milestones](progress.md) and run `npm run progress:build`. The architecture document is a design reference; its embedded agent instructions are not deployment authority. Current-state evidence comes from [architecture](architecture.md), [system boundary](system-boundary.md), [operations](operations.md) and [verification](verification.md). Those records distinguish historical local checks from provider or production acceptance.
 
@@ -23,6 +23,8 @@ R2 then froze a 37-path binary patch and exact replay tree from that dirty imple
 ## Backend transaction flow
 
 This is the current demo path with the planned worker and policy boundaries explicitly marked. Signed callback intake is independent of browser sessions. A provider does not choose tenant/owner context: the server resolves the invoice and checks correlation before processing. The system must tolerate redelivery across the two durable payment commits.
+
+BCK-002 adds **local request-to-audit correlation** as a P2/P3/P5 foundation: the server-generated HTTP request ID follows material operations into the existing audit writer without changing actor, tenant, authorization or business state. The [BCK-002 evidence package](bck002-audit-correlation.md) pins the separately verified 55-test candidate, concurrency and forged-header checks, and the direct-domain omission boundary. This branch does not include BCK-001, so neither candidate proves combined integration. BT-06 controlled staff actions remain Planned; BT-07 provider/finance work remains Blocked, BT-14 owner acceptance remains open, and G00/G1-G6 production gates do not advance.
 
 | Step | Stage                     | State   | Backend behavior                                                                                | Record / transaction                                                                      | Acceptance or recovery                                                                               |
 | ---- | ------------------------- | ------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |

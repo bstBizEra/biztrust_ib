@@ -133,6 +133,159 @@ async function staffSession(tenant: string) {
   return { Cookie: `bt_ops_session=${token}` };
 }
 
+test("audit correlation binds concurrent quotes to generated HTTP request IDs without caller influence", async () => {
+  const headers = await Promise.all([session(alice), session(eve)]);
+  const results = await Promise.all(
+    Array.from({ length: 8 }, async (_, index) => {
+      const actor = index % 2 ? eve : alice;
+      const response = await fetch(`${origin}/api/quotes`, {
+        method: "POST",
+        headers: {
+          ...headers[index % 2],
+          "Content-Type": "application/json",
+          "X-Request-Id": "caller-controlled-id",
+        },
+        body: JSON.stringify({
+          productId: "travel-essential",
+          age: 30,
+          days: 7,
+        }),
+      });
+      assert.equal(response.status, 201);
+      const requestId = response.headers.get("x-request-id");
+      assert.match(
+        requestId || "",
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+      );
+      return { actor, requestId, quote: await response.json() };
+    }),
+  );
+  assert.equal(new Set(results.map((r) => r.requestId)).size, 8);
+  for (const { actor, requestId, quote } of results) {
+    const events = await transaction(actor, (db) =>
+      db.query(
+        "SELECT tenant_id,owner_id,detail FROM audit_events WHERE resource_id=$1",
+        [quote.id],
+      ),
+    );
+    assert.equal(events.rows.length, 1);
+    assert.equal(events.rows[0].tenant_id, actor.tenant);
+    assert.equal(events.rows[0].owner_id, actor.user);
+    assert.deepEqual(events.rows[0].detail, {
+      ruleVersion: quote.ruleVersion,
+      synthetic: true,
+      requestId,
+    });
+    const other = actor === alice ? eve : alice;
+    assert.equal(
+      (
+        await transaction(other, (db) =>
+          db.query("SELECT id FROM audit_events WHERE resource_id=$1", [
+            quote.id,
+          ]),
+        )
+      ).rowCount,
+      0,
+    );
+  }
+  const direct = await createQuote(alice, {
+    productId: "travel-essential",
+    age: 30,
+    days: 7,
+  });
+  const row = await transaction(alice, (db) =>
+    db.query("SELECT detail FROM audit_events WHERE resource_id=$1", [
+      direct.id,
+    ]),
+  );
+  assert.deepEqual(row.rows[0].detail, {
+    ruleVersion: direct.ruleVersion,
+    synthetic: true,
+  });
+});
+
+test("audit correlation links submission and verified payment attempts while preserving original replay evidence", async () => {
+  const quote = await createQuote(alice, {
+    productId: "travel-essential",
+    age: 30,
+    days: 7,
+  });
+  const headers = {
+    ...(await session(alice)),
+    "Content-Type": "application/json",
+    "Idempotency-Key": randomUUID(),
+  };
+  const body = JSON.stringify({
+    quoteId: quote.id,
+    fullName: "Synthetic Correlation",
+    email: "correlation@example.test",
+    consent: true,
+    disclosure: true,
+  });
+  const submit = () =>
+    fetch(`${origin}/api/applications`, { method: "POST", headers, body });
+  const response = await submit();
+  assert.equal(response.status, 201);
+  const submissionId = response.headers.get("x-request-id");
+  const { reference } = await response.json();
+  const detail = await applicationDetail(alice, reference);
+  assert.equal(detail.history.length, 2);
+  assert.ok(detail.history.every((e) => e.detail.requestId === submissionId));
+  const replay = await submit();
+  assert.equal(replay.status, 200);
+  assert.notEqual(replay.headers.get("x-request-id"), submissionId);
+  assert.deepEqual(
+    (await applicationDetail(alice, reference)).history,
+    detail.history,
+  );
+
+  const event = {
+    eventId: `correlation-${randomUUID()}`,
+    tenant: alice.tenant,
+    owner: alice.user,
+    invoiceId: detail.invoice.id,
+    providerReference: detail.invoice.provider_reference,
+    amount: Number(detail.invoice.amount),
+    currency: "LAK",
+    status: "settled",
+  };
+  const raw = JSON.stringify(event);
+  const timestamp = String(Date.now());
+  const callback = () =>
+    fetch(`${origin}/api/webhooks/payment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Provider-Timestamp": timestamp,
+        "X-Provider-Signature": signEvent(raw, timestamp, config.webhookSecret),
+        "X-Request-Id": "provider-chosen-id",
+      },
+      body: raw,
+    });
+  const accepted = await callback();
+  assert.equal(accepted.status, 200);
+  const paymentId = accepted.headers.get("x-request-id");
+  assert.notEqual(paymentId, submissionId);
+  assert.notEqual(paymentId, "provider-chosen-id");
+  const paid = await applicationDetail(alice, reference);
+  const paymentAudit = paid.history.find((e) => e.action === "payment.settled");
+  assert.equal(paymentAudit?.detail.requestId, paymentId);
+  assert.equal(paid.invoice.status, "settled");
+  assert.equal(paid.application.insurer_status, "queued");
+  assert.equal(paid.application.evidence, null);
+  const repeated = await callback();
+  assert.equal(repeated.status, 200);
+  assert.equal((await repeated.json()).duplicate, true);
+  assert.deepEqual(
+    (await applicationDetail(alice, reference)).history,
+    paid.history,
+  );
+  assert.doesNotMatch(
+    JSON.stringify(paid.history),
+    /correlation@example|Synthetic Correlation|provider-chosen-id|X-Provider-Signature/,
+  );
+});
+
 test("runtime uses a non-superuser, non-bypass role and all business tables force RLS", async () => {
   const role = (
     await pool.query(
