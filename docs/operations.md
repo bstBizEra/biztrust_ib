@@ -28,6 +28,14 @@ Do not remove data, shared PostgreSQL services, Windows reservations, hosts or L
 
 ## Verification
 
+### Payment exception inspection (BCK-001)
+
+The Payment exceptions metric opens `GET /ops/v1/payment-exceptions?limit=50`. This staff-only, tenant-scoped projection counts and lists invoices in `failed` or `reconciliation_required` using the overview's predicate. Its total and list share one database statement snapshot; results are ordered by case creation time descending, then case ID descending. The default limit is 50, maximum 100. Unknown filters and invalid limits are rejected. `truncated` means additional matching cases exist; this endpoint has no pagination cursor.
+
+The console shows the refreshed projection count and timestamp, not the earlier overview count. A zero snapshot shows no exceptions; a failed request shows an error and clears stale rows. Case detail remains the existing read-only evidence view. Payment state remains independent of insurer state and never asserts coverage. See [the package](bck001-payment-exceptions.md) for exact local verification, source hashes and remaining acceptance limits.
+
+### Commands
+
 - `npm run verify`: lint, types, domain/integration/contract tests, build, browser journeys/accessibility, production dependency audit.
 - `npm run test:e2e`: isolated built web server and clean browser context; screenshots and JSON under `output/playwright/`. Windows uses Chrome; CI installs Playwright Chromium.
 - `npm run format:check`: source formatting.
@@ -37,7 +45,11 @@ Tests use unique synthetic tenants and an isolated CI database. They never make 
 
 ## Recovery and incidents
 
+HTTP requests receive a server-generated `X-Request-Id`. The shared audit writer records that same ID as `detail.requestId` for new material operations within the request, including verified payment callbacks. Client-supplied IDs are ignored. Replaying an idempotent operation produces a new response ID but preserves its original business audit. Direct non-HTTP service calls and historical records have no inferred request ID. Existing actor, tenant, RLS and append-only rules remain authoritative; a request ID grants no access. See [BCK-002](bck002-audit-correlation.md) for local evidence and limits. No headers, cookies, payloads or contact fields are added to audit capture.
+
 Preserve local data using an access-controlled, encrypted PostgreSQL custom-format dump with securely supplied administrative credentials. Rehearse restoration only into a separate database with matching roles; apply migrations and rerun RLS tests before any cutover. No destructive restore or down migration is supplied.
+
+New payment and insurer audit entries also record `previousState` and `resultingState` from the persisted transaction. Settlement's automatic `awaiting_payment` → `queued` insurer change has its own event; payment settlement still grants no coverage. Duplicate events preserve original evidence, and a failed audit insert rolls back the related state writes. Historical rows are not backfilled. These synthetic records do not establish real provider authority or approved retention.
 
 Production backup/restore, RPO/RTO targets, monitoring dashboards, alert ownership, central retention, gateway, certificates and real provider sandboxes have not been validated. They remain release prerequisites.
 

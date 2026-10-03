@@ -72,6 +72,15 @@ interface CaseRow {
   createdAt: string;
   updatedAt: string;
 }
+interface PaymentExceptions {
+  tenant: string;
+  asOf: string;
+  count: number;
+  limit: number;
+  truncated: boolean;
+  cases: CaseRow[];
+  synthetic: boolean;
+}
 interface Evidence {
   tenant: string;
   caseId: string;
@@ -329,11 +338,13 @@ function Metric({
   value,
   description,
   icon: Icon,
+  onInspect,
 }: {
   title: string;
   value: number;
   description: string;
   icon: LucideIcon;
+  onInspect?: () => void;
 }) {
   return (
     <article className="ops-metric">
@@ -343,25 +354,33 @@ function Metric({
       </div>
       <strong>{value.toLocaleString()}</strong>
       <p>{description}</p>
+      {onInspect && (
+        <button
+          className="ops-text-button"
+          onClick={onInspect}
+          aria-label="Inspect payment exceptions"
+        >
+          Inspect cases <ArrowRight size={15} />
+        </button>
+      )}
     </article>
   );
 }
 function CaseTable({
   rows,
   onSelect,
+  emptyDescription = "Cases will appear here when an application is submitted in this tenant. Try clearing your filters.",
 }: {
   rows: CaseRow[];
   onSelect: (id: string) => void;
+  emptyDescription?: string;
 }) {
   if (!rows.length)
     return (
       <div className="ops-empty">
         <FileText size={28} />
         <h3>No matching cases</h3>
-        <p>
-          Cases will appear here when an application is submitted in this
-          tenant. Try clearing your filters.
-        </p>
+        <p>{emptyDescription}</p>
       </div>
     );
   return (
@@ -589,6 +608,11 @@ export default function OpsConsole() {
   const [sessionError, setSessionError] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
   const [page, setPage] = useState<Page>("overview");
+  const [exceptionView, setExceptionView] = useState(false);
+  const exceptionHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (exceptionView) exceptionHeading.current?.focus();
+  }, [exceptionView]);
   const [revision, setRevision] = useState(0);
   const [selectedCase, setSelectedCase] = useState<string | null>(null);
   const [reference, setReference] = useState("");
@@ -637,14 +661,26 @@ export default function OpsConsole() {
     onExpired,
   );
   const cases = useResource<CaseRow[]>(
-    authenticated && ["overview", "cases", "payments"].includes(page)
+    authenticated &&
+      !exceptionView &&
+      ["overview", "cases", "payments"].includes(page)
       ? `/ops/v1/cases?${page === "overview" ? "limit=6" : query || "limit=50"}`
       : null,
     revision,
     onExpired,
   );
+  const exceptions = useResource<PaymentExceptions>(
+    authenticated && exceptionView
+      ? "/ops/v1/payment-exceptions?limit=50"
+      : null,
+    revision,
+    onExpired,
+  );
+  const visibleCases = exceptionView
+    ? { ...exceptions, data: exceptions.data?.cases ?? null }
+    : cases;
   const currentPage = pages.find((item) => item.id === page)!;
-  const busy = overview.loading || integrations.loading || cases.loading;
+  const busy = overview.loading || integrations.loading || visibleCases.loading;
   async function authenticate(action: "demo" | "logout") {
     if (!session) return;
     setAuthBusy(true);
@@ -675,6 +711,7 @@ export default function OpsConsole() {
     }
   }
   function navigate(next: Page) {
+    setExceptionView(false);
     setPage(next);
     setSelectedCase(null);
     setReference("");
@@ -682,6 +719,10 @@ export default function OpsConsole() {
     setPaymentFilter("");
     setQuery("");
     setFilterError("");
+  }
+  function inspectPaymentExceptions() {
+    navigate("payments");
+    setExceptionView(true);
   }
   function filterCases(event: FormEvent) {
     event.preventDefault();
@@ -905,90 +946,102 @@ export default function OpsConsole() {
                 />
               )}
               {overview.error &&
+                !exceptionView &&
                 ["overview", "payments", "system"].includes(page) && (
                   <Notice error>{overview.error}</Notice>
                 )}
-              {(page === "overview" || page === "payments") && (
-                <>
-                  {overview.loading && <Loading />}
-                  {summary && (
-                    <div className="ops-metrics">
-                      {page === "overview" ? (
-                        <>
-                          <Metric
-                            title="Awaiting action"
-                            value={summary.awaitingAction}
-                            description="Queued, referred, or delayed"
-                            icon={FileText}
-                          />
-                          <Metric
-                            title="Payment pending"
-                            value={summary.paymentPending}
-                            description="Within payment window"
-                            icon={CreditCard}
-                          />
-                          <Metric
-                            title="Payment exceptions"
-                            value={summary.paymentExceptions}
-                            description="Failed or needing reconciliation"
-                            icon={CircleAlert}
-                          />
-                          <Metric
-                            title="Insurer timeouts"
-                            value={summary.insurerTimeouts}
-                            description="Response needs follow-up"
-                            icon={Clock3}
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <Metric
-                            title="Pending payments"
-                            value={summary.paymentPending}
-                            description="Within payment window"
-                            icon={CreditCard}
-                          />
-                          <Metric
-                            title="Expired payments"
-                            value={summary.paymentExpired}
-                            description="Payment window elapsed"
-                            icon={Clock3}
-                          />
-                          <Metric
-                            title="Payment exceptions"
-                            value={summary.paymentExceptions}
-                            description="Failed or needing reconciliation"
-                            icon={CircleAlert}
-                          />
-                          <Metric
-                            title="Exception events"
-                            value={
-                              overview.data!.integration.verifiedExceptionEvents
-                            }
-                            description="Verified events requiring review"
-                            icon={Layers3}
-                          />
-                        </>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
+              {!exceptionView &&
+                (page === "overview" || page === "payments") && (
+                  <>
+                    {overview.loading && <Loading />}
+                    {summary && (
+                      <div className="ops-metrics">
+                        {page === "overview" ? (
+                          <>
+                            <Metric
+                              title="Awaiting action"
+                              value={summary.awaitingAction}
+                              description="Queued, referred, or delayed"
+                              icon={FileText}
+                            />
+                            <Metric
+                              title="Payment pending"
+                              value={summary.paymentPending}
+                              description="Within payment window"
+                              icon={CreditCard}
+                            />
+                            <Metric
+                              title="Payment exceptions"
+                              value={summary.paymentExceptions}
+                              description="Failed or needing reconciliation"
+                              icon={CircleAlert}
+                              onInspect={inspectPaymentExceptions}
+                            />
+                            <Metric
+                              title="Insurer timeouts"
+                              value={summary.insurerTimeouts}
+                              description="Response needs follow-up"
+                              icon={Clock3}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <Metric
+                              title="Pending payments"
+                              value={summary.paymentPending}
+                              description="Within payment window"
+                              icon={CreditCard}
+                            />
+                            <Metric
+                              title="Expired payments"
+                              value={summary.paymentExpired}
+                              description="Payment window elapsed"
+                              icon={Clock3}
+                            />
+                            <Metric
+                              title="Payment exceptions"
+                              value={summary.paymentExceptions}
+                              description="Failed or needing reconciliation"
+                              icon={CircleAlert}
+                              onInspect={inspectPaymentExceptions}
+                            />
+                            <Metric
+                              title="Exception events"
+                              value={
+                                overview.data!.integration
+                                  .verifiedExceptionEvents
+                              }
+                              description="Verified events requiring review"
+                              icon={Layers3}
+                            />
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
               {["overview", "cases", "payments"].includes(page) && (
                 <section className="ops-panel">
                   <div className="ops-panel-heading">
                     <div>
-                      <h2>
-                        {page === "overview"
-                          ? "Recent cases"
-                          : page === "payments"
-                            ? "Payment review"
-                            : "Case queue"}
+                      <h2
+                        ref={exceptionHeading}
+                        tabIndex={exceptionView ? -1 : undefined}
+                      >
+                        {exceptionView
+                          ? "Payment exceptions"
+                          : page === "overview"
+                            ? "Recent cases"
+                            : page === "payments"
+                              ? "Payment review"
+                              : "Case queue"}
                       </h2>
                       <p>
-                        {page === "overview"
-                          ? "The latest applications in your tenant"
-                          : "Exact reference lookup and current state filters"}
+                        {exceptionView
+                          ? "Failed or reconciliation-required payments. Read-only synthetic evidence; payment does not establish coverage."
+                          : page === "overview"
+                            ? "The latest applications in your tenant"
+                            : "Exact reference lookup and current state filters"}
                       </p>
                     </div>
                     {page === "overview" ? (
@@ -1001,13 +1054,23 @@ export default function OpsConsole() {
                       </button>
                     ) : (
                       <span className="ops-count">
-                        {cases.data
-                          ? `${cases.data.length} shown · up to 50`
-                          : "Up to 50 cases"}
+                        {exceptionView && exceptions.data
+                          ? `${exceptions.data.cases.length} of ${exceptions.data.count} shown${exceptions.data.truncated ? " · truncated" : ""}`
+                          : visibleCases.data
+                            ? `${visibleCases.data.length} shown · up to 50`
+                            : "Up to 50 cases"}
                       </span>
                     )}
                   </div>
-                  {page !== "overview" && (
+                  {exceptionView && (
+                    <button
+                      className="ops-text-button"
+                      onClick={() => navigate("payments")}
+                    >
+                      View all payments
+                    </button>
+                  )}
+                  {page !== "overview" && !exceptionView && (
                     <form className="ops-filters" onSubmit={filterCases}>
                       <label className="ops-search-field">
                         <span>Exact case reference</span>
@@ -1084,18 +1147,34 @@ export default function OpsConsole() {
                       )}
                     </form>
                   )}
-                  {cases.loading && <Loading>Loading case queue…</Loading>}
-                  {cases.error && <Notice error>{cases.error}</Notice>}
-                  {cases.data && (
-                    <CaseTable rows={cases.data} onSelect={setSelectedCase} />
+                  {visibleCases.loading && (
+                    <Loading>Loading case queue…</Loading>
+                  )}
+                  {visibleCases.error && (
+                    <Notice error>{visibleCases.error}</Notice>
+                  )}
+                  {visibleCases.data && (
+                    <CaseTable
+                      rows={visibleCases.data}
+                      onSelect={setSelectedCase}
+                      emptyDescription={
+                        exceptionView
+                          ? "No payment exceptions in this snapshot."
+                          : undefined
+                      }
+                    />
                   )}
                   <div className="ops-panel-footer">
                     <ShieldCheck size={14} />
                     Tenant scoped · Customer details masked
                     <span>
-                      {overview.data
-                        ? `Snapshot ${timestamp(overview.data.asOf)}`
-                        : "Refresh to retrieve latest state"}
+                      {exceptionView
+                        ? exceptions.data
+                          ? `Snapshot ${timestamp(exceptions.data.asOf)}`
+                          : "Refresh to retrieve latest state"
+                        : overview.data
+                          ? `Snapshot ${timestamp(overview.data.asOf)}`
+                          : "Refresh to retrieve latest state"}
                     </span>
                   </div>
                 </section>

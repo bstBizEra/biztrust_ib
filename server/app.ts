@@ -10,6 +10,7 @@ import { acceptVerifiedPayment } from "./payment-inbox.ts";
 import { config } from "./config.ts";
 import { categories, insurers, products } from "./catalog.ts";
 import { pool } from "./db.ts";
+import { requestIdContext } from "./request-context.ts";
 import {
   sessionMiddleware,
   csrfMiddleware,
@@ -34,6 +35,7 @@ import {
   cases,
   caseEvidence,
   integrationStatus,
+  paymentExceptions,
 } from "./operations.ts";
 import { inspectProducts, previewProduct } from "./operations-products.ts";
 import {
@@ -75,7 +77,8 @@ export function createApp() {
     }),
   );
   app.use((req, res, next) => {
-    res.setHeader("X-Request-Id", randomUUID());
+    const requestId = randomUUID();
+    res.setHeader("X-Request-Id", requestId);
     const path = req.path.toLowerCase();
     if (
       path === "/api" ||
@@ -84,7 +87,7 @@ export function createApp() {
       path.startsWith("/ops/")
     )
       res.setHeader("Cache-Control", "no-store");
-    next();
+    requestIdContext.run(requestId, next);
   });
   app.use((req, res, next) => {
     const path = req.path.toLowerCase();
@@ -158,6 +161,9 @@ export function createApp() {
   );
   app.get("/ops/v1/overview", async (req, res) =>
     res.json(await overview(staffActor(req))),
+  );
+  app.get("/ops/v1/payment-exceptions", async (req, res) =>
+    res.json(await paymentExceptions(staffActor(req), req.query)),
   );
   app.get("/ops/v1/cases", async (req, res) =>
     res.json(await cases(staffActor(req), req.query)),

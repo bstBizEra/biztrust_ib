@@ -1,5 +1,6 @@
 import pg from "pg";
 import { config } from "./config.ts";
+import { requestIdContext } from "./request-context.ts";
 
 export const pool = new pg.Pool({
   connectionString: config.databaseUrl,
@@ -47,6 +48,12 @@ export async function audit(
 ) {
   await db.query(
     "INSERT INTO audit_events (tenant_id, owner_id, action, resource_id, detail) VALUES ($1,$2,$3,$4,$5)",
-    [actor.tenant, actor.user, action, resource, JSON.stringify(detail)],
+    [
+      actor.tenant,
+      actor.user,
+      action,
+      resource,
+      JSON.stringify({ ...detail, requestId: requestIdContext.getStore() }),
+    ],
   );
 }

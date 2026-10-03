@@ -3,6 +3,43 @@ import { z } from "zod";
 import { transaction, type Actor } from "./db.ts";
 import { DomainError } from "./domain.ts";
 
+const paymentExceptionPredicate =
+  "i.status IN ('failed','reconciliation_required')";
+const exceptionFilter = z
+  .object({
+    limit: z.coerce.number().int().min(1).max(100).default(50),
+  })
+  .strict();
+
+export const paymentExceptionsResponse = z
+  .object({
+    tenant: z.string(),
+    asOf: z.iso.datetime(),
+    count: z.number().int().nonnegative(),
+    limit: z.number().int().min(1).max(100),
+    truncated: z.boolean(),
+    cases: z
+      .array(
+        z
+          .object({
+            caseId: z.uuid(),
+            reference: z.string(),
+            productId: z.string(),
+            productVersion: z.string(),
+            insurerStatus: z.string(),
+            paymentStatus: z.enum(["failed", "reconciliation_required"]),
+            amountMinor: z.number().int().positive(),
+            currency: z.literal("LAK"),
+            createdAt: z.iso.datetime(),
+            updatedAt: z.iso.datetime(),
+          })
+          .strict(),
+      )
+      .max(100),
+    synthetic: z.literal(true),
+  })
+  .strict();
+
 export const caseFilter = z
   .object({
     status: z
@@ -34,7 +71,10 @@ export const caseFilter = z
   })
   .strict();
 
-function paymentState(row: { payment_status: string; expires_at: Date }) {
+function paymentState(row: {
+  payment_status: string;
+  expires_at: Date | string;
+}) {
   return row.payment_status === "pending" &&
     new Date(row.expires_at).getTime() < Date.now()
     ? "expired"
@@ -58,7 +98,7 @@ export async function overview(actor: Actor) {
       count(*) FILTER (WHERE a.insurer_status IN ('queued','referred','additional_information','timeout'))::int AS awaiting_action,
       count(*) FILTER (WHERE i.status='pending' AND i.expires_at>=now())::int AS payment_pending,
       count(*) FILTER (WHERE i.status='pending' AND i.expires_at<now())::int AS payment_expired,
-      count(*) FILTER (WHERE i.status IN ('failed','reconciliation_required'))::int AS payment_exceptions,
+      count(*) FILTER (WHERE ${paymentExceptionPredicate})::int AS payment_exceptions,
       count(*) FILTER (WHERE a.insurer_status='timeout')::int AS insurer_timeouts
       FROM applications a JOIN invoices i ON i.application_id=a.id`)
     ).rows[0];
@@ -96,7 +136,7 @@ export async function cases(actor: Actor, input: unknown) {
   requireOperations(actor);
   const filter = caseFilter.parse(input);
   return transaction(actor, async (db) => {
-    const rows = await db.query(
+    const rows = await db.query<CaseRecord>(
       `SELECT a.id,a.reference,a.product_id,
       a.product_snapshot->>'version' AS product_version,a.insurer_status,a.created_at,a.updated_at,
       i.status AS payment_status,i.amount,i.currency,i.expires_at
@@ -113,18 +153,71 @@ export async function cases(actor: Actor, input: unknown) {
         filter.limit,
       ],
     );
-    return rows.rows.map((row) => ({
-      caseId: row.id,
-      reference: row.reference,
-      productId: row.product_id,
-      productVersion: row.product_version,
-      insurerStatus: row.insurer_status,
-      paymentStatus: paymentState(row),
-      amountMinor: Number(row.amount),
-      currency: row.currency,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    }));
+    return rows.rows.map(caseRow);
+  });
+}
+
+interface CaseRecord {
+  id: string;
+  reference: string;
+  product_id: string;
+  product_version: string;
+  insurer_status: string;
+  payment_status: string;
+  amount: string | number;
+  currency: string;
+  expires_at: Date | string;
+  created_at: Date | string;
+  updated_at: Date | string;
+}
+
+function caseRow(row: CaseRecord) {
+  return {
+    caseId: row.id,
+    reference: row.reference,
+    productId: row.product_id,
+    productVersion: row.product_version,
+    insurerStatus: row.insurer_status,
+    paymentStatus: paymentState(row),
+    amountMinor: Number(row.amount),
+    currency: row.currency,
+    createdAt: new Date(row.created_at).toISOString(),
+    updatedAt: new Date(row.updated_at).toISOString(),
+  };
+}
+
+/** Total and bounded rows share one PostgreSQL statement snapshot under tenant RLS. */
+export async function paymentExceptions(actor: Actor, input: unknown) {
+  requireOperations(actor);
+  const { limit } = exceptionFilter.parse(input);
+  return transaction(actor, async (db) => {
+    const { rows } = await db.query(
+      `WITH matching AS MATERIALIZED (
+        SELECT a.id,a.reference,a.product_id,
+          a.product_snapshot->>'version' AS product_version,
+          a.insurer_status,a.created_at,a.updated_at,
+          i.status AS payment_status,i.amount,i.currency,i.expires_at
+        FROM applications a JOIN invoices i ON i.application_id=a.id
+        WHERE ${paymentExceptionPredicate}
+      ), bounded AS (
+        SELECT * FROM matching ORDER BY created_at DESC,id DESC LIMIT $1
+      )
+      SELECT statement_timestamp() AS as_of,
+        (SELECT count(*)::int FROM matching) AS count,
+        COALESCE((SELECT jsonb_agg(to_jsonb(b) ORDER BY b.created_at DESC,b.id DESC)
+          FROM bounded b),'[]'::jsonb) AS cases`,
+      [limit],
+    );
+    const row = rows[0];
+    return paymentExceptionsResponse.parse({
+      tenant: actor.tenant,
+      asOf: (row.as_of as Date).toISOString(),
+      count: row.count as number,
+      limit,
+      truncated: row.count > row.cases.length,
+      cases: (row.cases as CaseRecord[]).map(caseRow),
+      synthetic: true,
+    });
   });
 }
 
