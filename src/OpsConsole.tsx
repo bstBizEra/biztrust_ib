@@ -72,7 +72,7 @@ interface CaseRow {
   createdAt: string;
   updatedAt: string;
 }
-interface PaymentExceptions {
+interface ExceptionProjection {
   tenant: string;
   asOf: string;
   count: number;
@@ -358,7 +358,7 @@ function Metric({
         <button
           className="ops-text-button"
           onClick={onInspect}
-          aria-label="Inspect payment exceptions"
+          aria-label={`Inspect ${title.toLowerCase()}`}
         >
           Inspect cases <ArrowRight size={15} />
         </button>
@@ -608,7 +608,11 @@ export default function OpsConsole() {
   const [sessionError, setSessionError] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
   const [page, setPage] = useState<Page>("overview");
-  const [exceptionView, setExceptionView] = useState(false);
+  const [exceptionView, setExceptionView] = useState<
+    "payment" | "insurer" | null
+  >(null);
+  const exceptionTitle =
+    exceptionView === "insurer" ? "Insurer timeouts" : "Payment exceptions";
   const exceptionHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (exceptionView) exceptionHeading.current?.focus();
@@ -669,9 +673,9 @@ export default function OpsConsole() {
     revision,
     onExpired,
   );
-  const exceptions = useResource<PaymentExceptions>(
+  const exceptions = useResource<ExceptionProjection>(
     authenticated && exceptionView
-      ? "/ops/v1/payment-exceptions?limit=50"
+      ? `/ops/v1/${exceptionView === "insurer" ? "insurer-timeouts" : "payment-exceptions"}?limit=50`
       : null,
     revision,
     onExpired,
@@ -711,7 +715,7 @@ export default function OpsConsole() {
     }
   }
   function navigate(next: Page) {
-    setExceptionView(false);
+    setExceptionView(null);
     setPage(next);
     setSelectedCase(null);
     setReference("");
@@ -720,9 +724,9 @@ export default function OpsConsole() {
     setQuery("");
     setFilterError("");
   }
-  function inspectPaymentExceptions() {
-    navigate("payments");
-    setExceptionView(true);
+  function inspectExceptions(kind: "payment" | "insurer") {
+    navigate(kind === "payment" ? "payments" : "cases");
+    setExceptionView(kind);
   }
   function filterCases(event: FormEvent) {
     event.preventDefault();
@@ -975,13 +979,14 @@ export default function OpsConsole() {
                               value={summary.paymentExceptions}
                               description="Failed or needing reconciliation"
                               icon={CircleAlert}
-                              onInspect={inspectPaymentExceptions}
+                              onInspect={() => inspectExceptions("payment")}
                             />
                             <Metric
                               title="Insurer timeouts"
                               value={summary.insurerTimeouts}
                               description="Response needs follow-up"
                               icon={Clock3}
+                              onInspect={() => inspectExceptions("insurer")}
                             />
                           </>
                         ) : (
@@ -1003,7 +1008,7 @@ export default function OpsConsole() {
                               value={summary.paymentExceptions}
                               description="Failed or needing reconciliation"
                               icon={CircleAlert}
-                              onInspect={inspectPaymentExceptions}
+                              onInspect={() => inspectExceptions("payment")}
                             />
                             <Metric
                               title="Exception events"
@@ -1029,7 +1034,7 @@ export default function OpsConsole() {
                         tabIndex={exceptionView ? -1 : undefined}
                       >
                         {exceptionView
-                          ? "Payment exceptions"
+                          ? exceptionTitle
                           : page === "overview"
                             ? "Recent cases"
                             : page === "payments"
@@ -1038,7 +1043,9 @@ export default function OpsConsole() {
                       </h2>
                       <p>
                         {exceptionView
-                          ? "Failed or reconciliation-required payments. Read-only synthetic evidence; payment does not establish coverage."
+                          ? exceptionView === "insurer"
+                            ? "Insurer responses marked as timed out. Read-only synthetic evidence; payment and insurer status are independent and do not establish coverage."
+                            : "Failed or reconciliation-required payments. Read-only synthetic evidence; payment does not establish coverage."
                           : page === "overview"
                             ? "The latest applications in your tenant"
                             : "Exact reference lookup and current state filters"}
@@ -1065,9 +1072,15 @@ export default function OpsConsole() {
                   {exceptionView && (
                     <button
                       className="ops-text-button"
-                      onClick={() => navigate("payments")}
+                      onClick={() =>
+                        navigate(
+                          exceptionView === "insurer" ? "cases" : "payments",
+                        )
+                      }
                     >
-                      View all payments
+                      {exceptionView === "insurer"
+                        ? "View all cases"
+                        : "View all payments"}
                     </button>
                   )}
                   {page !== "overview" && !exceptionView && (
@@ -1159,7 +1172,7 @@ export default function OpsConsole() {
                       onSelect={setSelectedCase}
                       emptyDescription={
                         exceptionView
-                          ? "No payment exceptions in this snapshot."
+                          ? `No ${exceptionTitle.toLowerCase()} in this snapshot.`
                           : undefined
                       }
                     />

@@ -36,6 +36,7 @@ import {
   caseEvidence,
   integrationStatus,
   paymentExceptions,
+  insurerTimeouts,
 } from "./operations.ts";
 import { inspectProducts, previewProduct } from "./operations-products.ts";
 import {
@@ -161,6 +162,9 @@ export function createApp() {
   );
   app.get("/ops/v1/overview", async (req, res) =>
     res.json(await overview(staffActor(req))),
+  );
+  app.get("/ops/v1/insurer-timeouts", async (req, res) =>
+    res.json(await insurerTimeouts(staffActor(req), req.query)),
   );
   app.get("/ops/v1/payment-exceptions", async (req, res) =>
     res.json(await paymentExceptions(staffActor(req), req.query)),

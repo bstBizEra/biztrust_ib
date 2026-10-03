@@ -485,102 +485,165 @@ try {
   });
   // BT-12-S1 assertions require an authorized isolated demo runtime.
 
-  const [exceptionResponse] = await Promise.all([
-    page.waitForResponse(
-      (response) =>
-        response.url().includes("/ops/v1/payment-exceptions?") &&
-        response.status() === 200,
-    ),
-    page.getByRole("button", { name: "Inspect payment exceptions" }).click(),
-  ]);
-  const exceptionSnapshot = await exceptionResponse.json();
-  assert.equal(exceptionSnapshot.count, 1);
-  await page
-    .getByRole("heading", { name: "Payment exceptions", exact: true })
-    .waitFor();
-  await page.getByText("1 of 1 shown", { exact: true }).waitFor();
-  assert.equal(
-    await page.locator(".ops-case-link").count(),
-    exceptionSnapshot.cases.length,
-  );
-  assert.equal(
-    await page.locator(".ops-case-link").first().innerText(),
-    exceptionSnapshot.cases[0].reference,
-  );
-  assert.equal(
-    await page.getByLabel("Payment status", { exact: true }).count(),
-    0,
-  );
-  assert.equal(
+  for (const [title, endpoint] of [
+    ["Insurer timeouts", "insurer-timeouts"],
+    ["Payment exceptions", "payment-exceptions"],
+  ]) {
+    const inspectButton = page.getByRole("button", {
+      name: `Inspect ${title.toLowerCase()}`,
+    });
+    assert.equal(
+      await inspectButton.count(),
+      1,
+      `${title} inspection control exists`,
+    );
+    await inspectButton.focus();
+    const [exceptionResponse] = await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes(`/ops/v1/${endpoint}?`) &&
+          response.status() === 200,
+      ),
+      inspectButton.press("Enter"),
+    ]);
+    const exceptionSnapshot = await exceptionResponse.json();
+    assert.equal(exceptionSnapshot.count, 1);
+    if (endpoint === "insurer-timeouts") {
+      assert.equal(exceptionSnapshot.cases[0].insurerStatus, "timeout");
+      assert.equal(exceptionSnapshot.cases[0].paymentStatus, "settled");
+    }
+    await page.getByRole("heading", { name: title, exact: true }).waitFor();
+    await page.getByText("1 of 1 shown", { exact: true }).waitFor();
+    assert.equal(
+      await page.locator(".ops-case-link").count(),
+      exceptionSnapshot.cases.length,
+    );
+    assert.equal(
+      await page.locator(".ops-case-link").first().innerText(),
+      exceptionSnapshot.cases[0].reference,
+    );
+    assert.equal(
+      await page.getByLabel("Payment status", { exact: true }).count(),
+      0,
+    );
+    assert.equal(
+      await page
+        .getByRole("heading", { name: title, exact: true })
+        .evaluate((node) => node === document.activeElement),
+      true,
+    );
+    const expectedSnapshotTime = await page.evaluate(
+      (asOf) =>
+        new Intl.DateTimeFormat("en-GB", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(new Date(asOf)),
+      exceptionSnapshot.asOf,
+    );
+    assert.ok(
+      (await page.locator(".ops-panel-footer").innerText()).includes(
+        `Snapshot ${expectedSnapshotTime}`,
+      ),
+    );
+    await accessibility(`operations-${endpoint}`);
+    await page.screenshot({
+      path: `output/playwright/operations-${endpoint}.png`,
+      fullPage: true,
+    });
+    await page.locator(".ops-case-link").first().click();
     await page
-      .getByRole("heading", { name: "Payment exceptions", exact: true })
-      .evaluate((node) => node === document.activeElement),
-    true,
-  );
-  await accessibility("operations-payment-exceptions");
-  await page.locator(".ops-case-link").first().click();
-  await page
-    .getByRole("dialog")
-    .getByRole("heading", { name: exceptionSnapshot.cases[0].reference })
-    .waitFor();
-  await page.getByRole("button", { name: "Close case evidence" }).click();
+      .getByRole("dialog")
+      .getByRole("heading", { name: exceptionSnapshot.cases[0].reference })
+      .waitFor();
+    await page.getByRole("button", { name: "Close case evidence" }).click();
 
-  // Failure and empty-state evidence is explicitly mocked; the journey above uses the real route.
-  await page.route(
-    "**/ops/v1/payment-exceptions?*",
-    (route) =>
-      route.fulfill({
-        status: 500,
-        contentType: "application/json",
-        body: JSON.stringify({
-          error: { message: "Synthetic exception read failed." },
+    // Hold one real read so loading cannot masquerade as a stale successful snapshot.
+    let releaseRead;
+    const readGate = new Promise((resolve) => {
+      releaseRead = resolve;
+    });
+    await page.route(
+      `**/ops/v1/${endpoint}?*`,
+      async (route) => {
+        await readGate;
+        await route.continue();
+      },
+      { times: 1 },
+    );
+    await page.getByRole("button", { name: "Refresh", exact: true }).click();
+    try {
+      await page.getByText("Loading case queue…", { exact: true }).waitFor();
+      assert.equal(await page.locator(".ops-case-link").count(), 0);
+      assert.equal(
+        await page.getByText("1 of 1 shown", { exact: true }).count(),
+        0,
+      );
+    } finally {
+      releaseRead();
+    }
+    await page.getByText("1 of 1 shown", { exact: true }).waitFor();
+
+    // Failure and empty-state evidence is explicitly mocked; the journey above uses the real route.
+    await page.route(
+      `**/ops/v1/${endpoint}?*`,
+      (route) =>
+        route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({
+            error: { message: "Synthetic exception read failed." },
+          }),
         }),
-      }),
-    { times: 1 },
-  );
-  await page.getByRole("button", { name: "Refresh", exact: true }).click();
-  await page
-    .getByText("Synthetic exception read failed.", { exact: true })
-    .waitFor();
-  assert.equal(await page.locator(".ops-case-link").count(), 0);
-  assert.equal(
-    await page.getByText("0 of 0 shown", { exact: true }).count(),
-    0,
-  );
-  await accessibility("operations-payment-exceptions-error");
-  await page.route(
-    "**/ops/v1/payment-exceptions?*",
-    (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          ...exceptionSnapshot,
-          count: 0,
-          cases: [],
-          truncated: false,
+      { times: 1 },
+    );
+    await page.getByRole("button", { name: "Refresh", exact: true }).click();
+    await page
+      .getByText("Synthetic exception read failed.", { exact: true })
+      .waitFor();
+    assert.equal(await page.locator(".ops-case-link").count(), 0);
+    assert.equal(
+      await page.getByText("0 of 0 shown", { exact: true }).count(),
+      0,
+    );
+    await accessibility(`operations-${endpoint}-error`);
+    await page.route(
+      `**/ops/v1/${endpoint}?*`,
+      (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ...exceptionSnapshot,
+            count: 0,
+            cases: [],
+            truncated: false,
+          }),
         }),
-      }),
-    { times: 1 },
-  );
-  await page.getByRole("button", { name: "Refresh", exact: true }).click();
-  await page.getByText("0 of 0 shown", { exact: true }).waitFor();
-  await page
-    .getByText("No payment exceptions in this snapshot.", { exact: true })
-    .waitFor();
-  await accessibility("operations-payment-exceptions-empty");
-  await page.getByRole("button", { name: "Refresh", exact: true }).click();
-  await page.getByText("1 of 1 shown", { exact: true }).waitFor();
-  for (const width of [390, 320]) {
-    await page.setViewportSize({ width, height: 844 });
-    await noOverflow();
-    await accessibility(`operations-payment-exceptions-${width}`);
+      { times: 1 },
+    );
+    await page.getByRole("button", { name: "Refresh", exact: true }).click();
+    await page.getByText("0 of 0 shown", { exact: true }).waitFor();
+    await page
+      .getByText(`No ${title.toLowerCase()} in this snapshot.`, { exact: true })
+      .waitFor();
+    await accessibility(`operations-${endpoint}-empty`);
+    await page.getByRole("button", { name: "Refresh", exact: true }).click();
+    await page.getByText("1 of 1 shown", { exact: true }).waitFor();
+    for (const width of [390, 320]) {
+      await page.setViewportSize({ width, height: 844 });
+      await noOverflow();
+      await page.screenshot({
+        path: `output/playwright/operations-${endpoint}-${width}.png`,
+        fullPage: true,
+      });
+      await accessibility(`operations-${endpoint}-${width}`);
+    }
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    report.journeys.push(
+      `${title} metric to same-snapshot bounded list and case evidence; keyboard/focus, loading/failure/empty recovery and mobile accessibility`,
+    );
+    await page.getByRole("button", { name: "Overview", exact: true }).click();
   }
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  report.journeys.push(
-    "Payment exceptions metric to same-snapshot bounded list and case evidence; failure/empty recovery and mobile accessibility",
-  );
-  await page.getByRole("button", { name: "Overview", exact: true }).click();
 
   const [inspectionResponse] = await Promise.all([
     page.waitForResponse(
