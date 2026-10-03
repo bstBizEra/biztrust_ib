@@ -5,6 +5,7 @@ import { DomainError } from "./domain.ts";
 
 const paymentExceptionPredicate =
   "i.status IN ('failed','reconciliation_required')";
+const insurerTimeoutPredicate = "a.insurer_status='timeout'";
 const exceptionFilter = z
   .object({
     limit: z.coerce.number().int().min(1).max(100).default(50),
@@ -40,6 +41,23 @@ export const paymentExceptionsResponse = z
   })
   .strict();
 
+export const insurerTimeoutsResponse = paymentExceptionsResponse.extend({
+  cases: z
+    .array(
+      paymentExceptionsResponse.shape.cases.element.extend({
+        insurerStatus: z.literal("timeout"),
+        paymentStatus: z.enum([
+          "pending",
+          "failed",
+          "settled",
+          "reconciliation_required",
+          "expired",
+        ]),
+      }),
+    )
+    .max(100),
+});
+
 export const caseFilter = z
   .object({
     status: z
@@ -71,12 +89,15 @@ export const caseFilter = z
   })
   .strict();
 
-function paymentState(row: {
-  payment_status: string;
-  expires_at: Date | string;
-}) {
+function paymentState(
+  row: {
+    payment_status: string;
+    expires_at: Date | string;
+  },
+  now = Date.now(),
+) {
   return row.payment_status === "pending" &&
-    new Date(row.expires_at).getTime() < Date.now()
+    new Date(row.expires_at).getTime() < now
     ? "expired"
     : row.payment_status;
 }
@@ -99,7 +120,7 @@ export async function overview(actor: Actor) {
       count(*) FILTER (WHERE i.status='pending' AND i.expires_at>=now())::int AS payment_pending,
       count(*) FILTER (WHERE i.status='pending' AND i.expires_at<now())::int AS payment_expired,
       count(*) FILTER (WHERE ${paymentExceptionPredicate})::int AS payment_exceptions,
-      count(*) FILTER (WHERE a.insurer_status='timeout')::int AS insurer_timeouts
+      count(*) FILTER (WHERE ${insurerTimeoutPredicate})::int AS insurer_timeouts
       FROM applications a JOIN invoices i ON i.application_id=a.id`)
     ).rows[0];
     const events =
@@ -188,8 +209,22 @@ function caseRow(row: CaseRecord) {
 
 /** Total and bounded rows share one PostgreSQL statement snapshot under tenant RLS. */
 export async function paymentExceptions(actor: Actor, input: unknown) {
+  return exceptionProjection(actor, input, "payment");
+}
+export async function insurerTimeouts(actor: Actor, input: unknown) {
+  return exceptionProjection(actor, input, "insurer");
+}
+async function exceptionProjection(
+  actor: Actor,
+  input: unknown,
+  kind: "payment" | "insurer",
+) {
   requireOperations(actor);
   const { limit } = exceptionFilter.parse(input);
+  const predicate =
+    kind === "payment" ? paymentExceptionPredicate : insurerTimeoutPredicate;
+  const response =
+    kind === "payment" ? paymentExceptionsResponse : insurerTimeoutsResponse;
   return transaction(actor, async (db) => {
     const { rows } = await db.query(
       `WITH matching AS MATERIALIZED (
@@ -198,7 +233,7 @@ export async function paymentExceptions(actor: Actor, input: unknown) {
           a.insurer_status,a.created_at,a.updated_at,
           i.status AS payment_status,i.amount,i.currency,i.expires_at
         FROM applications a JOIN invoices i ON i.application_id=a.id
-        WHERE ${paymentExceptionPredicate}
+        WHERE ${predicate}
       ), bounded AS (
         SELECT * FROM matching ORDER BY created_at DESC,id DESC LIMIT $1
       )
@@ -209,13 +244,16 @@ export async function paymentExceptions(actor: Actor, input: unknown) {
       [limit],
     );
     const row = rows[0];
-    return paymentExceptionsResponse.parse({
+    return response.parse({
       tenant: actor.tenant,
       asOf: (row.as_of as Date).toISOString(),
       count: row.count as number,
       limit,
       truncated: row.count > row.cases.length,
-      cases: (row.cases as CaseRecord[]).map(caseRow),
+      cases: (row.cases as CaseRecord[]).map((item) => ({
+        ...caseRow(item),
+        paymentStatus: paymentState(item, (row.as_of as Date).getTime()),
+      })),
       synthetic: true,
     });
   });

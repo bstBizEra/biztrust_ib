@@ -1661,11 +1661,9 @@
               </div>
               <div class="scope">
                 <h3>Engineering loop</h3>
-                <p>
-                  PAUSED: PR #20 merged; BCK-003 reconciled locally on dbb0f71
-                </p>
+                <p>PAUSED: PR #24 integrated; BCK-004 reconciled locally</p>
                 <small
-                  >Next: Separately authorized BCK-003 publication and hosted
+                  >Next: Separately authorized BCK-004 publication and hosted
                   checks</small
                 >
               </div>
@@ -8623,7 +8621,18 @@
                       >
                       passed 59 tests, 39 accessibility checks and nine journeys
                       with the final BCK-001 read-only drill-down; hosted and
-                      user acceptance remain open.</span
+                      user acceptance remain open.
+                      <a href="bck004-insurer-timeouts.md"
+                        >BCK-004 S1 local API</a
+                      >
+                      provides a bounded read-only insurer-timeout population;
+                      S1 had no new browser journey.
+                      <a href="bck004-insurer-timeouts.md"
+                        >BCK-004 S2 local journey</a
+                      >
+                      verifies metric-to-list-to-Case 360 with refreshed
+                      count/asOf, keyboard focus and safe loading/failure/empty
+                      states.</span
                     >
                   </p>
                 </div>
@@ -8847,7 +8856,19 @@
                     <span class="meta-label">Evidence / dependency</span
                     ><span
                       >Partner contract, state mapping and binding authority;
-                      <a href="system-boundary.md">system boundary</a></span
+                      <a href="system-boundary.md">system boundary</a>
+                      <a href="bck004-insurer-timeouts.md"
+                        >BCK-004 S1 local API</a
+                      >
+                      inspects synthetic timeout cases using the existing
+                      predicate; partner contract, authenticated delivery and
+                      binding authority remain blocked.
+                      <a href="bck004-insurer-timeouts.md"
+                        >BCK-004 S2 local journey</a
+                      >
+                      opens the exact synthetic timeout list and case evidence;
+                      partner contract, authenticated delivery and binding
+                      authority remain blocked.</span
                     >
                   </p>
                 </div>
@@ -9123,8 +9144,19 @@
                       >
                       checked additive migration, identity constraint, tenant
                       isolation, quote write denial and fail-closed legacy
-                      behavior; live identity and G2 acceptance remain
-                      open.</span
+                      behavior; live identity and G2 acceptance remain open.
+                      <a href="bck004-insurer-timeouts.md"
+                        >BCK-004 S1 local assurance</a
+                      >
+                      checked staff/tenant denial, minimized count/list/detail
+                      isolation and no mutation; live identity and G2 owner
+                      acceptance remain open.
+                      <a href="bck004-insurer-timeouts.md"
+                        >BCK-004 S2 local assurance</a
+                      >
+                      verifies focus, tenant-scoped real reads and safe
+                      loading/failure/empty presentation; live identity and G2
+                      owner acceptance remain open.</span
                     >
                   </p>
                 </div>

@@ -3,7 +3,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { z } from "zod";
-import { paymentExceptionsResponse } from "../server/operations.ts";
+import {
+  paymentExceptionsResponse,
+  insurerTimeoutsResponse,
+} from "../server/operations.ts";
 import {
   quoteInput,
   applicationInput,
@@ -27,6 +30,7 @@ test("OpenAPI is valid and mutation/provider schemas match runtime validation", 
     OperationsProductsResponse: operationsProductsResponse,
     ProductPreviewResponse: productPreviewResponse,
     PaymentExceptionsResponse: paymentExceptionsResponse,
+    InsurerTimeoutsResponse: insurerTimeoutsResponse,
   })) {
     const generated = z.toJSONSchema(schema);
     delete generated.$schema;
@@ -36,15 +40,20 @@ test("OpenAPI is valid and mutation/provider schemas match runtime validation", 
       `Regenerate OpenAPI after changing ${name}`,
     );
   }
-  assert.equal(Object.keys(spec.paths).length, 27);
-  const exceptions = spec.paths["/ops/v1/payment-exceptions"].get;
-  assert.ok(exceptions.security[0].staffSession);
-  assert.deepEqual(exceptions.parameters[0].schema, {
-    type: "integer",
-    minimum: 1,
-    maximum: 100,
-    default: 50,
-  });
+  assert.equal(Object.keys(spec.paths).length, 28);
+  for (const path of [
+    "/ops/v1/payment-exceptions",
+    "/ops/v1/insurer-timeouts",
+  ]) {
+    const exceptions = spec.paths[path].get;
+    assert.ok(exceptions.security[0].staffSession);
+    assert.deepEqual(exceptions.parameters[0].schema, {
+      type: "integer",
+      minimum: 1,
+      maximum: 100,
+      default: 50,
+    });
+  }
   assert.ok(spec.paths["/ops/v1/products"].get.security[0].staffSession);
   const preview = spec.paths["/ops/v1/products/{id}/preview"].post;
   assert.ok(preview.security[0].staffSession);

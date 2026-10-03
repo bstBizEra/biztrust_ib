@@ -38,6 +38,10 @@ The Payment exceptions metric opens `GET /ops/v1/payment-exceptions?limit=50`. T
 
 The console shows the refreshed projection count and timestamp, not the earlier overview count. A zero snapshot shows no exceptions; a failed request shows an error and clears stale rows. Case detail remains the existing read-only evidence view. Payment state remains independent of insurer state and never asserts coverage. See [the package](bck001-payment-exceptions.md) for exact local verification, source hashes and remaining acceptance limits.
 
+### Insurer timeout inspection (BCK-004)
+
+GET /ops/v1/insurer-timeouts?limit=50 returns staff-only, tenant-scoped applications whose insurer status is timeout. Count and cases share one statement snapshot and match the overview timeout predicate. Ordering, bounds and truncation follow payment exceptions; payment state remains independent, including expiry evaluated at the response's asOf time. This endpoint offers read-only synthetic evidence and no retry or coverage authority. [BCK-004](bck004-insurer-timeouts.md) records local API and browser verification. The Insurer timeouts metric opens this refreshed count/list and its snapshot time; keyboard focus moves to the list heading, rows open existing case evidence, and View all cases returns to the normal queue. Loading/failure clears stale rows and empty results remain explicit. No retry or business action is offered.
+
 ### Commands
 
 - `npm run verify`: lint, types, domain/integration/contract tests, build, browser journeys/accessibility, production dependency audit.
