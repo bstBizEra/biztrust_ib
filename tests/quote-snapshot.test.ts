@@ -2,6 +2,7 @@ import test, { after, before } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { setTimeout as delay } from "node:timers/promises";
 import pg from "pg";
 import { products } from "../server/catalog.ts";
 import {
@@ -37,6 +38,116 @@ before(async () => {
   await assertRuntimeRole();
 });
 after(() => pool.end());
+
+for (const mixedCase of [false, true]) {
+  test(`different submission keys serialize one quote (${mixedCase ? "mixed UUID case" : "same UUID case"}) without duplicate evidence`, async () => {
+    const quote = await createQuote(actor, input);
+    const bodies = [
+      application(quote.id),
+      application(mixedCase ? quote.id.toUpperCase() : quote.id),
+    ];
+    const keys = [randomUUID(), randomUUID()];
+    const blocker = new pg.Client({
+      connectionString: process.env.DATABASE_ADMIN_URL,
+    });
+    await blocker.connect();
+    let submissions:
+      | Promise<
+          PromiseSettledResult<Awaited<ReturnType<typeof createApplication>>>[]
+        >
+      | undefined;
+    try {
+      await blocker.query("BEGIN");
+      // Hold only this synthetic quote's FK target, forcing both calls to overlap.
+      await blocker.query("SELECT id FROM quotes WHERE id=$1 FOR UPDATE", [
+        quote.id,
+      ]);
+      const blockerPid = (await blocker.query("SELECT pg_backend_pid() AS pid"))
+        .rows[0].pid;
+      submissions = Promise.allSettled(
+        keys.map((key, index) => createApplication(actor, bodies[index], key)),
+      );
+      const deadline = Date.now() + 5000;
+      let waiting = 0;
+      while (Date.now() < deadline) {
+        await blocker.query("SELECT pg_stat_clear_snapshot()");
+        waiting = Number(
+          (
+            await blocker.query(
+              `WITH RECURSIVE blocked(pid) AS (
+        SELECT pid FROM pg_stat_activity WHERE $1=ANY(pg_blocking_pids(pid))
+        UNION
+        SELECT a.pid FROM pg_stat_activity a JOIN blocked b ON b.pid=ANY(pg_blocking_pids(a.pid))
+      ) SELECT count(*) FROM blocked`,
+              [blockerPid],
+            )
+          ).rows[0].count,
+        );
+        if (waiting === 2) break;
+        await delay(10);
+      }
+      assert.equal(
+        waiting,
+        2,
+        "Both submissions reached the forced database contention point",
+      );
+      await blocker.query("ROLLBACK");
+      const results = await submissions;
+      const winner = results.findIndex(
+        (result) => result.status === "fulfilled",
+      );
+      assert.notEqual(winner, -1);
+      const success = results[winner];
+      assert.equal(success.status, "fulfilled");
+      const loser = results[1 - winner];
+      assert.equal(loser.status, "rejected");
+      assert.ok(
+        loser.reason instanceof DomainError,
+        "Competing submission must be a domain error",
+      );
+      assert.equal(loser.reason.status, 409);
+      assert.equal(loser.reason.code, "QUOTE_ALREADY_SUBMITTED");
+      assert.equal(success.value.duplicate, false);
+      assert.deepEqual(
+        await createApplication(actor, bodies[winner], keys[winner]),
+        {
+          reference: success.value.reference,
+          duplicate: true,
+        },
+      );
+      await assert.rejects(
+        createApplication(actor, bodies[1 - winner], keys[1 - winner]),
+        (error: unknown) =>
+          error instanceof DomainError &&
+          error.code === "QUOTE_ALREADY_SUBMITTED",
+      );
+      await transaction(actor, async (db) => {
+        const applications = await db.query(
+          "SELECT id FROM applications WHERE quote_id=$1",
+          [quote.id],
+        );
+        assert.equal(applications.rowCount, 1);
+        const invoices = await db.query(
+          "SELECT id FROM invoices WHERE application_id=$1",
+          [applications.rows[0].id],
+        );
+        assert.equal(invoices.rowCount, 1);
+        const audits = await db.query(
+          "SELECT action FROM audit_events WHERE resource_id=ANY($1::text[]) ORDER BY action",
+          [[applications.rows[0].id, invoices.rows[0].id]],
+        );
+        assert.deepEqual(audits.rows, [
+          { action: "application.submitted" },
+          { action: "invoice.created" },
+        ]);
+      });
+    } finally {
+      await blocker.query("ROLLBACK");
+      if (submissions) await submissions;
+      await blocker.end();
+    }
+  });
+}
 
 test("quote snapshot survives same-version catalogue changes without re-rating or changing terms", async () => {
   const product = products.find((p) => p.id === input.productId)!;
