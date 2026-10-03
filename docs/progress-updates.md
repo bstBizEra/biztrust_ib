@@ -2,7 +2,17 @@
 
 Append entries here when a milestone in [project progression](progress.md) changes status or scope. Newest first. Each entry should say what was actually checked, where, and what remains. Links to local files are preferable to untraceable summaries; omit secrets and personal data.
 
-The BCK-001 and BCK-002 receipts below belong to separate standalone candidates. The S3 combined local result is recorded first; hosted and owner acceptance remain pending.
+The BCK-001 and BCK-002 receipts below belong to separate standalone candidates. The S3 combined local result is recorded below; newer dependent candidates retain their own receipts. Hosted and owner acceptance remain pending.
+
+## 2026-10-03 - BT-04/12/14/17 PR20 merge and BCK-003 reconciliation
+
+PR #20 merged as dbb0f719de92b78bbda73d9f77ed1b9d97f35abb; [exact main CI](https://github.com/bstBizEra/biztrust_ib/actions/runs/37100588676) passed. The merge tree equals reviewed head bc46877; protections and source branch were preserved. BCK-003 source 7b5b3cf applied cleanly onto this base in its new isolated reconciliation checkout. Initial staged tree 0461fa09993cb63dd887b549dde3fef3d726a84d equals the original BCK-003 tree; executable/dependency content is unchanged. [S1 package](bck003-quote-snapshot.md) records evidence reuse and CRLF/LF hash normalization. No new full suite, database or browser run is claimed. BCK-003 publication/hosted checks remain pending; BT-04 stays Blocked, BT-12/14/17 retain In progress. Schedule PAUSED; no deployment or Pages update.
+
+## 2026-10-01 - BT-04/12/14 BCK-003 quote snapshot integrity
+
+**Milestones:** BT-04 remains **Blocked** for real product and distribution decisions; BT-12 and BT-14 retain their existing **In progress** boundaries. The separate `codex/fix/bck003-quote-snapshot` candidate at local base `bc46877b6d2bd4361e15eb1d92e25211e361c9d0` saves the quoted product/coverage configuration and copies it into application submission without rerating when same-version catalogue terms change. Additive migration 003 preserves historical rows. Legacy quotes with no saved snapshot reject with `409 QUOTE_SNAPSHOT_REQUIRED` before writes and require a new quote; existing submitted-application replay works. [BCK-003 package](bck003-quote-snapshot.md).
+
+Two defects were reproduced before the fix; four focused tests passed afterward. Fresh migration and runner replay both succeeded. At 2026-10-01T14:02:52Z, isolated `npm run verify` passed, including **five snapshot tests**, 39 automated accessibility checks, nine browser journeys, lint, types, build, startup and a production dependency audit with zero vulnerabilities. The full receipt SHA-256 is `45CF86F956612F8ECFEBAFC2F605C83E42AFB3C3262B8B9623C761358C25666F`; the three executable hashes match the package and stayed stable. AP-01/AP-02 independently reviewed those exact files with no actionable findings. The generated-credential disposable PostgreSQL cluster stopped with PID absent. This is dependent local engineering proof; the combined BCK-001/BCK-002 publication checkpoint and its history remain separate. Local packaging, then separately authorized dependent integration and hosted review are next. Product/wording, identity, G00/G1-G6 and production acceptance remain open; no source branch, original database, Pages publication, deployment or recurring schedule changed.
 
 ## 2026-10-01 - BT-02/06/07/14 BCK-001+BCK-002 S3 combined local verification
 

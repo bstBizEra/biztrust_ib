@@ -17,7 +17,7 @@ export async function createQuote(actor: Actor, body: unknown) {
   const id = randomUUID();
   await transaction(actor, async (db) => {
     await db.query(
-      "INSERT INTO quotes(id,tenant_id,owner_id,product_id,product_version,rule_version,input,premium,fee,total,currency,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
+      "INSERT INTO quotes(id,tenant_id,owner_id,product_id,product_version,rule_version,input,premium,fee,total,currency,expires_at,product_snapshot) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)",
       [
         id,
         actor.tenant,
@@ -31,6 +31,7 @@ export async function createQuote(actor: Actor, body: unknown) {
         calculation.total,
         calculation.currency,
         calculation.expiresAt,
+        calculation.product,
       ],
     );
     await audit(db, actor, "quote.created", id, {
@@ -93,6 +94,7 @@ export async function createApplication(
         p.published &&
         p.version === quote.product_version &&
         p.ruleVersion === quote.rule_version &&
+        p.effectiveFrom <= new Date().toISOString().slice(0, 10) &&
         p.effectiveTo >= new Date().toISOString().slice(0, 10),
     );
     if (!product)
@@ -101,8 +103,12 @@ export async function createApplication(
         "PRODUCT_UNAVAILABLE",
         "This plan is no longer available for new applications.",
       );
-    // Rebuild the selected cover from the saved, validated quote; never from client prices.
-    const configured = calculateQuote(quoteInput.parse(quote.input)).product;
+    if (!quote.product_snapshot)
+      throw new DomainError(
+        409,
+        "QUOTE_SNAPSHOT_REQUIRED",
+        "Please calculate a new quote to confirm this plan's terms.",
+      );
     const used = await db.query(
       "SELECT reference FROM applications WHERE quote_id=$1",
       [quote.id],
@@ -125,7 +131,7 @@ export async function createApplication(
         actor.user,
         quote.id,
         product.id,
-        configured,
+        quote.product_snapshot,
         { fullName: input.fullName, email: input.email },
         {
           wordingVersion: "demo-disclosure-1",
