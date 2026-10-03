@@ -28,6 +28,10 @@ Do not remove data, shared PostgreSQL services, Windows reservations, hosts or L
 
 ## Verification
 
+### Quote snapshot compatibility (BCK-003)
+
+New quotes persist the product terms used for their calculation. Submission copies that snapshot and the saved price, while retaining current publication/version/rule/effective-date restrictions. Apply additive migration `003` before starting this backend in an authorized environment. A legacy quote with no snapshot returns `409 QUOTE_SNAPSHOT_REQUIRED` on new submission: calculate a new quote. Existing submitted applications and idempotent replays are preserved. No historical snapshot is backfilled from today's catalogue. See [BCK-003](bck003-quote-snapshot.md) for migration, regression and independent AI-review evidence; only the disposable test environment has been migrated for this candidate.
+
 ### Payment exception inspection (BCK-001)
 
 The Payment exceptions metric opens `GET /ops/v1/payment-exceptions?limit=50`. This staff-only, tenant-scoped projection counts and lists invoices in `failed` or `reconciliation_required` using the overview's predicate. Its total and list share one database statement snapshot; results are ordered by case creation time descending, then case ID descending. The default limit is 50, maximum 100. Unknown filters and invalid limits are rejected. `truncated` means additional matching cases exist; this endpoint has no pagination cursor.
