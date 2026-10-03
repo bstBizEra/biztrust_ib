@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "repository": "bstBizEra/biztrust_ib",
+  "head": "562b22312a99c3e6558c9774481fd880569668fe",
+  "checkpoint": "docs/bck005-submission-race.md",
+  "heading": "## S1 — Post-S9 exact-main local reconciliation — 4 October 2026",
+  "nextAction": "Obtain scoped authorization to publish BCK-005 candidate and run current-revision hosted checks",
+  "schedule": "PAUSED"
+}

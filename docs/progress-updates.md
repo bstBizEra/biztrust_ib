@@ -4,6 +4,12 @@ Append entries here when a milestone in [project progression](progress.md) chang
 
 The BCK-001 and BCK-002 receipts below belong to separate standalone candidates. The S3 combined local result is recorded below; newer dependent candidates retain their own receipts. Hosted and owner acceptance remain pending.
 
+## 2026-10-04 - BT-01/12/14/17 BCK-005 S1 exact-main local reconciliation
+
+The BCK-005 two-file code/test change was replayed from old local commit `1a162d7` onto integrated main `6edf6fb4ffafac0e7a19b1770368957bfecb0277`. Isolated branch `codex/fix/bck005-main-reconciliation` has unpublished code commit `562b22312a99c3e6558c9774481fd880569668fe`. Focused RED reproduced the different-key concurrency defect; GREEN and full local verification passed on the staged/uncommitted source immediately before that commit. Source SHA-256 values match the committed files. The full verifier passed 68/68 tests, lint, typecheck, build, startup, 44 accessibility checks, ten browser journeys and production dependency audit with zero vulnerabilities. AP-01 security and AP-02 code review in the coordinating chat found no actionable issue on the exact commit; neither reviewer ran tests or saved a separate review artifact. [BCK-005 S1](bck005-submission-race.md) records the candidate, commands and source pins.
+
+This advances local synthetic application transaction evidence only. Hosted CI/review, owner acceptance, G00/G1–G6 and production action remain pending. The engineering schedule stays **PAUSED**. Next: obtain scoped publication authorization and run hosted checks on the current revision.
+
 ## 2026-10-03 - BT-02/08/14/17 PR24 integration and BCK-004 reconciliation
 
 PR #24 squash-merged as f3f8900f0a6a897e45a515d1feae193ad851e9df after counted App approval and required CI; [main CI run 37120043127](https://github.com/bstBizEra/biztrust_ib/actions/runs/37120043127) passed on that exact merge. Protections and source branch were preserved. The existing BCK-004 S1/S2 source through 1f1ee69943ddfdff6fad71bb4f4c3f01e349e370 was applied to this base. Only a progress-history append conflicted; both dated entries were preserved. All executable/dependency blobs match the historical candidate. [BCK-004 S3](bck004-insurer-timeouts.md) records reconciliation and reused evidence. BCK-004 remains local only; no new local runtime checks, migration, browser run or hosted BCK-004 verification. BT-02 remains Verified for synthetic scope, BT-08 Blocked for partner authority, BT-14/17 In progress. Schedule PAUSED; no deployment or Pages update.
