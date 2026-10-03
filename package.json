@@ -34,7 +34,7 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.0",
     "helmet": "^8.3.0",
-    "lucide-react": "^1.48.0",
+    "lucide-react": "^1.49.0",
     "openid-client": "^6.8.8",
     "pg": "^8.23.0",
     "qrcode": "^1.5.4",
