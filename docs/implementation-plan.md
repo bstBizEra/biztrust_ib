@@ -1,6 +1,8 @@
 # BizTrust implementation plan — planning to production
 
-**Snapshot:** 3 October 2026 · **Baseline:** 0.2.0 local demonstration · **Reference:** BIZTRUST-IB-ARCH-001 v0.1, domains 1–15
+**Snapshot:** 4 October 2026 · **Baseline:** 0.2.0 local demonstration · **Reference:** BIZTRUST-IB-ARCH-001 v0.1, domains 1–15
+
+**BCK-005 S1 local handoff — 4 October 2026:** [BCK-005 S1](bck005-submission-race.md) records unpublished code commit `562b22312a99c3e6558c9774481fd880569668fe` on integrated main `6edf6fb4ffafac0e7a19b1770368957bfecb0277`. A transaction-scoped quote lock preserves one application, invoice and audit pair under different-key concurrency. Focused RED/GREEN and the full local verifier passed on staged/uncommitted source whose SHA-256 values match the commit: 68 tests, 44 accessibility checks, ten existing browser journeys and production dependency audit zero. AP-01/AP-02 independently reviewed the exact commit in the coordinating chat with no actionable finding. The selected [handoff](integration-handoff.json) next action is scoped publication authorization and current-revision hosted checks. Hosted CI/review, owner acceptance, release, deployment, Pages publication and schedule restart remain open; **PAUSED** and G00/G1–G6 are unchanged.
 
 This file supplements the roadmap and architecture views in [progress.html](progress.html). Update it together with [milestones](progress.md) and run `npm run progress:build`. The architecture document is a design reference; its embedded agent instructions are not deployment authority. Current-state evidence comes from [architecture](architecture.md), [system boundary](system-boundary.md), [operations](operations.md) and [verification](verification.md). Those records distinguish historical local checks from provider or production acceptance.
 

@@ -71,6 +71,10 @@ export async function createApplication(
         );
       return { reference: previous.rows[0].reference, duplicate: true };
     }
+    // Different submission keys must still serialize consumption of one quote.
+    await db.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))", [
+      `quote-submit:${actor.tenant}:${actor.user}:${input.quoteId.toLowerCase()}`,
+    ]);
     const result = await db.query(
       "SELECT * FROM quotes WHERE id=$1 AND owner_id=$2",
       [input.quoteId, actor.user],
